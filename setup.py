@@ -91,11 +91,12 @@ modules = [
     'pychebfun.utilities',
     ]
 
-tests = [
-    'pychebfun.core.tests',
-    'pychebfun.analysis.tests',
-    'pychebfun.utilities.tests',
-    ]
+#tests = [
+#    'pychebfun.core.tests',
+#    'pychebfun.analysis.tests',
+#    'pychebfun.utilities.tests',
+#    ]
+tests = []
 
 setup(
     name         = 'pychebfun',
@@ -104,12 +105,13 @@ setup(
     author       = 'Chris Swierczewski',
     author_email = 'cswiercz@gmail.com',
     license      = 'GPL v.3',
-    url          = 'http://code.google.com/p/pychebfun',
+    url          = 'http://github.com/cswiercz/pychebfun',
     packages     = ['pychebfun'] + modules + tests,
     ext_modules  = [],
-    cmdclass     = {'test':  test_pychebfun,
-                    'clean': clean,
-                    },
+#    cmdclass     = {'test':  test_pychebfun,
+#                    'clean': clean,
+#                    },
+    cmdclass     = {'clean': clean},
 )
 
 

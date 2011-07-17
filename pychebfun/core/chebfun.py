@@ -12,7 +12,7 @@ import numpy as np
 import scipy as sp
 
 from scipy.interpolate import BarycentricInterpolator as Bary
-from scipy.fftpack     import fft            # write DCT routine later
+from scipy.fftpack     import fft            # implement DCT routine later
 from matplotlib.mlab   import find
 
 emach     = 10**(-16)                        # machine epsilon
