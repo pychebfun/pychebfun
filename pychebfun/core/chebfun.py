@@ -15,8 +15,8 @@ from scipy.interpolate import BarycentricInterpolator as Bary
 from scipy.fftpack     import fft            # implement DCT routine later
 from matplotlib.mlab   import find
 
-emach     = 10**(-16)                        # machine epsilon
-interpbnd = 2**16                            # max number of interpolants
+emach     = 10**(-14)                        # machine epsilon
+interpbnd = 2**12                            # max number of interpolants
 
 class Chebfun:
     """
@@ -42,9 +42,16 @@ class Chebfun:
 
         EXAMPLES:
         """
+        self.fun     = f
+        self.spacing = spacing
+        self.verbose = verbose
+        
         # Numpy function coersion:
-        if not type(f) == np.lib.function_base.vectorize:
+        #if not type(f) == np.lib.function_base.vectorize:
+        try:
             f = np.vectorize(f)
+        except:
+            print "FOO"
 
         #
         # If user provides a list of Chebyshev expansion coefficients
@@ -166,19 +173,107 @@ class Chebfun:
         return self.p.n
 
     def __add__(self, other):
-        return NotImplementedError
+        """
+        Chebfun addition.
+
+        Add the underlying functions.
+
+        EXAMPLES::
+        
+            >>> 1+1
+            2
+        """
+        if not isinstance(other,Chebfun):
+            other = Chebfun(lambda x: other(x),
+                            N = self.N,
+                            verbose=self.verbose)
+
+        return Chebfun(lambda x: self.fun(x) + other.fun(x),
+                       N = self.N,
+                       verbose=self.verbose)
+
 
     def __sub__(self, other):
-        return NotImplementedError
+        """
+        Chebfun subtraction.
+        """
+        if not isinstance(other,Chebfun):
+            other = Chebfun(lambda x: other(x),
+                            N = self.N,
+                            verbose=self.verbose)
+
+        return Chebfun(lambda x: self.fun(x) - other.fun(x),
+                       N = self.N,
+                       verbose=self.verbose)
+
 
     def __mul__(self, other):
-        return NotImplementedError
+        """
+        Chebfun multiplication.
+        """
+        if not isinstance(other,Chebfun):
+            other = Chebfun(lambda x: other(x),
+                            N = self.N,
+                            verbose=self.verbose)
 
-    def __neg__(self, other):
-        return NotImplementedError
+        return Chebfun(lambda x: self.fun(x) * other.fun(x),
+                       N = self.N,
+                       verbose=self.verbose)
 
-    def __pos__(self, other):
-        return NotImplementedError
+    def __div__(self, other):
+        """
+        Chebfun multiplication.
+        """
+        if not isinstance(other,Chebfun):
+            other = Chebfun(lambda x: other(x),
+                            N = self.N,
+                            verbose=self.verbose)
+
+        return Chebfun(lambda x: self.fun(x) / other.fun(x),
+                       N = self.N,
+                       verbose=self.verbose)
+
+
+    def __neg__(self):
+        """
+        Chebfun negation.
+        """
+        return Chebfun(lambda x: -self.fun(x),
+                       N = self.N,
+                       verbose=self.verbose)
+
+
+    def sqrt(self):
+        """
+        Square root of Chebfun.
+        """
+        return Chebfun(lambda x: np.sqrt(self.fun(x)),
+                       N = self.N,
+                       verbose=self.verbose)
+
+    def __abs__(self):
+        """
+        Absolute value of Chebfun. (Python)
+
+        (Coerces to NumPy absolute value.)
+        """
+        return Chebfun(lambda x: np.abs(self.fun(x)),
+                       N = self.N,
+                       verbose=self.verbose)
+
+    def abs(self):
+        """
+        Absolute value of Chebfun. (NumPy)
+        """
+        return self.__abs__()
+
+    def sin(self):
+        """
+        Sine of Chebfun
+        """
+        return Chebfun(lambda x: np.sin(self.fun(x)),
+                       N = self.N,
+                       verbose=self.verbose)
 
 
     #
