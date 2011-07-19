@@ -57,19 +57,18 @@ class Chebfun:
         # If user provides a list of Chebyshev expansion coefficients
         # use them to generate a chebfun
         #
-        if ai:
+        if ai != None:
             self.ai = ai
             self.N  = int((len(ai)+1)/2)
             self.x  = [np.cos(j*np.pi/self.N) for j in range(self.N+1)]
             self.f  = f(self.x)
             self.p  = Bary(self.x, self.f)
-
         #
         # If user inputs a specific number for N then simply create a
         # chebfun with that many interpolating points. This is mostly
         # used for accuracy analysis.
         #
-        if N:
+        elif N:
             self.N = N
             if spacing == 'chebyshev': 
                 self.x = [np.cos(j*np.pi/self.N) for j in range(self.N+1)]
@@ -88,74 +87,75 @@ class Chebfun:
             self.ai = fftdata
             return None
 
-        #
-        # Otherwise, construct machine precision chebfun interpolant
-        # (Primary Algorithm)
-        #
-        # (1) Initial data: N=4 interpolating points
-        self.N = 4
-        self.x = [np.cos(j*np.pi/self.N) for j in range(self.N+1)]
-        self.f  = f(self.x)
+        else:
+            #
+            # Otherwise, construct machine precision chebfun interpolant
+            # (Primary Algorithm)
+            #
+            # (1) Initial data: N=4 interpolating points
+            self.N = 4
+            self.x = [np.cos(j*np.pi/self.N) for j in range(self.N+1)]
+            self.f  = f(self.x)
             
-        #
-        # (2) Loop until convergence condition
-        #
-        done  = False
-        while (not done) and (self.N < interpbnd):
-            # 1) Construct Extended Data Vector (equivalent to creating an
-            #    even extension of the original function)
-            data = self.f
-            data = np.append(data,data[-2:0:-1])
+            #
+            # (2) Loop until convergence condition
+            #
+            done  = False
+            while (not done) and (self.N < interpbnd):
+                # 1) Construct Extended Data Vector (equivalent to creating an
+                #    even extension of the original function)
+                data = self.f
+                data = np.append(data,data[-2:0:-1])
+                
+                # 2) Perform FFT and obtain Chebyshev Coefficients
+                #    NOTE: We should write a fast cosine transform
+                #          routine instead. This is a factor of two
+                #          slower.
+                fftdata     = np.real(fft(data)[:(self.N+1)])
+                fftdata     = np.divide(fftdata,    self.N)
+                fftdata[0]  = np.divide(fftdata[0], 2.0)
+                fftdata[-1] = np.divide(fftdata[-1],2.0)
 
-            # 2) Perform FFT and obtain Chebyshev Coefficients
-            #    NOTE: We should write a fast cosine transform
-            #          routine instead. This is a factor of two
-            #          slower.
-            fftdata     = np.real(fft(data)[:(self.N+1)])
-            fftdata     = np.divide(fftdata,    self.N)
-            fftdata[0]  = np.divide(fftdata[0], 2.0)
-            fftdata[-1] = np.divide(fftdata[-1],2.0)
 
-
-            # 3) Check for negligible coefficients
-            #    If within bound: get negligible coeffs and bread
-            #    Else:            loop
-            bnd = 2*emach*abs(np.max(fftdata))
-            if verbose:
-                print "\n===== STEP ====="
-                print "_______      N =", self.N
-                print "_______     ai =", fftdata
-                print "_______    bnd =", bnd
-
-            if abs(fftdata[-1]) < bnd and abs(fftdata[-2]) < bnd:
-                done = True
-                break
-            else:
-                # 4) Add points to the interpolating polynomial using the
-                #    fast barycentric method
-                # NOTE: This is a trivial way to "add" points. Need something
-                #       faster.
-                self.N = 2*self.N
-                self.x = [np.cos(j*np.pi/self.N) for j in range(self.N+1)]
-                self.f = f(self.x)
+                # 3) Check for negligible coefficients
+                #    If within bound: get negligible coeffs and bread
+                #    Else:            loop
+                bnd = 2*emach*abs(np.max(fftdata))
+                if verbose:
+                    print "\n===== STEP ====="
+                    print "_______      N =", self.N
+                    print "_______     ai =", fftdata
+                    print "_______    bnd =", bnd
+                    
+                if abs(fftdata[-1]) < bnd and abs(fftdata[-2]) < bnd:
+                    done = True
+                    break
+                else:
+                    # 4) Add points to the interpolating polynomial using the
+                    #    fast barycentric method
+                    # NOTE: This is a trivial way to "add" points. Need something
+                    #       faster.
+                    self.N = 2*self.N
+                    self.x = [np.cos(j*np.pi/self.N) for j in range(self.N+1)]
+                    self.f = f(self.x)
                 
 
-        # End of convergence loop: construct polynomial
-        self.N  = np.int(find(abs(fftdata) > bnd)[-1])
-        self.ai = fftdata[:(self.N+1)]
-        self.x  = [np.cos(j*np.pi/self.N) for j in range(self.N+1)]
-        self.f  = f(self.x)
-        self.p  = Bary(self.x, self.f)
-
-        if verbose:
-            print
-            print "========================="
-            print "       CONVERGENCE       "
-            print "========================="
-            print "______     bnd =", bnd
-            print "______      ai =", self.ai
-            print "______       N =", self.N
-            print
+            # End of convergence loop: construct polynomial
+            self.N  = np.int(find(abs(fftdata) > bnd)[-1])
+            self.ai = fftdata[:(self.N+1)]
+            self.x  = [np.cos(j*np.pi/self.N) for j in range(self.N+1)]
+            self.f  = f(self.x)
+            self.p  = Bary(self.x, self.f)
+            
+            if verbose:
+                print
+                print "========================="
+                print "       CONVERGENCE       "
+                print "========================="
+                print "______     bnd =", bnd
+                print "______      ai =", self.ai
+                print "______       N =", self.N
+                print
 
 
     def __repr__(self):
@@ -300,10 +300,15 @@ class Chebfun:
     def integrate(self):
         """
         Return the Chebfun representing the integral of self over the domain.
+
+        (Simply numerically integrates the underlying Barcentric polynomial.)
         """
         return Chebfun(self.p.integrate)
 
  
+    def derivative(self):
+        return self.differentiate()
+
     def differentiate(self):
         """
         Return the Chebfun representing the derivative of self. Uses spectral
@@ -313,12 +318,14 @@ class Chebfun:
 
         # If a_i and b_i are the kth Chebyshev polynomial expansion coefficient
         # Then b_{i-1} = b_{i+1} + 2ia_i; b_N = b_{N+1} = 0; b_0 = b_2/2 + a_1
-        bi = array([0])
-        for i in arange(N,1,-1):
-            bi = np.append(bi[1] + 2*i*ai[i],bi)
-        bi = np.append(bi[1]/2 + a[i])
 
-        #return Chebfun(
+        # DOESNT WORK YET :( POSSIBLY DUE TO __init__?
+        bi = np.array([0])
+        for i in np.arange(self.N,1,-1):
+            bi = np.append(bi,bi[0] + 2*self.ai[i])
+        bi = np.append(bi,bi[0]/2 + self.ai[i])
+
+        return Chebfun(self.fun, ai=bi)
 
     def roots(self):
         """
