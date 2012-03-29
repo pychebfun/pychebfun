@@ -18,7 +18,7 @@ class Test_Chebfun(object):
     def test_error(self):
         x = np.linspace(-1,1,1000)
         err = abs(f(x)-self.p(x))
-        npt.assert_array_almost_equal(self.p(x),f(x))
+        npt.assert_array_almost_equal(self.p(x),f(x),decimal=13)
 
     def test_root(self):
         roots = self.p.roots()
