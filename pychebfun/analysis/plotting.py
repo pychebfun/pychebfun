@@ -15,33 +15,6 @@ import matplotlib.pyplot as plt
 from pychebfun.core import Chebfun
 from scipy.special import chebyt
 
-def chebplot(f,p,*args,**kwds):
-    """
-    Plots the original function against its chebfun interpolant.
-    
-    INPUTS:
-
-        -- f: Python, Numpy, or Sage function
-
-        -- p: Chebfun interpolant
-
-    """
-    x   = np.linspace(-1,1,10000)
-    fig = plt.figure()
-    ax  = fig.add_subplot(211)
-    
-    ax.plot(x,f(x),'#dddddd',linewidth=10,label='Actual', *args, **kwds)
-    ax.plot(x,p(x),'r', label='Chebfun Interpolant (N=%d)' %p.N, *args, **kwds)
-    ax.plot(p.x,p.f, 'r.', *args, **kwds)
-    ax.legend(loc='best')
-
-    ax  = fig.add_subplot(212)
-    ax.plot(x,abs(f(x)-p(x)),'k')
-
-    return ax
-
-
-
 def chebpolyplot(f, Nmax=100, normpts=1000, ord=2, compare=False, points_only=False):
     """
     Plots the number of Chebyshev points vs. norm accuracy of the

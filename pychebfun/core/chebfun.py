@@ -355,3 +355,28 @@ class Chebfun(object):
         ax.plot(data, 'r.', *args, **kwds)
 
         return ax
+
+    def compare(self,f,*args,**kwds):
+        """
+        Plots the original function against its chebfun interpolant.
+        
+        INPUTS:
+
+            -- f: Python, Numpy, or Sage function
+        """
+        x   = np.linspace(-1,1,10000)
+        fig = plt.figure()
+        ax  = fig.add_subplot(211)
+        
+        ax.plot(x,f(x),'#dddddd',linewidth=10,label='Actual', *args, **kwds)
+        ax.plot(x,self(x),'r', label='Chebfun Interpolant (N=%d)' %self.N, *args, **kwds)
+        ax.plot(self.x,self.f, 'r.', *args, **kwds)
+        ax.legend(loc='best')
+
+        ax  = fig.add_subplot(212)
+        ax.plot(x,abs(f(x)-self(x)),'k')
+
+        return ax
+
+
+

@@ -28,7 +28,7 @@ class Test_Chebfun(object):
         self.p.plot()
 
     def test_cheb_plot(self):
-        chebplot(f,self.p)
+        self.p.compare(f)
 
     def test_chebcoeffplot(self):
         self.p.chebcoeffplot()
