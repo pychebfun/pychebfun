@@ -35,3 +35,8 @@ class Test_Chebfun(object):
 
 def test_error():
     chebpolyplot(f)
+
+def test_vectorized():
+    fv = np.vectorize(f)
+    p = Chebfun(fv)
+

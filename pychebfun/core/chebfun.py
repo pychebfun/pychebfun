@@ -47,13 +47,6 @@ class Chebfun(object):
         self.spacing = spacing
         self.verbose = verbose
         
-        # Numpy function coersion:
-        #if not type(f) == np.lib.function_base.vectorize:
-        try:
-            f = np.vectorize(f)
-        except:
-            print "FOO"
-
         #
         # If user provides a list of Chebyshev expansion coefficients
         # use them to generate a chebfun
@@ -72,7 +65,7 @@ class Chebfun(object):
         elif N:
             self.N = N
             if spacing == 'chebyshev': 
-                self.x = [np.cos(j*np.pi/self.N) for j in range(self.N+1)]
+                self.x = self.chebyshev_points()
             else:
                 self.x = np.linspace(-1,1,self.N)
 
@@ -95,7 +88,7 @@ class Chebfun(object):
             #
             # (1) Initial data: N=4 interpolating points
             self.N = 4
-            self.x = [np.cos(j*np.pi/self.N) for j in range(self.N+1)]
+            self.x = self.chebyshev_points()
             self.f  = f(self.x)
             
             #
@@ -137,14 +130,14 @@ class Chebfun(object):
                     # NOTE: This is a trivial way to "add" points. Need something
                     #       faster.
                     self.N = 2*self.N
-                    self.x = [np.cos(j*np.pi/self.N) for j in range(self.N+1)]
+                    self.x = self.chebyshev_points()
                     self.f = f(self.x)
                 
 
             # End of convergence loop: construct polynomial
             self.N  = np.int(find(abs(fftdata) > bnd)[-1])
             self.ai = fftdata[:(self.N+1)]
-            self.x  = [np.cos(j*np.pi/self.N) for j in range(self.N+1)]
+            self.x  = self.chebyshev_points()
             self.f  = f(self.x)
             self.p  = Bary(self.x, self.f)
             
@@ -158,6 +151,9 @@ class Chebfun(object):
                 print "______       N =", self.N
                 print
 
+
+    def chebyshev_points(self):
+        return np.cos(np.arange(self.N+1)*np.pi/self.N)
 
     def __repr__(self):
         return "<Chebfun({0})>".format(self.N)

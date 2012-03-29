@@ -44,8 +44,6 @@ def chebpolyplot(f, Nmax=100, normpts=1000, ord=2, compare=False, points_only=Fa
 
         -- normvalsequi: array of norm values from equidistant interpolation
     """
-    if not type(f) == np.lib.function_base.vectorize:
-        f = np.vectorize(f)
 
     x            = np.linspace(-1,1,normpts)    
     Nvals        = range(10,Nmax,10)
