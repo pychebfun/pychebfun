@@ -27,5 +27,8 @@ class Test_Chebfun(object):
     def test_cheb_plot(self):
         chebplot(f,self.p)
 
+    def test_chebcoeffplot(self):
+        chebcoeffplot(self.p)
+
 def test_error():
     chebpolyplot(f)
