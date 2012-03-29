@@ -213,7 +213,6 @@ class Chebfun(object):
                             verbose=self.verbose)
 
         return Chebfun(lambda x: self.fun(x) * other.fun(x),
-                       N = self.N,
                        verbose=self.verbose)
 
     def __div__(self, other):
