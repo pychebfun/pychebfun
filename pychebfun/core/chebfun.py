@@ -10,6 +10,7 @@ CREATED BY:
 
 import numpy as np
 import scipy as sp
+import matplotlib.pyplot as plt
 
 from scipy.interpolate import BarycentricInterpolator as Bary
 from scipy.fftpack     import fft            # implement DCT routine later
@@ -336,3 +337,9 @@ class Chebfun(object):
         zNq          = np.poly1d(coeffs)
         return np.unique(np.array([np.real(r) for r in zNq.roots if abs(r) > 0.99999999 and abs(r) < 1.00000001]))
         
+    plot_res = 1000
+
+    def plot(self, *args, **kwargs):
+        xs = np.linspace(-1,1,self.plot_res)
+        plt.plot(xs,self(xs), *args, **kwargs)
+
