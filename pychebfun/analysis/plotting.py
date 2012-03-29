@@ -98,15 +98,3 @@ def chebpolyplot(f, Nmax=100, normpts=1000, ord=2, compare=False, points_only=Fa
 
 
 
-def chebcoeffplot(p, *args, **kwds):
-    """
-    Plot the coefficient of the Chebfun object p.
-    """
-    fig = plt.figure()
-    ax  = fig.add_subplot(111)
-    
-    data = np.log10(np.abs(p.ai))
-    ax.plot(data, 'r' , *args, **kwds)
-    ax.plot(data, 'r.', *args, **kwds)
-
-    return ax

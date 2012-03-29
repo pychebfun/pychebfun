@@ -31,7 +31,7 @@ class Test_Chebfun(object):
         chebplot(f,self.p)
 
     def test_chebcoeffplot(self):
-        chebcoeffplot(self.p)
+        self.p.chebcoeffplot()
 
 def test_error():
     chebpolyplot(f)

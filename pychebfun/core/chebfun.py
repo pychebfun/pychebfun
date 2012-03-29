@@ -343,3 +343,15 @@ class Chebfun(object):
         xs = np.linspace(-1,1,self.plot_res)
         plt.plot(xs,self(xs), *args, **kwargs)
 
+    def chebcoeffplot(self, *args, **kwds):
+        """
+        Plot the coefficients.
+        """
+        fig = plt.figure()
+        ax  = fig.add_subplot(111)
+        
+        data = np.log10(np.abs(self.ai))
+        ax.plot(data, 'r' , *args, **kwds)
+        ax.plot(data, 'r.', *args, **kwds)
+
+        return ax
