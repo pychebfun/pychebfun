@@ -159,8 +159,7 @@ class Chebfun:
 
 
     def __repr__(self):
-        return "Chebfun with %d interpolating points (degree %d polynomial)" \
-            %(self.p.n, self.p.n-1)
+        return "<Chebfun({0})>".format(self.N)
 
 
     #
