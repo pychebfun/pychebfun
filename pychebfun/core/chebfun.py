@@ -18,7 +18,7 @@ from matplotlib.mlab   import find
 emach     = 10**(-14)                        # machine epsilon
 interpbnd = 2**12                            # max number of interpolants
 
-class Chebfun:
+class Chebfun(object):
     """
     Construct a Lagrange interpolating polynomial over the Chebyshev points.
 
