@@ -24,5 +24,8 @@ class Test_Chebfun(object):
         roots = self.p.roots()
         npt.assert_array_almost_equal(f(roots),0)
 
+    def test_cheb_plot(self):
+        chebplot(f,self.p)
+
 def test_error():
     chebpolyplot(f)

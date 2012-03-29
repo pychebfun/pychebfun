@@ -30,7 +30,7 @@ def chebplot(f,p,*args,**kwds):
     fig = plt.figure()
     ax  = fig.add_subplot(211)
     
-    ax.plot(x,f(x),'#dddddd',linewidth=(linewidth+10),label='Actual', *args, **kwds)
+    ax.plot(x,f(x),'#dddddd',linewidth=10,label='Actual', *args, **kwds)
     ax.plot(x,p(x),'r', label='Chebfun Interpolant (N=%d)' %p.N, *args, **kwds)
     ax.plot(p.x,p.f, 'r.', *args, **kwds)
     ax.legend(loc='best')
