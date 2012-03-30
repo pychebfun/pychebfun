@@ -15,7 +15,7 @@ def f(x):
 class Test_Chebfun(object):
     def setUp(self):
         # Constuct the O(dx^-16) "spectrally accurate" chebfun p
-        self.p = Chebfun(f)
+        self.p = Chebfun(f, verbose=True)
         self.xs = np.linspace(-1,1,1000)
     def test_error(self):
         x = self.xs
@@ -45,6 +45,20 @@ class Test_Chebfun(object):
         sq = Chebfun(square)
         npt.assert_array_less(0, sq(self.xs))
         self.sq = sq
+    
+    def test_chebyshev_points(self):
+        N = pow(2,5)
+        pts = self.p.chebyshev_points(N)
+        npt.assert_array_almost_equal(pts[[0,-1]],np.array([1.,-1]))
+
+    def test_even_data(self):
+        """
+        even_data on vector of length N+1 returns a vector of size 2*N
+        """
+        N = 32
+        data = np.random.rand(N+1)
+        even = self.p.even_data(data)
+        nt.assert_equal(len(even), 2*N)
 
 def test_truncate(N=17):
     """

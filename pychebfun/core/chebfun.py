@@ -17,7 +17,6 @@ import sys
 from scipy.interpolate import BarycentricInterpolator as Bary
 from scipy.fftpack     import fft            # implement DCT routine later
 
-interpbnd = 2**12                            # max number of interpolants
 emach     = sys.float_info.epsilon                        # machine epsilon
 
 class Chebfun(object):
@@ -25,6 +24,7 @@ class Chebfun(object):
     Construct a Lagrange interpolating polynomial over the Chebyshev points.
 
     """
+    max_nb_dichotomy = 12 # maximum number of dichotomy of the interval
 
     def __init__(self, f, N=0, spacing='chebyshev', verbose=False, ai=None):
         """
@@ -66,7 +66,7 @@ class Chebfun(object):
         elif N:
             self.N = N
             if spacing == 'chebyshev': 
-                self.x = self.chebyshev_points()
+                self.x = self.chebyshev_points(N)
             else:
                 self.x = np.linspace(-1,1,self.N)
 
@@ -87,29 +87,16 @@ class Chebfun(object):
             # Otherwise, construct machine precision chebfun interpolant
             # (Primary Algorithm)
             #
-            # (1) Initial data: N=4 interpolating points
-            self.N = 4
-            self.x = self.chebyshev_points()
-            self.f  = f(self.x)
-            
-            #
             # (2) Loop until convergence condition
             #
-            done  = False
-            while (not done) and (self.N < interpbnd):
-                # 1) Construct Extended Data Vector (equivalent to creating an
-                #    even extension of the original function)
-                data = self.f
-                data = np.append(data,data[-2:0:-1])
+            for k in xrange(2,self.max_nb_dichotomy):
+                N = pow(2,k)
                 
                 # 2) Perform FFT and obtain Chebyshev Coefficients
                 #    NOTE: We should write a fast cosine transform
                 #          routine instead. This is a factor of two
                 #          slower.
-                fftdata     = np.real(fft(data)[:(self.N+1)])
-                fftdata     = np.divide(fftdata,    self.N)
-                fftdata[0]  = np.divide(fftdata[0], 2.0)
-                fftdata[-1] = np.divide(fftdata[-1],2.0)
+                fftdata = self.fft_data(f,N)
 
 
                 # 3) Check for negligible coefficients
@@ -118,27 +105,21 @@ class Chebfun(object):
                 bnd = 128*emach*abs(np.max(fftdata))
                 if verbose:
                     print "\n===== STEP ====="
-                    print "_______      N =", self.N
+                    print "_______      N =", N
                     print "_______     ai =", fftdata
                     print "_______    bnd =", bnd
                     
                 if np.all(abs(fftdata[-2:]) < bnd):
                     break
-                else:
-                    # 4) Add points to the interpolating polynomial using the
-                    #    fast barycentric method
-                    # NOTE: This is a trivial way to "add" points. Need something
-                    #       faster.
-                    self.N = 2*self.N
-                    self.x = self.chebyshev_points()
-                    self.f = f(self.x)
-                
+            else:
+                raise Exception('No convergence')
+
 
             # End of convergence loop: construct polynomial
             [inds]  = np.where(abs(fftdata) > bnd)
             self.N = inds[-1]
             self.ai = fftdata[:(self.N+1)]
-            self.x  = self.chebyshev_points()
+            self.x  = self.chebyshev_points(self.N)
             self.f  = f(self.x)
             self.p  = Bary(self.x, self.f)
             
@@ -153,8 +134,35 @@ class Chebfun(object):
                 print
 
 
-    def chebyshev_points(self):
-        return np.cos(np.arange(self.N+1)*np.pi/self.N)
+    def even_data(self, data):
+        """
+        Construct Extended Data Vector (equivalent to creating an
+        even extension of the original function)
+        """
+        return np.hstack([data,data[-2:0:-1]])
+
+    def chebyshev_points(self, N):
+        """
+        N+1 Chebyshev points in [-1,1], boundaries included
+        """
+        return np.cos(np.arange(N+1)*np.pi/N)
+
+    def sample(self, f, N):
+        x = self.chebyshev_points(N)
+        return f(x)
+
+    def fft(self, data):
+        N = len(data)//2
+        fftdata     = np.real(fft(data)[:N+1])
+        fftdata     /= N
+        fftdata[0]  /= 2.
+        fftdata[-1] /= 2.
+        return fftdata
+
+    def fft_data(self, f, N):
+        sampled = self.sample(f,N)
+        evened = self.even_data(sampled)
+        return self.fft(evened)
 
     def __repr__(self):
         return "<Chebfun({0})>".format(self.N)
