@@ -26,7 +26,7 @@ class Chebfun(object):
     """
     max_nb_dichotomy = 12 # maximum number of dichotomy of the interval
 
-    def __init__(self, f, N=0, spacing='chebyshev', verbose=False, ai=None):
+    def __init__(self, f, N=0, spacing='chebyshev',  ai=None):
         """
         Create a Chebyshev polynomial approximation of the function $f$ on the
         interval $[a,b]$.
@@ -40,14 +40,16 @@ class Chebfun(object):
             
             -- spacing: (default = 'chebyshev') interpolation point spacing
 
-            -- verbose: (default = False) print convergence information
+            -- record: (default = False) record convergence information
 
         EXAMPLES:
         """
         self.fun     = f
         self.spacing = spacing
-        self.verbose = verbose
         
+        if self.record:
+            self.intermediate = []
+            self.bnds = []
         #
         # If user provides a list of Chebyshev expansion coefficients
         # use them to generate a chebfun
@@ -96,11 +98,9 @@ class Chebfun(object):
                 #    If within bound: get negligible coeffs and bread
                 #    Else:            loop
                 bnd = 128*emach*abs(np.max(fftdata))
-                if verbose:
-                    print "\n===== STEP ====="
-                    print "_______      N =", N
-                    print "_______     ai =", fftdata
-                    print "_______    bnd =", bnd
+                if self.record:
+                    self.bnds.append(bnd)
+                    self.intermediate.append(fftdata)
                     
                 if np.all(abs(fftdata[-2:]) < bnd):
                     break
@@ -116,16 +116,12 @@ class Chebfun(object):
             self.f  = f(self.x)
             self.p  = Bary(self.x, self.f)
             
-            if verbose:
-                print
-                print "========================="
-                print "       CONVERGENCE       "
-                print "========================="
-                print "______     bnd =", bnd
-                print "______      ai =", self.ai
-                print "______       N =", N
-                print
+            if self.record:
+                self.bnds.append(bnd)
+                self.intermediate.append(ai)
 
+
+    record = False # whether to record convergence information
 
     def even_data(self, data):
         """
@@ -182,13 +178,9 @@ class Chebfun(object):
             2
         """
         if not isinstance(other,Chebfun):
-            other = Chebfun(lambda x: other(x),
-                            N = self.N,
-                            verbose=self.verbose)
+            other = Chebfun(lambda x: other(x),)
 
-        return Chebfun(lambda x: self.fun(x) + other.fun(x),
-                       N = self.N,
-                       verbose=self.verbose)
+        return Chebfun(lambda x: self.fun(x) + other.fun(x),)
 
 
     def __sub__(self, other):
@@ -196,13 +188,9 @@ class Chebfun(object):
         Chebfun subtraction.
         """
         if not isinstance(other,Chebfun):
-            other = Chebfun(lambda x: other(x),
-                            N = self.N,
-                            verbose=self.verbose)
+            other = Chebfun(lambda x: other(x),)
 
-        return Chebfun(lambda x: self.fun(x) - other.fun(x),
-                       N = self.N,
-                       verbose=self.verbose)
+        return Chebfun(lambda x: self.fun(x) - other.fun(x),)
 
 
     def __mul__(self, other):
@@ -210,43 +198,32 @@ class Chebfun(object):
         Chebfun multiplication.
         """
         if not isinstance(other,Chebfun):
-            other = Chebfun(lambda x: other(x),
-                            N = self.N,
-                            verbose=self.verbose)
+            other = Chebfun(lambda x: other(x),)
 
-        return Chebfun(lambda x: self.fun(x) * other.fun(x),
-                       verbose=self.verbose)
+        return Chebfun(lambda x: self.fun(x) * other.fun(x),)
 
     def __div__(self, other):
         """
         Chebfun multiplication.
         """
         if not isinstance(other,Chebfun):
-            other = Chebfun(lambda x: other(x),
-                            N = self.N,
-                            verbose=self.verbose)
+            other = Chebfun(lambda x: other(x),)
 
-        return Chebfun(lambda x: self.fun(x) / other.fun(x),
-                       N = self.N,
-                       verbose=self.verbose)
+        return Chebfun(lambda x: self.fun(x) / other.fun(x),)
 
 
     def __neg__(self):
         """
         Chebfun negation.
         """
-        return Chebfun(lambda x: -self.fun(x),
-                       N = self.N,
-                       verbose=self.verbose)
+        return Chebfun(lambda x: -self.fun(x),)
 
 
     def sqrt(self):
         """
         Square root of Chebfun.
         """
-        return Chebfun(lambda x: np.sqrt(self.fun(x)),
-                       N = self.N,
-                       verbose=self.verbose)
+        return Chebfun(lambda x: np.sqrt(self.fun(x)),)
 
     def __abs__(self):
         """
@@ -254,9 +231,7 @@ class Chebfun(object):
 
         (Coerces to NumPy absolute value.)
         """
-        return Chebfun(lambda x: np.abs(self.fun(x)),
-                       N = self.N,
-                       verbose=self.verbose)
+        return Chebfun(lambda x: np.abs(self.fun(x)),)
 
     def abs(self):
         """
@@ -268,9 +243,7 @@ class Chebfun(object):
         """
         Sine of Chebfun
         """
-        return Chebfun(lambda x: np.sin(self.fun(x)),
-                       N = self.N,
-                       verbose=self.verbose)
+        return Chebfun(lambda x: np.sin(self.fun(x)),)
 
 
     #

@@ -15,7 +15,8 @@ def f(x):
 class Test_Chebfun(object):
     def setUp(self):
         # Constuct the O(dx^-16) "spectrally accurate" chebfun p
-        self.p = Chebfun(f, verbose=True)
+        Chebfun.record = True
+        self.p = Chebfun(f,)
         self.xs = np.linspace(-1,1,1000)
     def test_error(self):
         x = self.xs
@@ -63,6 +64,10 @@ class Test_Chebfun(object):
     def test_N(self):
         pN = Chebfun(f, len(self.p)+1)
         npt.assert_array_almost_equal(pN(self.xs), self.p(self.xs))
+
+    def test_record(self):
+        p = Chebfun(f)
+        nt.assert_equal(len(p.bnds), 7)
 
 def test_truncate(N=17):
     """
