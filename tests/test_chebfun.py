@@ -6,6 +6,7 @@ from pychebfun import *
 
 import numpy as np
 import numpy.testing as npt
+import nose.tools as nt
 
 
 def f(x):
@@ -45,6 +46,13 @@ class Test_Chebfun(object):
         npt.assert_array_less(0, sq(self.xs))
         self.sq = sq
 
+def test_truncate(N=17):
+    """
+    Check that the Chebyshev coefficients are properly truncated.
+    """
+    small = Chebfun(f, N=N)
+    new = Chebfun(small)
+    nt.assert_equal(new.N, small.N,)
 
 def test_error():
     chebpolyplot(f)
