@@ -12,11 +12,13 @@ import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
 
+import sys
+
 from scipy.interpolate import BarycentricInterpolator as Bary
 from scipy.fftpack     import fft            # implement DCT routine later
 
-emach     = 10**(-14)                        # machine epsilon
 interpbnd = 2**12                            # max number of interpolants
+emach     = sys.float_info.epsilon                        # machine epsilon
 
 class Chebfun(object):
     """
@@ -113,7 +115,7 @@ class Chebfun(object):
                 # 3) Check for negligible coefficients
                 #    If within bound: get negligible coeffs and bread
                 #    Else:            loop
-                bnd = 2*emach*abs(np.max(fftdata))
+                bnd = 128*emach*abs(np.max(fftdata))
                 if verbose:
                     print "\n===== STEP ====="
                     print "_______      N =", self.N
