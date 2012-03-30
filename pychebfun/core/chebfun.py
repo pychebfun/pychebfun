@@ -255,7 +255,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         Clenshaw-Curtis quadrature.
         """
         val = 0
-        for n in np.arange(self.N, step=2):
+        for n in np.arange(len(self)+1, step=2):
             ai = self.ai[n]
             if abs(ai) > emach:
                 val += 2.0*ai/(1.0-n**2)

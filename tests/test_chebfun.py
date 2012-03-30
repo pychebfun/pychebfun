@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# coding: UTF-8
+from __future__ import division
+
 # to prevent plots from popping up
 import matplotlib
 matplotlib.use('agg')
@@ -82,6 +86,14 @@ class Test_Chebfun(object):
         nt.assert_true(self.p)
         mp = Chebfun(zero)
         nt.assert_false(mp)
+
+    def test_integral(self):
+        def q(x):
+            return x*x
+        p = Chebfun(q)
+        i = p.integral()
+        nt.assert_almost_equal(i,2/3)
+
 
 
 def test_truncate(N=17):
