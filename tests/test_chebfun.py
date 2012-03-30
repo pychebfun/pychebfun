@@ -77,6 +77,13 @@ class Test_Chebfun(object):
         p = Chebfun(zero)
         nt.assert_equal(len(p),5) # should be equal to the minimum length, 4+1
 
+
+    def test_nonzero(self):
+        nt.assert_true(self.p)
+        mp = Chebfun(zero)
+        nt.assert_false(mp)
+
+
 def test_truncate(N=17):
     """
     Check that the Chebyshev coefficients are properly truncated.

@@ -156,6 +156,12 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
     def __len__(self):
         return self.p.n
 
+    def __nonzero__(self):
+        """
+        Test for difference from zero (up to tolerance)
+        """
+        return not np.allclose(self.chebyshev_coefficients(),0)
+
     def __add__(self, other):
         """
         Chebfun addition.
