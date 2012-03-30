@@ -60,6 +60,10 @@ class Test_Chebfun(object):
         even = self.p.even_data(data)
         nt.assert_equal(len(even), 2*N)
 
+    def test_N(self):
+        pN = Chebfun(f, self.p.N)
+        npt.assert_array_almost_equal(pN(self.xs), self.p(self.xs))
+
 def test_truncate(N=17):
     """
     Check that the Chebyshev coefficients are properly truncated.

@@ -73,13 +73,7 @@ class Chebfun(object):
             self.f = f(self.x)
             self.p  = Bary(self.x, self.f)
 
-            data        = self.f
-            data        = np.append(data,data[-2:0:-1])
-            fftdata     = np.real(fft(data)[:(self.N+1)])
-            fftdata     = np.divide(fftdata,    self.N)
-            fftdata[0]  = np.divide(fftdata[0], 2.0)
-            fftdata[-1] = np.divide(fftdata[-1],2.0)
-            self.ai = fftdata
+            self.ai = self.fft_data(f, N)
             return None
 
         else:
