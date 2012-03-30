@@ -120,8 +120,7 @@ class Chebfun(object):
                     print "_______     ai =", fftdata
                     print "_______    bnd =", bnd
                     
-                if abs(fftdata[-1]) < bnd and abs(fftdata[-2]) < bnd:
-                    done = True
+                if np.all(abs(fftdata[-2:]) < bnd):
                     break
                 else:
                     # 4) Add points to the interpolating polynomial using the
