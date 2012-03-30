@@ -12,6 +12,10 @@ import nose.tools as nt
 def f(x):
     return np.sin(6*x) + np.sin(30*np.exp(x))
 
+@np.vectorize
+def zero(x):
+    return 0.
+
 class Test_Chebfun(object):
     def setUp(self):
         # Constuct the O(dx^-16) "spectrally accurate" chebfun p
@@ -68,6 +72,10 @@ class Test_Chebfun(object):
     def test_record(self):
         p = Chebfun(f)
         nt.assert_equal(len(p.bnds), 7)
+
+    def test_zero(self):
+        p = Chebfun(zero)
+        nt.assert_equal(len(p),5) # should be equal to the minimum length, 4+1
 
 def test_truncate(N=17):
     """

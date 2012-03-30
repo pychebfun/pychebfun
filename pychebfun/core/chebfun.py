@@ -92,14 +92,14 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
                     self.bnds.append(bnd)
                     self.intermediate.append(fftdata)
                     
-                if np.all(abs(fftdata[-2:]) < bnd):
+                if np.all(abs(fftdata[-2:]) <= bnd):
                     break
             else:
                 raise Exception('No convergence')
 
 
             # End of convergence loop: construct polynomial
-            [inds]  = np.where(abs(fftdata) > bnd)
+            [inds]  = np.where(abs(fftdata) >= bnd)
             N = inds[-1]
             self.ai = fftdata[:N+1]
             self.x  = self.chebyshev_points(N)
