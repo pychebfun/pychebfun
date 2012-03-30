@@ -61,7 +61,7 @@ class Test_Chebfun(object):
         nt.assert_equal(len(even), 2*N)
 
     def test_N(self):
-        pN = Chebfun(f, self.p.N)
+        pN = Chebfun(f, len(self.p)+1)
         npt.assert_array_almost_equal(pN(self.xs), self.p(self.xs))
 
 def test_truncate(N=17):
@@ -70,7 +70,7 @@ def test_truncate(N=17):
     """
     small = Chebfun(f, N=N)
     new = Chebfun(small)
-    nt.assert_equal(new.N, small.N,)
+    nt.assert_equal(len(new), len(small),)
 
 def test_error():
     chebpolyplot(f)

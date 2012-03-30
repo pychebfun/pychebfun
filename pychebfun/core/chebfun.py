@@ -64,11 +64,10 @@ class Chebfun(object):
         # used for accuracy analysis.
         #
         elif N:
-            self.N = N
             if spacing == 'chebyshev': 
                 self.x = self.chebyshev_points(N)
             else:
-                self.x = np.linspace(-1,1,self.N)
+                self.x = np.linspace(-1,1,N)
 
             self.f = f(self.x)
             self.p  = Bary(self.x, self.f)
@@ -111,9 +110,9 @@ class Chebfun(object):
 
             # End of convergence loop: construct polynomial
             [inds]  = np.where(abs(fftdata) > bnd)
-            self.N = inds[-1]
-            self.ai = fftdata[:(self.N+1)]
-            self.x  = self.chebyshev_points(self.N)
+            N = inds[-1]
+            self.ai = fftdata[:N+1]
+            self.x  = self.chebyshev_points(N)
             self.f  = f(self.x)
             self.p  = Bary(self.x, self.f)
             
@@ -124,7 +123,7 @@ class Chebfun(object):
                 print "========================="
                 print "______     bnd =", bnd
                 print "______      ai =", self.ai
-                print "______       N =", self.N
+                print "______       N =", N
                 print
 
 
@@ -159,7 +158,7 @@ class Chebfun(object):
         return self.fft(evened)
 
     def __repr__(self):
-        return "<Chebfun({0})>".format(self.N)
+        return "<Chebfun({0})>".format(len(self))
 
 
     #
@@ -367,7 +366,7 @@ class Chebfun(object):
         ax  = fig.add_subplot(211)
         
         ax.plot(x,f(x),'#dddddd',linewidth=10,label='Actual', *args, **kwds)
-        ax.plot(x,self(x),'r', label='Chebfun Interpolant (N=%d)' %self.N, *args, **kwds)
+        ax.plot(x,self(x),'r', label='Chebfun Interpolant (d={0})'.format(len(self)), *args, **kwds)
         ax.plot(self.x,self.f, 'r.', *args, **kwds)
         ax.legend(loc='best')
 
