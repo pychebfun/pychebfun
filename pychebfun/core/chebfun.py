@@ -28,21 +28,12 @@ class Chebfun(object):
 
     def __init__(self, f, N=0, spacing='chebyshev',  ai=None):
         """
-        Create a Chebyshev polynomial approximation of the function $f$ on the
-        interval $[a,b]$.
+Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[a,b]`.
 
-    
-        INPUTS:
-
-            -- f: Python, Numpy, or Sage function
-
-            -- N: (default = None)  specify number of interpolating points
-            
-            -- spacing: (default = 'chebyshev') interpolation point spacing
-
-            -- record: (default = False) record convergence information
-
-        EXAMPLES:
+:param callable f: Python, Numpy, or Sage function
+:param int N: (default = None)  specify number of interpolating points
+:param string spacing: (default = 'chebyshev') interpolation point spacing
+:param bool record: (default = False) record convergence information
         """
         self.fun     = f
         self.spacing = spacing
