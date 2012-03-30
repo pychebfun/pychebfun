@@ -35,7 +35,6 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 :param string spacing: (default = 'chebyshev') interpolation point spacing
 :param bool record: (default = False) record convergence information
         """
-        self.fun     = f
         self.spacing = spacing
         
         if self.record:
@@ -171,7 +170,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         if not isinstance(other,Chebfun):
             other = Chebfun(lambda x: other(x),)
 
-        return Chebfun(lambda x: self.fun(x) + other.fun(x),)
+        return Chebfun(lambda x: self(x) + other(x),)
 
 
     def __sub__(self, other):
@@ -181,7 +180,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         if not isinstance(other,Chebfun):
             other = Chebfun(lambda x: other(x),)
 
-        return Chebfun(lambda x: self.fun(x) - other.fun(x),)
+        return Chebfun(lambda x: self(x) - other(x),)
 
 
     def __mul__(self, other):
@@ -191,7 +190,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         if not isinstance(other,Chebfun):
             other = Chebfun(lambda x: other(x),)
 
-        return Chebfun(lambda x: self.fun(x) * other.fun(x),)
+        return Chebfun(lambda x: self(x) * other(x),)
 
     def __div__(self, other):
         """
@@ -200,21 +199,21 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         if not isinstance(other,Chebfun):
             other = Chebfun(lambda x: other(x),)
 
-        return Chebfun(lambda x: self.fun(x) / other.fun(x),)
+        return Chebfun(lambda x: self(x) / other(x),)
 
 
     def __neg__(self):
         """
         Chebfun negation.
         """
-        return Chebfun(lambda x: -self.fun(x),)
+        return Chebfun(lambda x: -self(x),)
 
 
     def sqrt(self):
         """
         Square root of Chebfun.
         """
-        return Chebfun(lambda x: np.sqrt(self.fun(x)),)
+        return Chebfun(lambda x: np.sqrt(self(x)),)
 
     def __abs__(self):
         """
@@ -222,7 +221,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
         (Coerces to NumPy absolute value.)
         """
-        return Chebfun(lambda x: np.abs(self.fun(x)),)
+        return Chebfun(lambda x: np.abs(self(x)),)
 
     def abs(self):
         """
@@ -234,7 +233,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         """
         Sine of Chebfun
         """
-        return Chebfun(lambda x: np.sin(self.fun(x)),)
+        return Chebfun(lambda x: np.sin(self(x)),)
 
 
     #
@@ -286,7 +285,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             bi = np.append(bi,bi[0] + 2*self.ai[i])
         bi = np.append(bi,bi[0]/2 + self.ai[i])
 
-        return Chebfun(self.fun, ai=bi)
+        return Chebfun(self, ai=bi)
 
     def roots(self):
         """
