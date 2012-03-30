@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 
 from scipy.interpolate import BarycentricInterpolator as Bary
 from scipy.fftpack     import fft            # implement DCT routine later
-from matplotlib.mlab   import find
 
 emach     = 10**(-14)                        # machine epsilon
 interpbnd = 2**12                            # max number of interpolants
@@ -135,7 +134,8 @@ class Chebfun(object):
                 
 
             # End of convergence loop: construct polynomial
-            self.N  = np.int(find(abs(fftdata) > bnd)[-1])
+            [inds]  = np.where(abs(fftdata) > bnd)
+            self.N = inds[-1]
             self.ai = fftdata[:(self.N+1)]
             self.x  = self.chebyshev_points()
             self.f  = f(self.x)
