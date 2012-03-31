@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# coding: UTF-8
+from __future__ import division
+
 """
 Chebfun class
 
@@ -254,11 +258,10 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         Evaluate the integral of the Chebfun over the given interval using
         Clenshaw-Curtis quadrature.
         """
-        val = 0
-        for n in np.arange(len(self)+1, step=2):
-            ai = self.ai[n]
-            if abs(ai) > emach:
-                val += 2.0*ai/(1.0-n**2)
+        ai2 = self.ai[::2]
+        n = len(ai2)
+        Tints = 2/(1-(2*np.arange(n))**2)
+        val = np.sum(Tints*ai2)
 
         return val
 
