@@ -30,16 +30,14 @@ class Chebfun(object):
     """
     max_nb_dichotomy = 12 # maximum number of dichotomy of the interval
 
-    def __init__(self, f, N=0, spacing='chebyshev',  ai=None):
+    def __init__(self, f, N=0,  ai=None):
         """
 Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[a,b]`.
 
 :param callable f: Python, Numpy, or Sage function
 :param int N: (default = None)  specify number of interpolating points
-:param string spacing: (default = 'chebyshev') interpolation point spacing
 :param bool record: (default = False) record convergence information
         """
-        self.spacing = spacing
         
         if self.record:
             self.intermediate = []
@@ -60,10 +58,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         # used for accuracy analysis.
         #
         elif N:
-            if spacing == 'chebyshev': 
-                self.x = self.chebyshev_points(N)
-            else:
-                self.x = np.linspace(-1,1,N)
+            self.x = self.interpolation_points(N)
 
             self.f = f(self.x)
             self.p  = Bary(self.x, self.f)
@@ -106,7 +101,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             [inds]  = np.where(abs(fftdata) >= bnd)
             N = inds[-1]
             self.ai = fftdata[:N+1]
-            self.x  = self.chebyshev_points(N)
+            self.x  = self.interpolation_points(N)
             self.f  = f(self.x)
             self.p  = Bary(self.x, self.f)
             
@@ -124,14 +119,14 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         """
         return np.hstack([data,data[-2:0:-1]])
 
-    def chebyshev_points(self, N):
+    def interpolation_points(self, N):
         """
         N+1 Chebyshev points in [-1,1], boundaries included
         """
         return np.cos(np.arange(N+1)*np.pi/N)
 
     def sample(self, f, N):
-        x = self.chebyshev_points(N)
+        x = self.interpolation_points(N)
         return f(x)
 
     def fft(self, data):
