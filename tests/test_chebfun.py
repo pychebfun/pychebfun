@@ -6,6 +6,8 @@ from __future__ import division
 import matplotlib
 matplotlib.use('agg')
 
+import os
+
 from pychebfun import *
 
 import numpy as np
@@ -116,4 +118,18 @@ def test_error():
 def test_vectorized():
     fv = np.vectorize(f)
     p = Chebfun(fv)
+
+def test_examples():
+    """
+    Check that the examples can be executed.
+    """
+    here = os.path.dirname(__file__)
+    example_folder = os.path.join(here,os.path.pardir,'examples')
+    files = os.listdir(example_folder)
+    for example in files:
+        file_name = os.path.join(example_folder,example)
+        try:
+            execfile(file_name, {})
+        except Exception as e:
+            raise Exception('Error in {0}: {0}'.format(example), e)
 

@@ -1,4 +1,5 @@
-from pylab import *
+from scipy import *
+from matplotlib.pyplot import figure, subplot, plot, show
 from pychebfun import *
 
 # Construct a Python function f and the vector of points at which we want 
