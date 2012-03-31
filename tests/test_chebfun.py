@@ -11,6 +11,7 @@ import os
 from pychebfun import *
 
 import numpy as np
+np.seterr(all='raise')
 import numpy.testing as npt
 import nose.tools as nt
 
@@ -110,6 +111,7 @@ class Test_Chebfun(object):
         """
         p2 = Chebfun(self.p.f)
         npt.assert_almost_equal(self.p.ai, p2.ai)
+        npt.assert_array_almost_equal(self.p(self.xs), p2(self.xs))
 
 def test_truncate(N=17):
     """
@@ -140,3 +142,11 @@ def test_examples():
         except Exception as e:
             raise Exception('Error in {0}: {0}'.format(example), e)
 
+def test_chebpoly(ns=[0,5]):
+    for n in ns:
+        c = chebpoly(n)
+        npt.assert_array_almost_equal(c.chebyshev_coefficients(), [0]*n+[1.])
+
+def test_list_init():
+    c = Chebfun([1.])
+    npt.assert_array_almost_equal(c.chebyshev_coefficients(),[1.])

@@ -42,12 +42,27 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             self.intermediate = []
             self.bnds = []
 
-        if isinstance(f, np.ndarray): # interpolation values provided
-            N = len(f)
-            self.ai = self.chebpolyfit(f,N, sample=False)
-            self.x = self.interpolation_points(N)
-            self.f = f.copy()
+        try:
+            i = iter(f) # interpolation values provided
+        except TypeError:
+            pass
+        else:
+            vals = np.array(f)
+            N = len(vals)-1
+            if N:
+                self.ai = self.chebpolyfit(vals,N, sample=False)
+                self.x = self.interpolation_points(N)
+            else: # just one value provided
+                self.ai = vals.copy()
+                self.x = [1.]
+            self.f = vals.copy()
+            self.p  = Bary(self.x, self.f)
             return None
+
+        if isinstance(f, Chebfun): # copy if f is another Chebfun
+            self.ai = f.ai.copy()
+            self.x = f.x
+            self.f = f.f
 
         if not N: # N is not provided
             # Find out the right number of coefficients to keep
@@ -331,5 +346,10 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
         return ax
 
-
+def chebpoly(n):
+    if not n:
+        return Chebfun(np.array([1.]))
+    vals = np.ones(n+1)
+    vals[-1::-2] = -1
+    return Chebfun(vals)
 
