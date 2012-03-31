@@ -26,6 +26,10 @@ class Test_Chebfun(object):
         Chebfun.record = True
         self.p = Chebfun(f,)
         self.xs = np.linspace(-1,1,1000)
+
+    def test_len(self):
+        nt.assert_equal(len(self.p), len(self.p.chebyshev_coefficients()))
+
     def test_error(self):
         x = self.xs
         err = abs(f(x)-self.p(x))
@@ -70,7 +74,9 @@ class Test_Chebfun(object):
         nt.assert_equal(len(even), 2*N)
 
     def test_N(self):
-        pN = Chebfun(f, len(self.p)-1)
+        N = len(self.p) - 1
+        pN = Chebfun(f, N)
+        nt.assert_equal(len(pN.chebyshev_coefficients()), N+1)
         nt.assert_equal(len(pN.chebyshev_coefficients()),len(pN))
         npt.assert_array_almost_equal(pN(self.xs), self.p(self.xs))
         npt.assert_array_almost_equal(pN.chebyshev_coefficients(),self.p.chebyshev_coefficients())
@@ -95,8 +101,6 @@ class Test_Chebfun(object):
         p = Chebfun(q)
         i = p.integral()
         nt.assert_almost_equal(i,2/3)
-
-
 
 def test_truncate(N=17):
     """

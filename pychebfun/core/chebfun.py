@@ -48,32 +48,33 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             for k in xrange(2,self.max_nb_dichotomy):
                 N = pow(2,k)
 
-                fftdata = self.fft_data(f,N)
+                coeffs = self.chebpolyfit(f,N)
 
                 # 3) Check for negligible coefficients
                 #    If within bound: get negligible coeffs and bread
-                bnd = 128*emach*abs(np.max(fftdata))
+                bnd = 128*emach*abs(np.max(coeffs))
                 if self.record:
                     self.bnds.append(bnd)
-                    self.intermediate.append(fftdata)
+                    self.intermediate.append(coeffs)
 
-                if np.all(abs(fftdata[-2:]) <= bnd):
+                if np.all(abs(coeffs[-2:]) <= bnd):
                     break
             else:
                 raise Exception('No convergence')
 
 
             # End of convergence loop: construct polynomial
-            [inds]  = np.where(abs(fftdata) >= bnd)
+            [inds]  = np.where(abs(coeffs) >= bnd)
             N = inds[-1]
 
             if self.record:
                 self.bnds.append(bnd)
-                self.intermediate.append(ai)
+                self.intermediate.append(coeffs)
         else:
-            fftdata = self.fft_data(f,N)
+            nextpow2 = int(np.log2(N))+1
+            coeffs = self.chebpolyfit(f,pow(2,nextpow2))
 
-        self.ai = fftdata[:N+1]
+        self.ai = coeffs[:N+1]
         self.x  = self.interpolation_points(N)
         self.f  = f(self.x)
         self.p  = Bary(self.x, self.f)
@@ -112,13 +113,14 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         fftdata[-1] /= 2.
         return fftdata
 
-    def fft_data(self, f, N):
+    def chebpolyfit(self, f, N):
         """
-        Perform FFT and obtain Chebyshev Coefficients
+        Compute Chebyshev coefficients of a function f on N points.
         """
         sampled = self.sample(f,N)
         evened = self.even_data(sampled)
-        return self.fft(evened)
+        coeffs = self.fft(evened)
+        return coeffs
 
     def __repr__(self):
         return "<Chebfun({0})>".format(len(self))
