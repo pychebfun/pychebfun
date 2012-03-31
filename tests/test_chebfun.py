@@ -104,6 +104,13 @@ class Test_Chebfun(object):
         i = p.integral()
         nt.assert_almost_equal(i,2/3)
 
+    def test_interp_values(self):
+        """
+        Instianciate Chebfun from interpolation values.
+        """
+        p2 = Chebfun(self.p.f)
+        npt.assert_almost_equal(self.p.ai, p2.ai)
+
 def test_truncate(N=17):
     """
     Check that the Chebyshev coefficients are properly truncated.

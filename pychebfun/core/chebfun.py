@@ -43,12 +43,19 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             self.intermediate = []
             self.bnds = []
 
+        if isinstance(f, np.ndarray): # interpolation values provided
+            N = len(f)
+            self.ai = self.chebpolyfit(f,N, sample=False)
+            self.x = self.interpolation_points(N)
+            self.f = f.copy()
+            return None
+
         if not N: # N is not provided
             # Find out the right number of coefficients to keep
             for k in xrange(2,self.max_nb_dichotomy):
                 N = pow(2,k)
 
-                coeffs = self.chebpolyfit(f,N)
+                coeffs = self.chebpolyfit(f,N, sample=True)
 
                 # 3) Check for negligible coefficients
                 #    If within bound: get negligible coeffs and bread
@@ -72,7 +79,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
                 self.intermediate.append(coeffs)
         else:
             nextpow2 = int(np.log2(N))+1
-            coeffs = self.chebpolyfit(f,pow(2,nextpow2))
+            coeffs = self.chebpolyfit(f,pow(2,nextpow2), sample=True)
 
         self.ai = coeffs[:N+1]
         self.x  = self.interpolation_points(N)
@@ -113,11 +120,14 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         fftdata[-1] /= 2.
         return fftdata
 
-    def chebpolyfit(self, f, N):
+    def chebpolyfit(self, f, N, sample=True):
         """
         Compute Chebyshev coefficients of a function f on N points.
         """
-        sampled = self.sample(f,N)
+        if sample:
+            sampled = self.sample(f,N)
+        else: # f is a vector
+            sampled = f
         evened = self.even_data(sampled)
         coeffs = self.fft(evened)
         return coeffs
