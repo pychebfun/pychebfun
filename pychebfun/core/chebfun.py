@@ -30,7 +30,7 @@ class Chebfun(object):
     """
     max_nb_dichotomy = 12 # maximum number of dichotomy of the interval
 
-    def __init__(self, f, N=0,  ai=None):
+    def __init__(self, f=None, N=0,):
         """
 Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[a,b]`.
 
@@ -42,16 +42,6 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         if self.record:
             self.intermediate = []
             self.bnds = []
-        #
-        # If user provides a list of Chebyshev expansion coefficients
-        # use them to generate a chebfun
-        #
-        if ai != None:
-            self.ai = ai
-            self.N  = int((len(ai)+1)/2)
-            self.x  = [np.cos(j*np.pi/self.N) for j in range(self.N+1)]
-            self.f  = f(self.x)
-            self.p  = Bary(self.x, self.f)
 
         if not N: # N is not provided
             # Find out the right number of coefficients to keep
