@@ -70,8 +70,10 @@ class Test_Chebfun(object):
         nt.assert_equal(len(even), 2*N)
 
     def test_N(self):
-        pN = Chebfun(f, len(self.p)+1)
+        pN = Chebfun(f, len(self.p)-1)
+        nt.assert_equal(len(pN.chebyshev_coefficients()),len(pN))
         npt.assert_array_almost_equal(pN(self.xs), self.p(self.xs))
+        npt.assert_array_almost_equal(pN.chebyshev_coefficients(),self.p.chebyshev_coefficients())
 
     def test_record(self):
         p = Chebfun(f)

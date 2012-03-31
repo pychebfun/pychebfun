@@ -52,45 +52,21 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             self.x  = [np.cos(j*np.pi/self.N) for j in range(self.N+1)]
             self.f  = f(self.x)
             self.p  = Bary(self.x, self.f)
-        #
-        # If user inputs a specific number for N then simply create a
-        # chebfun with that many interpolating points. This is mostly
-        # used for accuracy analysis.
-        #
-        elif N:
-            self.x = self.interpolation_points(N)
 
-            self.f = f(self.x)
-            self.p  = Bary(self.x, self.f)
-
-            self.ai = self.fft_data(f, N)
-            return None
-
-        else:
-            #
-            # Otherwise, construct machine precision chebfun interpolant
-            # (Primary Algorithm)
-            #
-            # (2) Loop until convergence condition
-            #
+        if not N: # N is not provided
+            # Find out the right number of coefficients to keep
             for k in xrange(2,self.max_nb_dichotomy):
                 N = pow(2,k)
-                
-                # 2) Perform FFT and obtain Chebyshev Coefficients
-                #    NOTE: We should write a fast cosine transform
-                #          routine instead. This is a factor of two
-                #          slower.
-                fftdata = self.fft_data(f,N)
 
+                fftdata = self.fft_data(f,N)
 
                 # 3) Check for negligible coefficients
                 #    If within bound: get negligible coeffs and bread
-                #    Else:            loop
                 bnd = 128*emach*abs(np.max(fftdata))
                 if self.record:
                     self.bnds.append(bnd)
                     self.intermediate.append(fftdata)
-                    
+
                 if np.all(abs(fftdata[-2:]) <= bnd):
                     break
             else:
@@ -100,14 +76,18 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             # End of convergence loop: construct polynomial
             [inds]  = np.where(abs(fftdata) >= bnd)
             N = inds[-1]
-            self.ai = fftdata[:N+1]
-            self.x  = self.interpolation_points(N)
-            self.f  = f(self.x)
-            self.p  = Bary(self.x, self.f)
-            
+
             if self.record:
                 self.bnds.append(bnd)
                 self.intermediate.append(ai)
+        else:
+            fftdata = self.fft_data(f,N)
+
+        self.ai = fftdata[:N+1]
+        self.x  = self.interpolation_points(N)
+        self.f  = f(self.x)
+        self.p  = Bary(self.x, self.f)
+            
 
 
     record = False # whether to record convergence information
@@ -130,6 +110,11 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         return f(x)
 
     def fft(self, data):
+        """
+        Compute DCT using FFT
+          NOTE: We should write a fast cosine transform
+          routine instead. This is a factor of two slower.
+        """
         N = len(data)//2
         fftdata     = np.real(fft(data)[:N+1])
         fftdata     /= N
@@ -138,6 +123,9 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         return fftdata
 
     def fft_data(self, f, N):
+        """
+        Perform FFT and obtain Chebyshev Coefficients
+        """
         sampled = self.sample(f,N)
         evened = self.even_data(sampled)
         return self.fft(evened)
