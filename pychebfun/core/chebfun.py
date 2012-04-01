@@ -40,6 +40,11 @@ class Chebfun(object):
     """
     max_nb_dichotomy = 12 # maximum number of dichotomy of the interval
 
+    class NoConvergence(Exception):
+        """
+        Raised when dichotomy does not converge.
+        """
+
     def __init__(self, f=None, N=0,):
         """
 Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1,1]`.
@@ -91,10 +96,11 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
                     self.bnds.append(bnd)
                     self.intermediate.append(coeffs)
 
-                if np.all(abs(coeffs[-2:]) <= bnd):
+                last = abs(coeffs[-2:])
+                if np.all(last <= bnd):
                     break
             else:
-                raise Exception('No convergence')
+                raise self.NoConvergence(last, bnd)
 
 
             # End of convergence loop: construct polynomial

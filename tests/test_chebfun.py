@@ -162,6 +162,10 @@ def test_scalar_init():
     one = Chebfun(1.)
     npt.assert_array_almost_equal(one(xs), 1.)
 
+@nt.raises(Chebfun.NoConvergence)
+def test_no_convergence():
+    Chebfun(np.sign)
+
 class Test_Arithmetic(object):
     def setUp(self):
         self.p1 = Chebfun(f)
