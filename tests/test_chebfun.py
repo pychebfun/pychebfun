@@ -23,18 +23,19 @@ def f(x):
 def zero(x):
     return 0.
 
+xs = np.linspace(-1,1,1000)
+
 class Test_Chebfun(object):
     def setUp(self):
         # Constuct the O(dx^-16) "spectrally accurate" chebfun p
         Chebfun.record = True
         self.p = Chebfun(f,)
-        self.xs = np.linspace(-1,1,1000)
 
     def test_len(self):
         nt.assert_equal(len(self.p), len(self.p.chebyshev_coefficients()))
 
     def test_error(self):
-        x = self.xs
+        x = xs
         err = abs(f(x)-self.p(x))
         npt.assert_array_almost_equal(self.p(x),f(x),decimal=13)
 
@@ -53,13 +54,13 @@ class Test_Chebfun(object):
 
     def test_prod(self):
         pp = self.p*self.p
-        npt.assert_array_almost_equal(self.p(self.xs)*self.p(self.xs),pp(self.xs))
+        npt.assert_array_almost_equal(self.p(xs)*self.p(xs),pp(xs))
 
     def test_square(self):
         def square(x):
             return self.p(x)*self.p(x)
         sq = Chebfun(square)
-        npt.assert_array_less(0, sq(self.xs))
+        npt.assert_array_less(0, sq(xs))
         self.sq = sq
     
     def test_chebyshev_points(self):
@@ -81,7 +82,7 @@ class Test_Chebfun(object):
         pN = Chebfun(f, N)
         nt.assert_equal(len(pN.chebyshev_coefficients()), N+1)
         nt.assert_equal(len(pN.chebyshev_coefficients()),len(pN))
-        npt.assert_array_almost_equal(pN(self.xs), self.p(self.xs))
+        npt.assert_array_almost_equal(pN(xs), self.p(xs))
         npt.assert_array_almost_equal(pN.chebyshev_coefficients(),self.p.chebyshev_coefficients())
 
     def test_record(self):
@@ -111,7 +112,7 @@ class Test_Chebfun(object):
         """
         p2 = Chebfun(self.p.f)
         npt.assert_almost_equal(self.p.ai, p2.ai)
-        npt.assert_array_almost_equal(self.p(self.xs), p2(self.xs))
+        npt.assert_array_almost_equal(self.p(xs), p2(xs))
 
 def test_truncate(N=17):
     """
