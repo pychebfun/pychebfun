@@ -19,6 +19,9 @@ import nose.tools as nt
 def f(x):
     return np.sin(6*x) + np.sin(30*np.exp(x))
 
+def runge(x):
+    return 1./(1+25*x**2)
+
 @np.vectorize
 def zero(x):
     return 0.
@@ -114,6 +117,9 @@ class Test_Chebfun(object):
         npt.assert_almost_equal(self.p.ai, p2.ai)
         npt.assert_array_almost_equal(self.p(xs), p2(xs))
 
+    def test_equal(self):
+        nt.assert_equal(self.p, Chebfun(self.p))
+
 def test_truncate(N=17):
     """
     Check that the Chebyshev coefficients are properly truncated.
@@ -155,3 +161,35 @@ def test_list_init():
 def test_scalar_init():
     one = Chebfun(1.)
     npt.assert_array_almost_equal(one(xs), 1.)
+
+class Test_Arithmetic(object):
+    def setUp(self):
+        self.p1 = Chebfun(f)
+        self.p2 = Chebfun(runge)
+
+    def test_scalar_mul(self):
+        nt.assert_equal(self.p1, self.p1)
+        nt.assert_equal(self.p1*1, 1*self.p1)
+        nt.assert_equal(self.p1*1, self.p1)
+        nt.assert_equal(0*self.p1, zero)
+
+    def test_commutativity(self):
+        nt.assert_equal(self.p1*self.p2, self.p2*self.p1)
+        nt.assert_equal(self.p1+self.p2, self.p2+self.p1)
+
+    def test_minus(self):
+        a = self.p1 - self.p2
+        b = self.p2 - self.p1
+        nt.assert_equal(a+b,0)
+
+
+
+def test_runge():
+    """
+    Test some of the capabilities of operator overloading.
+    """
+    r = Chebfun(runge)
+    x = chebpoly(1)
+    rr = 1./(1+25*x**2)
+    npt.assert_almost_equal(r(xs),rr(xs), decimal=13)
+

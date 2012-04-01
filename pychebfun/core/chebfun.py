@@ -21,6 +21,16 @@ import sys
 from scipy.interpolate import BarycentricInterpolator as Bary
 from scipy.fftpack     import fft            # implement DCT routine later
 
+def cast_scalar(method):
+    """
+    Used to cast scalar to Chebfuns
+    """
+    def new_method(self, other):
+        if np.isscalar(other):
+            other = Chebfun([other])
+        return method(self, other)
+    return new_method
+
 emach     = sys.float_info.epsilon                        # machine epsilon
 
 class Chebfun(object):
@@ -168,57 +178,65 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         """
         return not np.allclose(self.chebyshev_coefficients(),0)
 
+    def __eq__(self, other):
+        return not(self - other)
+
+    def __neq__(self, other):
+        return not (self == other)
+
+    @cast_scalar
     def __add__(self, other):
         """
-        Chebfun addition.
-
-        Add the underlying functions.
-
-        EXAMPLES::
-        
-            >>> 1+1
-            2
+        Addition
         """
-        if not isinstance(other,Chebfun):
-            other = Chebfun(lambda x: other(x),)
-
         return Chebfun(lambda x: self(x) + other(x),)
 
+    __radd__ = __add__
 
+
+    @cast_scalar
     def __sub__(self, other):
         """
         Chebfun subtraction.
         """
-        if not isinstance(other,Chebfun):
-            other = Chebfun(lambda x: other(x),)
-
         return Chebfun(lambda x: self(x) - other(x),)
 
+    def __rsub__(self, other):
+        return -(self - other)
 
+
+    @cast_scalar
     def __mul__(self, other):
         """
         Chebfun multiplication.
         """
-        if not isinstance(other,Chebfun):
-            other = Chebfun(lambda x: other(x),)
-
         return Chebfun(lambda x: self(x) * other(x),)
 
+    __rmul__ = __mul__
+
+    @cast_scalar
     def __div__(self, other):
         """
-        Chebfun multiplication.
+        Chebfun division
         """
-        if not isinstance(other,Chebfun):
-            other = Chebfun(lambda x: other(x),)
-
         return Chebfun(lambda x: self(x) / other(x),)
 
+    __truediv__ = __div__
+
+    @cast_scalar
+    def __rdiv__(self, other):
+        return Chebfun(lambda x: other(x)/self(x))
+
+    __rtruediv__ = __rdiv__
 
     def __neg__(self):
         """
         Chebfun negation.
         """
         return Chebfun(lambda x: -self(x),)
+
+    def __pow__(self, other):
+        return Chebfun(lambda x: self(x)**other)
 
 
     def sqrt(self):
