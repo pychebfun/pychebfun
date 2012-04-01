@@ -42,6 +42,9 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             self.intermediate = []
             self.bnds = []
 
+        if np.isscalar(f):
+            f = [f]
+
         try:
             i = iter(f) # interpolation values provided
         except TypeError:

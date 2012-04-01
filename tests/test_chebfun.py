@@ -151,3 +151,7 @@ def test_chebpoly(ns=[0,5]):
 def test_list_init():
     c = Chebfun([1.])
     npt.assert_array_almost_equal(c.chebyshev_coefficients(),[1.])
+
+def test_scalar_init():
+    one = Chebfun(1.)
+    npt.assert_array_almost_equal(one(xs), 1.)
