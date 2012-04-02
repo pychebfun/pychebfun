@@ -49,6 +49,16 @@ class Test_Chebfun(object):
     def test_plot(self):
         self.p.plot()
 
+    def test_plot_interpolation_points(self):
+        plt.clf()
+        self.p.plot()
+        a = plt.gca()
+        nt.assert_equal(len(a.lines),2)
+        plt.clf()
+        self.p.plot(interpolation_points=False)
+        a = plt.gca()
+        nt.assert_equal(len(a.lines),1)
+
     def test_cheb_plot(self):
         self.p.compare(f)
 

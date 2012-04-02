@@ -334,9 +334,14 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         
     plot_res = 1000
 
-    def plot(self, *args, **kwargs):
+    def plot(self, interpolation_points=True, *args, **kwargs):
         xs = np.linspace(-1,1,self.plot_res)
-        plt.plot(xs,self(xs), *args, **kwargs)
+        axis = plt.gca()
+        axis.plot(xs,self(xs), *args, **kwargs)
+        if interpolation_points:
+            current_color = axis.lines[-1].get_color() # figure out current colour
+            axis.plot(self.x, self.f, marker='.', linestyle='', color=current_color)
+        plt.plot()
 
     def chebcoeffplot(self, *args, **kwds):
         """
