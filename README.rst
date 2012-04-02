@@ -1,7 +1,7 @@
 pychebfun - Python Chebyshev Functions
 ======================================
 
-ABOUT
+About
 -----
 
 The Chebfun system is designed to perform fast and accurate functional 
@@ -9,6 +9,9 @@ computations. The system incorporates the use of Chebyshev polynomial
 expansions, Lagrange interpolation with the barycentric formula, and 
 Clenshaw-Curtis quadrature to perform fast functional evaluation, integration,
 root-finding, and other operations.
+
+.. image:: https://github.com/olivierverdier/pychebfun/raw/master/example.png
+	:alt: Example
 
 The pychebfun project is based on the mathematical work of Battles and 
 Trefethen et. al. yet is optimized to take advantage of the tools in the 
@@ -25,21 +28,21 @@ License v2.
 
 
 
-INSTALLATION
+Installation
 ------------
 
 See 'INSTALL' located in this directory.
 
 
 
-PRIMARY AUTHORS
+Primary authors
 ---------------
 
-    -- Chris Swierczewski <cswiercz@gmail.com>
-    -- Olivier Verdier <olivier.verdier@gmail.com>
+ * Chris Swierczewski <cswiercz@gmail.com>
+ * Olivier Verdier <olivier.verdier@gmail.com>
 
 
-REPOSITORY
+Repository
 ----------
 
 pychebfun is hosted at `http://github.com/cswiercz/pychebfun`. 
