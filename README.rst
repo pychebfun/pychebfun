@@ -36,6 +36,7 @@ PRIMARY AUTHORS
 ---------------
 
     -- Chris Swierczewski <cswiercz@gmail.com>
+    -- Olivier Verdier <olivier.verdier@gmail.com>
 
 
 REPOSITORY

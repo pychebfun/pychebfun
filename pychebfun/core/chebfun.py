@@ -3,12 +3,12 @@
 from __future__ import division
 
 """
-Chebfun class
+Chebfun module
+==============
 
-CREATED BY:
------------
+.. moduleauthor :: Chris Swierczewski <cswiercz@gmail.com>
+.. moduleauthor :: Olivier Verdier <olivier.verdier@gmail.com>
 
-    -- Chris Swierczewski <cswiercz@gmail.com>
 
 """
 
