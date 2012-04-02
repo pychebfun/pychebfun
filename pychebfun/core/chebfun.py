@@ -369,8 +369,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         ax  = fig.add_subplot(211)
         
         ax.plot(x,f(x),'#dddddd',linewidth=10,label='Actual', *args, **kwds)
-        ax.plot(x,self(x),'r', label='Chebfun Interpolant (d={0})'.format(len(self)), *args, **kwds)
-        ax.plot(self.x,self.f, 'r.', *args, **kwds)
+        self.plot(color='red', label='Chebfun Interpolant (d={0})'.format(len(self)), *args, **kwds)
         ax.legend(loc='best')
 
         ax  = fig.add_subplot(212)
