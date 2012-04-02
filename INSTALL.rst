@@ -13,24 +13,13 @@ In your terminal of choice, navigate to this directory and type::
 That's it! Now you can import `pychebfun` into your Python scripts from any
 directory you like.
 
+Test the Installation
+---------------------
 
+Go to the `pychebfun` directory and then run::
 
-Custom Install
---------------
+    $ nosetests tests
 
-If you
+(Make sure that `nose_` is installed, by running `pip install nose` first.)
 
-
-    -- have a local / special directory for Python modules
-
-    -- are a developer and don't want to muck up your system Python library
-
-
-then you can specify which directory to install `pychebfun` like so::
-
-
-    $ python setup.py install --home=<dir>
-
-
-where `<dir>` is a directory of your choice. For example, if `<dir>` is your
-home directory, `$HOME`, then `pychebfun` will install into `$HOME/lib/python`.
+.. _nose: http://readthedocs.org/docs/nose/en/latest/
