@@ -12,7 +12,7 @@ import numpy as np
 import scipy.linalg as la
 import matplotlib.pyplot as plt
 
-from pychebfun.core import Chebfun
+from .chebfun import Chebfun
 
 def chebpolyplot(f, Nmax=100, normpts=1000, ord=2, compare=False, points_only=False):
     """

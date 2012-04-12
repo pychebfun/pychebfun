@@ -10,8 +10,8 @@ See the webpage for more information and documentation:
 __version__ = "0.2"
 
 
-from pychebfun.analysis import *
-from pychebfun.core import *
+from plotting import *
+from chebfun import *
 
 
 
