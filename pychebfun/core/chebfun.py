@@ -17,6 +17,7 @@ import scipy as sp
 import matplotlib.pyplot as plt
 
 import sys
+from functools import wraps
 
 from scipy.interpolate import BarycentricInterpolator as Bary
 from scipy.fftpack     import fft            # implement DCT routine later
@@ -25,6 +26,7 @@ def cast_scalar(method):
     """
     Used to cast scalar to Chebfuns
     """
+    @wraps(method)
     def new_method(self, other):
         if np.isscalar(other):
             other = Chebfun([other])
