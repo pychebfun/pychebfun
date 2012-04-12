@@ -31,6 +31,12 @@ def fd(x):
     """
     return 6*np.cos(6*x) + np.cos(30*np.exp(x))*30*np.exp(x)
 
+def piecewise_continuous(x):
+    """
+    The function is on the verge of being discontinuous at many points
+    """
+    return np.exp(x)*np.sin(3*x)*np.tanh(5*np.cos(30*x))
+
 def runge(x):
     return 1./(1+25*x**2)
 
@@ -131,6 +137,10 @@ class Test_Chebfun(unittest.TestCase):
         i = p.integral()
         self.assertAlmostEqual(i,2/3)
 
+    @unittest.expectedFailure
+    def test_differentiate(self):
+        d = self.p.differentiate()
+
     def test_interp_values(self):
         """
         Instianciate Chebfun from interpolation values.
@@ -200,6 +210,11 @@ class Test_Misc(unittest.TestCase):
 
 
 
+    @unittest.expectedFailure
+    def test_underflow(self):
+        Chebfun.max_nb_dichotomy = 13
+        p = Chebfun(piecewise_continuous)
+
 class Test_Arithmetic(unittest.TestCase):
     def setUp(self):
         self.p1 = Chebfun(f)
@@ -219,6 +234,12 @@ class Test_Arithmetic(unittest.TestCase):
         a = self.p1 - self.p2
         b = self.p2 - self.p1
         self.assertEqual(a+b,0)
+
+    @unittest.expectedFailure
+    @unittest.expectedFailure
+    def test_neg(self):
+        rm = -self.p2
+        z = self.p2 + rm
 
 
 
