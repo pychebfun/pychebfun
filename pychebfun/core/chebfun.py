@@ -358,6 +358,9 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
         return ax
 
+    def plot_interpolating_points(self):
+        plt.plot(self.x, self.f)
+
     def compare(self,f,*args,**kwds):
         """
         Plots the original function against its chebfun interpolant.
