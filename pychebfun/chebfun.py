@@ -8,6 +8,7 @@ Chebfun module
 
 .. moduleauthor :: Chris Swierczewski <cswiercz@gmail.com>
 .. moduleauthor :: Olivier Verdier <olivier.verdier@gmail.com>
+.. moduleauthor :: Gregory Potter <ghpotter@gmail.com>
 
 
 """
@@ -20,7 +21,7 @@ import sys
 from functools import wraps
 
 from scipy.interpolate import BarycentricInterpolator as Bary
-from scipy.fftpack     import fft            # implement DCT routine later
+from scipy.fftpack     import dct
 
 def cast_scalar(method):
     """
@@ -142,18 +143,16 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         x = self.interpolation_points(N)
         return f(x)
 
-    def fft(self, data):
+    def dct(self, data):
         """
-        Compute DCT using FFT
-          NOTE: We should write a fast cosine transform
-          routine instead. This is a factor of two slower.
+        Compute DCT
         """
         N = len(data)//2
-        fftdata     = np.real(fft(data)[:N+1])
-        fftdata     /= N
-        fftdata[0]  /= 2.
-        fftdata[-1] /= 2.
-        return fftdata
+        dctdata     = dct(data[:N+1], 1)
+        dctdata     /= N
+        dctdata[0]  /= 2.
+        dctdata[-1] /= 2.
+        return dctdata
 
     def chebpolyfit(self, f, N, sample=True):
         """
@@ -164,7 +163,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         else: # f is a vector
             sampled = f
         evened = self.even_data(sampled)
-        coeffs = self.fft(evened)
+        coeffs = self.dct(evened)
         return coeffs
 
     def __repr__(self):
