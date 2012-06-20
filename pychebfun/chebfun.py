@@ -339,13 +339,15 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         # If a_i and b_i are the kth Chebyshev polynomial expansion coefficient
         # Then b_{i-1} = b_{i+1} + 2ia_i; b_N = b_{N+1} = 0; b_0 = b_2/2 + a_1
 
-        # DOESNT WORK YET :( POSSIBLY DUE TO __init__?
-        bi = np.array([0])
-        for i in np.arange(self.N,1,-1):
-            bi = np.append(bi,bi[0] + 2*self.ai[i])
-        bi = np.append(bi,bi[0]/2 + self.ai[i])
+        N = len(self.ai)
 
-        return Chebfun(self, ai=bi)
+        bi = np.array([2.*(N-1)*self.ai[-2], 2.*N*self.ai[-1]])
+
+        for i in np.arange(N-2, 1, -1):
+            bi = np.append(bi[1] + 2.*i*self.ai[i], bi)
+        bi = np.append(bi[1]/2. + self.ai[0], bi)
+
+        return Chebfun(self, chebcoeff=bi)
 
     def roots(self):
         """
