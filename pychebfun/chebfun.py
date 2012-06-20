@@ -169,6 +169,20 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
     def __repr__(self):
         return "<Chebfun({0})>".format(len(self))
 
+    def idct(self, chebcoeff):
+        """
+        Compute the inverse DCT
+        """
+        N = len(chebcoeff)
+
+        data = 2.*chebcoeff
+        data[0] *= 2
+        data[-1] *= 2
+        data *= N
+
+        idctdata = dct(data,1)/(4*N)
+        return idctdata
+
 
     #
     # Basic Operator Overloads

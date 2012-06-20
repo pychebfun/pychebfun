@@ -152,6 +152,11 @@ class Test_Chebfun(unittest.TestCase):
     def test_equal(self):
         self.assertEqual(self.p, Chebfun(self.p))
 
+    def test_idct(self, N=64):
+        data = np.random.rand(N-1)
+        computed = self.p.idct(self.p.dct(data))
+        npt.assert_allclose(computed, data[:N//2])
+
 class Test_Misc(unittest.TestCase):
     def test_truncate(self, N=17):
         """
