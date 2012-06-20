@@ -77,6 +77,10 @@ class Test_Chebfun(unittest.TestCase):
         a = plt.gca()
         self.assertEqual(len(a.lines),1)
 
+    def test_chebcoeff(self):
+        new = Chebfun(chebcoeff=self.p.ai)
+        npt.assert_allclose(self.p(xs), new(xs))
+
     def test_cheb_plot(self):
         self.p.compare(f)
 

@@ -48,14 +48,15 @@ class Chebfun(object):
         Raised when dichotomy does not converge.
         """
 
-    def __init__(self, f=None, N=0,):
+    def __init__(self, f=None, N=0, chebcoeff=None,):
         """
 Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1,1]`.
 
 :param callable f: Python, Numpy, or Sage function
 :param int N: (default = None)  specify number of interpolating points
+:param np.array chebcoeff: (default = np.array(0)) specify the coefficients of a Chebfun
         """
-        
+
         if self.record:
             self.intermediate = []
             self.bnds = []
@@ -85,42 +86,51 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             self.x = f.x
             self.f = f.f
 
-        if not N: # N is not provided
-            # Find out the right number of coefficients to keep
-            for k in xrange(2,self.max_nb_dichotomy):
-                N = pow(2,k)
+        if chebcoeff is not None: # if the coefficients of a Chebfun are given
 
-                coeffs = self.chebpolyfit(f,N, sample=True)
+            self.N = N = len(chebcoeff)
+            self.ai = chebcoeff
+            self.f = self.idct(chebcoeff)
+            self.x = self.interpolation_points(N-1)
+            self.p = Bary(self.x, self.f)
 
-                # 3) Check for negligible coefficients
-                #    If within bound: get negligible coeffs and bread
-                bnd = 128*emach*abs(np.max(coeffs))
+        else: # if the coefficients of a Chebfun are not given
+            if not N: # N is not provided
+                # Find out the right number of coefficients to keep
+                for k in xrange(2,self.max_nb_dichotomy):
+                    N = pow(2,k)
+
+                    coeffs = self.chebpolyfit(f,N, sample=True)
+
+                    # 3) Check for negligible coefficients
+                    #    If within bound: get negligible coeffs and bread
+                    bnd = 128*emach*abs(np.max(coeffs))
+                    if self.record:
+                        self.bnds.append(bnd)
+                        self.intermediate.append(coeffs)
+
+                    last = abs(coeffs[-2:])
+                    if np.all(last <= bnd):
+                        break
+                else:
+                    raise self.NoConvergence(last, bnd)
+
+
+                # End of convergence loop: construct polynomial
+                [inds]  = np.where(abs(coeffs) >= bnd)
+                N = inds[-1]
+
                 if self.record:
                     self.bnds.append(bnd)
                     self.intermediate.append(coeffs)
-
-                last = abs(coeffs[-2:])
-                if np.all(last <= bnd):
-                    break
             else:
-                raise self.NoConvergence(last, bnd)
+                nextpow2 = int(np.log2(N))+1
+                coeffs = self.chebpolyfit(f,pow(2,nextpow2), sample=True)
 
-
-            # End of convergence loop: construct polynomial
-            [inds]  = np.where(abs(coeffs) >= bnd)
-            N = inds[-1]
-
-            if self.record:
-                self.bnds.append(bnd)
-                self.intermediate.append(coeffs)
-        else:
-            nextpow2 = int(np.log2(N))+1
-            coeffs = self.chebpolyfit(f,pow(2,nextpow2), sample=True)
-
-        self.ai = coeffs[:N+1]
-        self.x  = self.interpolation_points(N)
-        self.f  = f(self.x)
-        self.p  = Bary(self.x, self.f)
+            self.ai = coeffs[:N+1]
+            self.x  = self.interpolation_points(N)
+            self.f  = f(self.x)
+            self.p  = Bary(self.x, self.f)
             
 
 
