@@ -97,7 +97,7 @@ class Test_Chebfun(unittest.TestCase):
         sq = Chebfun(square)
         npt.assert_array_less(0, sq(xs))
         self.sq = sq
-    
+
     def test_chebyshev_points(self):
         N = pow(2,5)
         pts = self.p.interpolation_points(N)
@@ -147,7 +147,7 @@ class Test_Chebfun(unittest.TestCase):
 
     def test_interp_values(self):
         """
-        Instianciate Chebfun from interpolation values.
+        Instanciate Chebfun from interpolation values.
         """
         p2 = Chebfun(self.p.f)
         npt.assert_almost_equal(self.p.ai, p2.ai)
