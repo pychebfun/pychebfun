@@ -345,7 +345,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
         for i in np.arange(N-2, 1, -1):
             bi = np.append(bi[1] + 2.*i*self.ai[i], bi)
-        bi = np.append(bi[1]/2. + self.ai[0], bi)
+        bi = np.append(bi[1]/2. + self.ai[1], bi)
 
         return Chebfun(self, chebcoeff=bi)
 
