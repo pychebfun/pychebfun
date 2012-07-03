@@ -353,12 +353,13 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         """
         Return the roots of the chebfun.
         """
-        N            = len(self.ai)
-        coeffs       = np.append(np.array([self.ai[N-k-1] for k in np.arange(N)]), self.ai[1:])
+        N = len(self.ai)
+        coeffs = np.hstack([self.ai[-1::-1], self.ai[1:]])
         coeffs[N-1] *= 2
-        zNq          = np.poly1d(coeffs)
-        return np.unique(np.array([np.real(r) for r in zNq.roots if abs(r) > 0.99999999 and abs(r) < 1.00000001]))
-        
+        zNq = np.poly1d(coeffs)
+        roots = np.array([np.real(r) for r in zNq.roots if np.allclose(abs(r),1.)])
+        return np.unique(roots)
+
     plot_res = 1000
 
     def plot(self, interpolation_points=True, *args, **kwargs):
