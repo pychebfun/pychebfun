@@ -136,6 +136,10 @@ class Test_Chebfun(unittest.TestCase):
         i = p.integral()
         self.assertAlmostEqual(i,2/3)
 
+    @unittest.expectedFailure
+    def test_integrate(self):
+        q = self.p.integrate()
+
     def test_differentiate(self):
         computed = self.p.differentiate()
         expected = Chebfun(fd)
