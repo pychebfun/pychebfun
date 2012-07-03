@@ -48,7 +48,7 @@ class Chebfun(object):
 
     def __init__(self, f=None, N=0, chebcoeff=None,):
         """
-Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1,1]`.
+Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1, 1]`.
 
 :param callable f: Python, Numpy, or Sage function
 :param int N: (default = None)  specify number of interpolating points
@@ -70,7 +70,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             vals = np.array(f)
             N = len(vals)-1
             if N:
-                self.ai = self.chebpolyfit(vals,N, sample=False)
+                self.ai = self.chebpolyfit(vals, N, sample=False)
                 self.x = self.interpolation_points(N)
             else: # just one value provided
                 self.ai = vals.copy()
@@ -88,17 +88,17 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
             self.N = N = len(chebcoeff)
             self.ai = chebcoeff
-            self.f = self.idct(chebcoeff)
+            self.f = idct(chebcoeff)
             self.x = self.interpolation_points(N-1)
             self.p = Bary(self.x, self.f)
 
         else: # if the coefficients of a Chebfun are not given
             if not N: # N is not provided
                 # Find out the right number of coefficients to keep
-                for k in xrange(2,self.max_nb_dichotomy):
-                    N = pow(2,k)
+                for k in xrange(2, self.max_nb_dichotomy):
+                    N = pow(2, k)
 
-                    coeffs = self.chebpolyfit(f,N, sample=True)
+                    coeffs = self.chebpolyfit(f, N, sample=True)
 
                     # 3) Check for negligible coefficients
                     #    If within bound: get negligible coeffs and bread
@@ -123,7 +123,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
                     self.intermediate.append(coeffs)
             else:
                 nextpow2 = int(np.log2(N))+1
-                coeffs = self.chebpolyfit(f,pow(2,nextpow2), sample=True)
+                coeffs = self.chebpolyfit(f, pow(2, nextpow2), sample=True)
 
             self.ai = coeffs[:N+1]
             self.x  = self.interpolation_points(N)
@@ -137,7 +137,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
     @classmethod
     def interpolation_points(self, N):
         """
-        N+1 Chebyshev points in [-1,1], boundaries included
+        N+1 Chebyshev points in [-1, 1], boundaries included
         """
         return np.cos(np.arange(N+1)*np.pi/N)
 
@@ -150,11 +150,11 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         Compute Chebyshev coefficients of a function f on N points.
         """
         if sample:
-            sampled = self.sample(f,N)
+            sampled = self.sample(f, N)
         else: # f is a vector
             sampled = f
-        evened = self.even_data(sampled)
-        coeffs = self.dct(evened)
+        evened = even_data(sampled)
+        coeffs = dct(evened)
         return coeffs
 
     def __repr__(self):
@@ -173,7 +173,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         """
         Test for difference from zero (up to tolerance)
         """
-        return not np.allclose(self.chebyshev_coefficients(),0)
+        return not np.allclose(self.chebyshev_coefficients(), 0)
 
     def __eq__(self, other):
         return not(self - other)
@@ -323,15 +323,15 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         coeffs = np.hstack([self.ai[-1::-1], self.ai[1:]])
         coeffs[N-1] *= 2
         zNq = np.poly1d(coeffs)
-        roots = np.array([np.real(r) for r in zNq.roots if np.allclose(abs(r),1.)])
+        roots = np.array([np.real(r) for r in zNq.roots if np.allclose(abs(r), 1.)])
         return np.unique(roots)
 
     plot_res = 1000
 
     def plot(self, interpolation_points=True, *args, **kwargs):
-        xs = np.linspace(-1,1,self.plot_res)
+        xs = np.linspace(-1, 1, self.plot_res)
         axis = plt.gca()
-        axis.plot(xs,self(xs), *args, **kwargs)
+        axis.plot(xs, self(xs), *args, **kwargs)
         if interpolation_points:
             current_color = axis.lines[-1].get_color() # figure out current colour
             axis.plot(self.x, self.f, marker='.', linestyle='', color=current_color)
@@ -343,7 +343,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         """
         fig = plt.figure()
         ax  = fig.add_subplot(111)
-        
+
         data = np.log10(np.abs(self.ai))
         ax.plot(data, 'r' , *args, **kwds)
         ax.plot(data, 'r.', *args, **kwds)
@@ -353,7 +353,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
     def plot_interpolating_points(self):
         plt.plot(self.x, self.f)
 
-    def compare(self,f,*args,**kwds):
+    def compare(self, f, *args, **kwds):
         """
         Plots the original function against its chebfun interpolant.
         
@@ -361,16 +361,17 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
             -- f: Python, Numpy, or Sage function
         """
-        x   = np.linspace(-1,1,10000)
+        x   = np.linspace(-1, 1, 10000)
         fig = plt.figure()
         ax  = fig.add_subplot(211)
         
-        ax.plot(x,f(x),'#dddddd',linewidth=10,label='Actual', *args, **kwds)
-        self.plot(color='red', label='Chebfun Interpolant (d={0})'.format(len(self)), *args, **kwds)
+        ax.plot(x, f(x), '#dddddd', linewidth=10, label='Actual', *args, **kwds)
+        label = 'Chebfun Interpolant (d={0})'.format(len(self))
+        self.plot(color='red', label=label, *args, **kwds)
         ax.legend(loc='best')
 
         ax  = fig.add_subplot(212)
-        ax.plot(x,abs(f(x)-self(x)),'k')
+        ax.plot(x, abs(f(x)-self(x)), 'k')
 
         return ax
 
