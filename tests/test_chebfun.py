@@ -64,6 +64,10 @@ class Test_Chebfun(unittest.TestCase):
         roots = self.p.roots()
         npt.assert_array_almost_equal(f(roots),0)
 
+    def test_all_roots(self):
+        roots = self.p.roots()
+        self.assertEqual(len(roots),22)
+
     def test_plot(self):
         self.p.plot()
 
