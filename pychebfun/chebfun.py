@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-# coding: UTF-8
-from __future__ import division
-
 """
 Chebfun module
 ==============
@@ -12,6 +9,8 @@ Chebfun module
 
 
 """
+# coding: UTF-8
+from __future__ import division
 
 import numpy as np
 import scipy as sp
