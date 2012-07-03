@@ -20,7 +20,6 @@ import sys
 from functools import wraps
 
 from scipy.interpolate import BarycentricInterpolator as Bary
-from scipy.fftpack     import dct
 
 def cast_scalar(method):
     """
@@ -135,13 +134,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
     record = False # whether to record convergence information
 
-    def even_data(self, data):
-        """
-        Construct Extended Data Vector (equivalent to creating an
-        even extension of the original function)
-        """
-        return np.hstack([data,data[-2:0:-1]])
-
+    @classmethod
     def interpolation_points(self, N):
         """
         N+1 Chebyshev points in [-1,1], boundaries included
@@ -151,17 +144,6 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
     def sample(self, f, N):
         x = self.interpolation_points(N)
         return f(x)
-
-    def dct(self, data):
-        """
-        Compute DCT
-        """
-        N = len(data)//2
-        dctdata     = dct(data[:N+1], 1)
-        dctdata     /= N
-        dctdata[0]  /= 2.
-        dctdata[-1] /= 2.
-        return dctdata
 
     def chebpolyfit(self, f, N, sample=True):
         """
@@ -177,21 +159,6 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
     def __repr__(self):
         return "<Chebfun({0})>".format(len(self))
-
-    def idct(self, chebcoeff):
-        """
-        Compute the inverse DCT
-        """
-        N = len(chebcoeff)
-
-        data = 2.*chebcoeff
-        data[0] *= 2
-        data[-1] *= 2
-        data *= N
-
-        idctdata = dct(data,1)/(4*N)
-        return idctdata
-
 
     #
     # Basic Operator Overloads
@@ -413,4 +380,39 @@ def chebpoly(n):
     vals = np.ones(n+1)
     vals[-1::-2] = -1
     return Chebfun(vals)
+
+def even_data(data):
+    """
+    Construct Extended Data Vector (equivalent to creating an
+    even extension of the original function)
+    """
+    return np.hstack([data, data[-2:0:-1]])
+
+import scipy.fftpack as fftpack
+
+def dct(data):
+    """
+    Compute DCT
+    """
+    N = len(data)//2
+    dctdata     = fftpack.dct(data[:N+1], 1)
+    dctdata     /= N
+    dctdata[0]  /= 2.
+    dctdata[-1] /= 2.
+    return dctdata
+
+def idct(chebcoeff):
+    """
+    Compute the inverse DCT
+    """
+    N = len(chebcoeff)
+
+    data = 2.*chebcoeff
+    data[0] *= 2
+    data[-1] *= 2
+    data *= N
+
+    idctdata = fftpack.dct(data, 1)/(4*N)
+    return idctdata
+
 

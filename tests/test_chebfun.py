@@ -107,15 +107,6 @@ class Test_Chebfun(unittest.TestCase):
         pts = self.p.interpolation_points(N)
         npt.assert_array_almost_equal(pts[[0,-1]],np.array([1.,-1]))
 
-    def test_even_data(self):
-        """
-        even_data on vector of length N+1 returns a vector of size 2*N
-        """
-        N = 32
-        data = np.random.rand(N+1)
-        even = self.p.even_data(data)
-        self.assertEqual(len(even), 2*N)
-
     def test_N(self):
         N = len(self.p) - 1
         pN = Chebfun(f, N)
@@ -161,10 +152,6 @@ class Test_Chebfun(unittest.TestCase):
     def test_equal(self):
         self.assertEqual(self.p, Chebfun(self.p))
 
-    def test_idct(self, N=64):
-        data = np.random.rand(N-1)
-        computed = self.p.idct(self.p.dct(data))
-        npt.assert_allclose(computed, data[:N//2])
 
 class Test_Misc(unittest.TestCase):
     def test_truncate(self, N=17):
@@ -222,6 +209,19 @@ class Test_Misc(unittest.TestCase):
         rr = 1./(1+25*x**2)
         npt.assert_almost_equal(r(xs),rr(xs), decimal=13)
 
+    def test_idct(self, N=64):
+        data = np.random.rand(N-1)
+        computed = idct(dct(data))
+        npt.assert_allclose(computed, data[:N//2])
+
+    def test_even_data(self):
+        """
+        even_data on vector of length N+1 returns a vector of size 2*N
+        """
+        N = 32
+        data = np.random.rand(N+1)
+        even = even_data(data)
+        self.assertEqual(len(even), 2*N)
 
 
     @unittest.expectedFailure
