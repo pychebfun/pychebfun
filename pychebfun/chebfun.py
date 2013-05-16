@@ -21,6 +21,27 @@ from functools import wraps
 
 from scipy.interpolate import BarycentricInterpolator as Bary
 
+def differentiator(A):
+    """Differentiate a set of Chebyshev polynomial expansion 
+       coefficients
+       Originally from http://www.scientificpython.net/1/post/2012/04/chebyshev-differentiation.html
+        + bug fixing
+       """
+    m, n = A.shape
+    SA = A*np.outer(2*np.arange(m),np.ones(n))
+    DA = np.zeros((m,n))
+    if m == 1:
+        return np.zeros([1,n])
+    if m == 2:
+        return np.vstack([A[1,:], np.zeros([1,n])])
+    DA[m-3:m-1,:]=SA[m-2:m,:]   
+    for j in range(int(np.floor(m/2)-1)):
+        k=m-3-2*j
+        DA[k,:] = SA[k+1,:] + DA[k+2,:]
+        DA[k-1,:] = SA[k,:] + DA[k+1,:]
+    DA[0,:] = (SA[1,:] + DA[2,:])*0.5
+    return DA
+
 def cast_scalar(method):
     """
     Used to cast scalar to Chebfuns
@@ -296,23 +317,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         return self.differentiate()
 
     def differentiate(self):
-        """
-        Return the Chebfun representing the derivative of self. Uses spectral
-        methods for accurately constructing the derivative.
-        """
-        # Compute new ai by doing a backsolve
-
-        # If a_i and b_i are the kth Chebyshev polynomial expansion coefficient
-        # Then b_{i-1} = b_{i+1} + 2ia_i; b_N = b_{N+1} = 0; b_0 = b_2/2 + a_1
-
-        N = len(self.ai)
-
-        bi = np.array([2.*(N-1)*self.ai[-2], 2.*N*self.ai[-1]])
-
-        for i in np.arange(N-2, 1, -1):
-            bi = np.append(bi[1] + 2.*i*self.ai[i], bi)
-        bi = np.append(bi[1]/2. + self.ai[1], bi)
-
+        bi = differentiator(self.ai.reshape(-1,1)).reshape(-1)
         return Chebfun(self, chebcoeff=bi)
 
     def roots(self):

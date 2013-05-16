@@ -20,16 +20,26 @@ import numpy.testing as npt
 
 import unittest
 
+def Identity(x):
+    return x
+
+def One(x):
+    return np.ones_like(x, dtype=float)
+
+def Zero(x):
+    return np.zeros_like(x, dtype=float)
 
 def f(x):
     return np.sin(6*x) + np.sin(30*np.exp(x))
-
 
 def fd(x):
     """
     Derivative of f
     """
     return 6*np.cos(6*x) + np.cos(30*np.exp(x))*30*np.exp(x)
+
+def Quad(x):
+    return x*x
 
 def piecewise_continuous(x):
     """
@@ -39,10 +49,6 @@ def piecewise_continuous(x):
 
 def runge(x):
     return 1./(1+25*x**2)
-
-@np.vectorize
-def zero(x):
-    return 0.
 
 xs = np.linspace(-1,1,1000)
 
@@ -120,13 +126,13 @@ class Test_Chebfun(unittest.TestCase):
         self.assertEqual(len(p.bnds), 7)
 
     def test_zero(self):
-        p = Chebfun(zero)
+        p = Chebfun(Zero)
         self.assertEqual(len(p),5) # should be equal to the minimum length, 4+1
 
 
     def test_nonzero(self):
         self.assertTrue(self.p)
-        mp = Chebfun(zero)
+        mp = Chebfun(Zero)
         self.assertFalse(mp)
 
     def test_integral(self):
@@ -144,6 +150,23 @@ class Test_Chebfun(unittest.TestCase):
         computed = self.p.differentiate()
         expected = Chebfun(fd)
         npt.assert_allclose(computed(xs), expected(xs),)
+
+    def test_diffquad(self):
+        self.p = .5*Chebfun(Quad)
+        X = self.p.differentiate()
+        npt.assert_array_almost_equal(X(xs), xs)
+
+    def test_diff_x(self):
+        self.p = Chebfun(Identity)
+        one = self.p.differentiate()
+        zero = one.differentiate()
+        npt.assert_allclose(one(xs), 1.)
+        npt.assert_allclose(Zero(xs), 0.)
+
+    def test_diff_one(self):
+        one = Chebfun(1.)
+        zero = one.differentiate()
+        npt.assert_array_almost_equal(Zero(xs), 0.)
 
     def test_interp_values(self):
         """
@@ -242,7 +265,7 @@ class Test_Arithmetic(unittest.TestCase):
         self.assertEqual(self.p1, self.p1)
         self.assertEqual(self.p1*1, 1*self.p1)
         self.assertEqual(self.p1*1, self.p1)
-        self.assertEqual(0*self.p1, zero)
+        self.assertEqual(0*self.p1, Chebfun(Zero))
 
     def test_commutativity(self):
         self.assertEqual(self.p1*self.p2, self.p2*self.p1)
