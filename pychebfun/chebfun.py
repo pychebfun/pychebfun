@@ -91,8 +91,8 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             vals = np.array(f)
             N = len(vals)-1
             if N:
-                self.ai = self.chebpolyfit(vals, N, sample=False)
-                self.x = self.interpolation_points(N)
+                self.ai = chebpolyfit(vals, N, sample=False)
+                self.x = interpolation_points(N)
             else: # just one value provided
                 self.ai = vals.copy()
                 self.x = [1.]
@@ -110,7 +110,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             self.N = N = len(chebcoeff)
             self.ai = chebcoeff
             self.f = idct(chebcoeff)
-            self.x = self.interpolation_points(N-1)
+            self.x = interpolation_points(N-1)
             self.p = Bary(self.x, self.f)
 
         else: # if the coefficients of a Chebfun are not given
@@ -119,7 +119,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
                 for k in xrange(2, self.max_nb_dichotomy):
                     N = pow(2, k)
 
-                    coeffs = self.chebpolyfit(f, N, sample=True)
+                    coeffs = chebpolyfit(f, N, sample=True)
 
                     # 3) Check for negligible coefficients
                     #    If within bound: get negligible coeffs and bread
@@ -144,10 +144,10 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
                     self.intermediate.append(coeffs)
             else:
                 nextpow2 = int(np.log2(N))+1
-                coeffs = self.chebpolyfit(f, pow(2, nextpow2), sample=True)
+                coeffs = chebpolyfit(f, pow(2, nextpow2), sample=True)
 
             self.ai = coeffs[:N+1]
-            self.x  = self.interpolation_points(N)
+            self.x  = interpolation_points(N)
             self.f  = f(self.x)
             self.p  = Bary(self.x, self.f)
             
@@ -155,28 +155,6 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
     record = False # whether to record convergence information
 
-    @classmethod
-    def interpolation_points(self, N):
-        """
-        N+1 Chebyshev points in [-1, 1], boundaries included
-        """
-        return np.cos(np.arange(N+1)*np.pi/N)
-
-    def sample(self, f, N):
-        x = self.interpolation_points(N)
-        return f(x)
-
-    def chebpolyfit(self, f, N, sample=True):
-        """
-        Compute Chebyshev coefficients of a function f on N points.
-        """
-        if sample:
-            sampled = self.sample(f, N)
-        else: # f is a vector
-            sampled = f
-        evened = even_data(sampled)
-        coeffs = dct(evened)
-        return coeffs
 
     def __repr__(self):
         return "<Chebfun({0})>".format(len(self))
@@ -393,6 +371,30 @@ def even_data(data):
     even extension of the original function)
     """
     return np.hstack([data, data[-2:0:-1]])
+
+def interpolation_points(N):
+    """
+    N+1 Chebyshev points in [-1, 1], boundaries included
+    """
+    if N == 0:
+        return np.array([0.])
+    return np.cos(np.arange(N+1)*np.pi/N)
+
+def sample_function(f, N):
+    x = interpolation_points(N)
+    return f(x)
+
+def chebpolyfit(f, N, sample=True):
+    """
+    Compute Chebyshev coefficients of a function f on N points.
+    """
+    if sample:
+        sampled = sample_function(f, N)
+    else: # f is a vector
+        sampled = f
+    evened = even_data(sampled)
+    coeffs = dct(evened)
+    return coeffs
 
 import scipy.fftpack as fftpack
 

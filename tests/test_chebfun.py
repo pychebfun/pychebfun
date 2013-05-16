@@ -110,7 +110,7 @@ class Test_Chebfun(unittest.TestCase):
 
     def test_chebyshev_points(self):
         N = pow(2,5)
-        pts = self.p.interpolation_points(N)
+        pts = interpolation_points(N)
         npt.assert_array_almost_equal(pts[[0,-1]],np.array([1.,-1]))
 
     def test_N(self):
