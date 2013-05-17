@@ -189,9 +189,12 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             return
 
         # from this point, we assume that f is a function
-        self.init_from_function(f, N)
+        if f is not None:
+            self.init_from_function(f, N)
 
-        
+        # at this point, none of the initialisation worked, the Chebfun object is empy
+        # but may be initialised manually with one of the init_ methods
+
 
 
     record = False # whether to record convergence information

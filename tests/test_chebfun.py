@@ -194,6 +194,9 @@ class Test_Misc(unittest.TestCase):
         data = np.array([-1, 1.])
         c = Chebfun(data)
 
+    def test_empty_init(self):
+        c = Chebfun()
+
     def test_chebcoeff_one(self):
         c = Chebfun(chebcoeff=np.array([[1.],]))
         npt.assert_array_almost_equal(c(xs), 1.)
