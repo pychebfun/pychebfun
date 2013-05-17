@@ -356,10 +356,24 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
     def plot(self, with_interpolation_points=True, *args, **kwargs):
         xs = np.linspace(-1, 1, self.plot_res)
         axis = plt.gca()
-        axis.plot(xs, self(xs), *args, **kwargs)
+        ys = self(xs)
+        # figuring out the dimension of the data; should be factored out
+        shape = np.shape(ys)
+        if len(shape) == 1:
+            dim = 1
+        else:
+            dim = shape[1]
+        if dim == 1:
+            axis.plot(xs, ys, *args, **kwargs)
+        elif dim == 2:
+            axis.plot(ys[:,0], ys[:,1], *args, **kwargs)
         if with_interpolation_points:
             current_color = axis.lines[-1].get_color() # figure out current colour
-            axis.plot(self.x, self.f, marker='.', linestyle='', color=current_color)
+            if dim == 1:
+                axis.plot(self.x, self.f, marker='.', linestyle='', color=current_color)
+            elif dim == 2:
+                axis.plot(self.f[0], self.f[1], marker='.', linestyle='', color=current_color)
+                axis.axis('equal')
         plt.plot()
 
     def chebcoeffplot(self, *args, **kwds):

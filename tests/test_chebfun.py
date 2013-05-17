@@ -34,6 +34,9 @@ def segment(x):
     zeros = np.zeros_like(x)
     return np.vstack([ones, zeros])
 
+def circle(x):
+    return np.vstack([np.cos(np.pi*x), np.sin(np.pi*x)])
+
 def f(x):
     return np.sin(6*x) + np.sin(30*np.exp(x))
 
@@ -197,6 +200,10 @@ class Test_Misc(unittest.TestCase):
 
     def test_init_from_vector_function(self):
         c = Chebfun(segment)
+
+    def test_plot_circle(self):
+        c = Chebfun(circle)
+        c.plot()
 
     def test_has_p(self):
         c1 = Chebfun(f, N=10)
