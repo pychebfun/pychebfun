@@ -29,6 +29,11 @@ def One(x):
 def Zero(x):
     return np.zeros_like(x, dtype=float)
 
+def segment(x):
+    ones = np.ones_like(x)
+    zeros = np.zeros_like(x)
+    return np.vstack([ones, zeros])
+
 def f(x):
     return np.sin(6*x) + np.sin(30*np.exp(x))
 
@@ -190,6 +195,8 @@ class Test_Misc(unittest.TestCase):
         c = Chebfun(chebcoeff=np.array([[1.],]))
         npt.assert_array_almost_equal(c(xs), 1.)
 
+    def test_init_from_vector_function(self):
+        c = Chebfun(segment)
 
     def test_has_p(self):
         c1 = Chebfun(f, N=10)

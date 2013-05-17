@@ -76,7 +76,7 @@ class Chebfun(object):
         self.ai = chebpolyfit(vals, N, sample=False)
         self.x = interpolation_points(N)
         self.f = vals.copy()
-        self.p  = Bary(self.x, self.f)
+        self.p  = interpolate(self.x, self.f)
 
     def init_from_chebfun(self, f):
         self.ai = f.ai.copy()
@@ -92,7 +92,7 @@ class Chebfun(object):
         self.ai = chebcoeff
         self.f = idct(chebcoeff)
         self.x = interpolation_points(N-1)
-        self.p = Bary(self.x, self.f)
+        self.p = interpolate(self.x, self.f)
 
     def init_from_function(self, f):
         # Find out the right number of coefficients to keep
@@ -165,7 +165,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             self.ai = coeffs[:N+1]
             self.x  = interpolation_points(N)
             self.f  = f(self.x)
-            self.p  = Bary(self.x, self.f)
+            self.p  = interpolate(self.x, self.f.T)
             
 
 
@@ -399,7 +399,7 @@ def interpolation_points(N):
 
 def sample_function(f, N):
     x = interpolation_points(N)
-    return f(x)
+    return f(x).T
 
 def chebpolyfit(f, N, sample=True):
     """
@@ -446,4 +446,9 @@ def idct(chebcoeff):
     idctdata = fftpack.dct(data.T, 1).T/(4*N)
     return idctdata
 
+def interpolate(x, values):
+    """
+    Returns a polynomial with vector coefficients which interpolates the values at the points x
+    """
+    return Bary(x, values)
 
