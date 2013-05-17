@@ -131,7 +131,7 @@ class Test_Chebfun(unittest.TestCase):
 
     def test_record(self):
         p = Chebfun(f)
-        self.assertEqual(len(p.bnds), 7)
+        self.assertEqual(len(p.bnds), 6)
 
     def test_zero(self):
         p = Chebfun(Zero)

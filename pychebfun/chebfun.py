@@ -79,12 +79,18 @@ class Chebfun(object):
         self.p  = interpolate(self.x, self.f)
 
     def init_from_chebfun(self, f):
+        """
+        Initialise from another instance of Chebfun
+        """
         self.ai = f.ai.copy()
         self.x = f.x
         self.f = f.f
         self.p = f.p
 
     def init_from_chebcoeff(self, chebcoeff):
+        """
+        Initialise from provided Chebyshev coefficients
+        """
         ## if len(np.shape(chebcoeff)) == 1: # make sure the data is a matrix
         ## 	chebcoeff = np.reshape(chebcoeff, (-1,1))
 
@@ -94,9 +100,22 @@ class Chebfun(object):
         self.x = interpolation_points(N-1)
         self.p = interpolate(self.x, self.f)
 
-    def init_from_function(self, f):
-        # Find out the right number of coefficients to keep
-        for k in xrange(2, self.max_nb_dichotomy):
+    def dichotomy(self, f, kmin=None, kmax=None, raise_no_convergence=True):
+        """
+        Compute the coefficients for a function f by dichotomy.
+        kmin, kmax: log2 of number of interpolation points to try
+        raise_no_convergence: whether to raise an exception if the dichotomy does not converge
+        """
+        if kmin is None:
+            kmin = 2
+        if kmax is None:
+            kmax = self.max_nb_dichotomy
+
+        if self.record:
+            self.intermediate = []
+            self.bnds = []
+
+        for k in xrange(kmin, kmax):
             N = pow(2, k)
 
             coeffs = chebpolyfit(f, N, sample=True)
@@ -112,19 +131,37 @@ class Chebfun(object):
             if np.all(last <= bnd):
                 break
         else:
-            raise self.NoConvergence(last, bnd)
-
-
-        # End of convergence loop: construct polynomial
+            if raise_no_convergence:
+                raise self.NoConvergence(last, bnd)
         inds  = np.nonzero(abs(coeffs) >= bnd)
-        N = inds[0][-1]
+        Nmax = inds[0][-1]
+        return coeffs, Nmax
 
-        if self.record:
-            self.bnds.append(bnd)
-            self.intermediate.append(coeffs)
-        return coeffs, N
+    def init_from_function(self, f, N=None):
+        """
+        Initialise from a function to sample.
+        N: optional parameter which indicates the range of the dichotomy
+        """
+        if N is not None: # N is provided
+            nextpow2 = int(np.log2(N))+1
+            kmin = nextpow2
+            kmax = nextpow2+1
+            raise_no_convergence = False
+        else:
+            kmin = None
+            kmax = None
+            raise_no_convergence = True
 
-    def __init__(self, f=None, N=0, chebcoeff=None,):
+        # Find out the right number of coefficients to keep
+        coeffs, Nmax = self.dichotomy(f, kmin, kmax, raise_no_convergence)
+
+
+        self.ai = coeffs[:Nmax+1]
+        self.x  = interpolation_points(Nmax)
+        self.f  = f(self.x)
+        self.p  = interpolate(self.x, self.f.T)
+
+    def __init__(self, f=None, N=None, chebcoeff=None,):
         """
 Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1, 1]`.
 
@@ -132,10 +169,6 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 :param int N: (default = None)  specify number of interpolating points
 :param np.array chebcoeff: (default = np.array(0)) specify the coefficients of a Chebfun
         """
-
-        if self.record:
-            self.intermediate = []
-            self.bnds = []
 
         if np.isscalar(f):
             f = [f]
@@ -155,18 +188,11 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         if chebcoeff is not None: # if the coefficients of a Chebfun are given
             self.init_from_chebcoeff(chebcoeff)
             return
-        else: # if the coefficients of a Chebfun are not given
-            if not N: # N is not provided
-                coeffs, N = self.init_from_function(f)
-            else:
-                nextpow2 = int(np.log2(N))+1
-                coeffs = chebpolyfit(f, pow(2, nextpow2), sample=True)
 
-            self.ai = coeffs[:N+1]
-            self.x  = interpolation_points(N)
-            self.f  = f(self.x)
-            self.p  = interpolate(self.x, self.f.T)
-            
+        # from this point, we assume that f is a function
+        self.init_from_function(f, N)
+
+        
 
 
     record = False # whether to record convergence information
