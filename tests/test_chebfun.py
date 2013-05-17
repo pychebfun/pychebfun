@@ -148,8 +148,8 @@ class Test_Chebfun(unittest.TestCase):
         i = p.integral()
         npt.assert_array_almost_equal(i,2/3)
 
-    @unittest.expectedFailure
     def test_integrate(self):
+        self.skipTest('bug in Chebfun.integrate')
         q = self.p.integrate()
 
     def test_differentiate(self):
@@ -282,8 +282,8 @@ class Test_Misc(unittest.TestCase):
 
 
 
-    @unittest.expectedFailure
     def test_underflow(self):
+        self.skipTest('mysterious underflow error')
         Chebfun.max_nb_dichotomy = 13
         p = Chebfun(piecewise_continuous)
 
@@ -307,9 +307,8 @@ class Test_Arithmetic(unittest.TestCase):
         b = self.p2 - self.p1
         self.assertEqual(a+b,0)
 
-    @unittest.expectedFailure
-    @unittest.expectedFailure
     def test_neg(self):
+        self.skipTest('problem due to lack of scaling strategy')
         rm = -self.p2
         z = self.p2 + rm
 
