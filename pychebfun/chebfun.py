@@ -30,10 +30,10 @@ def differentiator(A):
     m, n = A.shape
     SA = A*np.outer(2*np.arange(m),np.ones(n))
     DA = np.zeros((m,n))
-    if m == 1:
+    if m == 1: # constant
         return np.zeros([1,n])
-    if m == 2:
-        return np.vstack([A[1,:], np.zeros([1,n])])
+    if m == 2: # linear
+        return A[1:2,:]
     DA[m-3:m-1,:]=SA[m-2:m,:]   
     for j in range(int(np.floor(m/2)-1)):
         k=m-3-2*j
@@ -295,8 +295,8 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         return self.differentiate()
 
     def differentiate(self):
-        bi = differentiator(self.ai.reshape(-1,1)).reshape(-1)
-        return Chebfun(self, chebcoeff=bi)
+        bi = differentiator(self.ai)
+        return Chebfun(chebcoeff=bi)
 
     def roots(self):
         """
