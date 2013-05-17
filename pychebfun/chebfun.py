@@ -67,6 +67,63 @@ class Chebfun(object):
         Raised when dichotomy does not converge.
         """
 
+    def init_from_data(self, f):
+        """
+        The data provided are the values at the Chebyshev points
+        """
+        vals = np.array(f)
+        N = len(vals)-1
+        self.ai = chebpolyfit(vals, N, sample=False)
+        self.x = interpolation_points(N)
+        self.f = vals.copy()
+        self.p  = Bary(self.x, self.f)
+
+    def init_from_chebfun(self, f):
+        self.ai = f.ai.copy()
+        self.x = f.x
+        self.f = f.f
+        self.p = f.p
+
+    def init_from_chebcoeff(self, chebcoeff):
+        ## if len(np.shape(chebcoeff)) == 1: # make sure the data is a matrix
+        ## 	chebcoeff = np.reshape(chebcoeff, (-1,1))
+
+        self.N = N = len(chebcoeff)
+        self.ai = chebcoeff
+        self.f = idct(chebcoeff)
+        self.x = interpolation_points(N-1)
+        self.p = Bary(self.x, self.f)
+
+    def init_from_function(self, f):
+        # Find out the right number of coefficients to keep
+        for k in xrange(2, self.max_nb_dichotomy):
+            N = pow(2, k)
+
+            coeffs = chebpolyfit(f, N, sample=True)
+
+            # 3) Check for negligible coefficients
+            #    If within bound: get negligible coeffs and bread
+            bnd = 128*emach*abs(np.max(coeffs))
+            if self.record:
+                self.bnds.append(bnd)
+                self.intermediate.append(coeffs)
+
+            last = abs(coeffs[-2:])
+            if np.all(last <= bnd):
+                break
+        else:
+            raise self.NoConvergence(last, bnd)
+
+
+        # End of convergence loop: construct polynomial
+        inds  = np.nonzero(abs(coeffs) >= bnd)
+        N = inds[0][-1]
+
+        if self.record:
+            self.bnds.append(bnd)
+            self.intermediate.append(coeffs)
+        return coeffs, N
+
     def __init__(self, f=None, N=0, chebcoeff=None,):
         """
 Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1, 1]`.
@@ -88,60 +145,19 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         except TypeError:
             pass
         else:
-            vals = np.array(f)
-            N = len(vals)-1
-            if N:
-                self.ai = chebpolyfit(vals, N, sample=False)
-                self.x = interpolation_points(N)
-            else: # just one value provided
-                self.ai = vals.copy()
-                self.x = [1.]
-            self.f = vals.copy()
-            self.p  = Bary(self.x, self.f)
-            return None
+            self.init_from_data(f)
+            return
 
         if isinstance(f, Chebfun): # copy if f is another Chebfun
-            self.ai = f.ai.copy()
-            self.x = f.x
-            self.f = f.f
+            self.init_from_chebfun(f)
+            return
 
         if chebcoeff is not None: # if the coefficients of a Chebfun are given
-
-            self.N = N = len(chebcoeff)
-            self.ai = chebcoeff
-            self.f = idct(chebcoeff)
-            self.x = interpolation_points(N-1)
-            self.p = Bary(self.x, self.f)
-
+            self.init_from_chebcoeff(chebcoeff)
+            return
         else: # if the coefficients of a Chebfun are not given
             if not N: # N is not provided
-                # Find out the right number of coefficients to keep
-                for k in xrange(2, self.max_nb_dichotomy):
-                    N = pow(2, k)
-
-                    coeffs = chebpolyfit(f, N, sample=True)
-
-                    # 3) Check for negligible coefficients
-                    #    If within bound: get negligible coeffs and bread
-                    bnd = 128*emach*abs(np.max(coeffs))
-                    if self.record:
-                        self.bnds.append(bnd)
-                        self.intermediate.append(coeffs)
-
-                    last = abs(coeffs[-2:])
-                    if np.all(last <= bnd):
-                        break
-                else:
-                    raise self.NoConvergence(last, bnd)
-
-
-                # End of convergence loop: construct polynomial
-                [inds]  = np.where(abs(coeffs) >= bnd)
-                N = inds[-1]
-
-                if self.record:
-                    self.bnds.append(bnd)
-                    self.intermediate.append(coeffs)
+                coeffs, N = self.init_from_function(f)
             else:
                 nextpow2 = int(np.log2(N))+1
                 coeffs = chebpolyfit(f, pow(2, nextpow2), sample=True)
@@ -277,7 +293,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         ai2 = self.ai[::2]
         n = len(ai2)
         Tints = 2/(1-(2*np.arange(n))**2)
-        val = np.sum(Tints*ai2)
+        val = np.sum((Tints*ai2.T).T, axis=0)
 
         return val
 
@@ -300,10 +316,11 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
     def roots(self):
         """
-        Return the roots of the chebfun.
+        Return the roots of the first component of the chebfun.
         """
-        N = len(self.ai)
-        coeffs = np.hstack([self.ai[-1::-1], self.ai[1:]])
+        ai = self.ai[:,0]
+        N = len(ai)
+        coeffs = np.hstack([ai[-1::-1], ai[1:]])
         coeffs[N-1] *= 2
         zNq = np.poly1d(coeffs)
         roots = np.array([np.real(r) for r in zNq.roots if np.allclose(abs(r), 1.)])
@@ -359,7 +376,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         return ax
 
 def chebpoly(n):
-    if not n:
+    if n == 0:
         return Chebfun(np.array([1.]))
     vals = np.ones(n+1)
     vals[-1::-2] = -1
@@ -370,7 +387,7 @@ def even_data(data):
     Construct Extended Data Vector (equivalent to creating an
     even extension of the original function)
     """
-    return np.hstack([data, data[-2:0:-1]])
+    return np.vstack([data, data[-2:0:-1]])
 
 def interpolation_points(N):
     """
@@ -392,6 +409,10 @@ def chebpolyfit(f, N, sample=True):
         sampled = sample_function(f, N)
     else: # f is a vector
         sampled = f
+    if len(np.shape(sampled)) == 1: # make it a matrix
+        sampled = np.reshape(sampled, (-1, 1))
+    if N == 0:
+        return f[0]*np.array([1.]).reshape(-1,1)
     evened = even_data(sampled)
     coeffs = dct(evened)
     return coeffs
@@ -403,7 +424,7 @@ def dct(data):
     Compute DCT
     """
     N = len(data)//2
-    dctdata     = fftpack.dct(data[:N+1], 1)
+    dctdata     = fftpack.dct(data[:N+1].T, 1).T
     dctdata     /= N
     dctdata[0]  /= 2.
     dctdata[-1] /= 2.
@@ -414,13 +435,15 @@ def idct(chebcoeff):
     Compute the inverse DCT
     """
     N = len(chebcoeff)
+    if N == 1:
+        return chebcoeff
 
     data = 2.*chebcoeff
     data[0] *= 2
     data[-1] *= 2
     data *= N
 
-    idctdata = fftpack.dct(data, 1)/(4*N)
+    idctdata = fftpack.dct(data.T, 1).T/(4*N)
     return idctdata
 
 

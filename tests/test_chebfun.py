@@ -50,13 +50,16 @@ def piecewise_continuous(x):
 def runge(x):
     return 1./(1+25*x**2)
 
-xs = np.linspace(-1,1,1000)
+xs = np.linspace(-1, 1, 1000)
 
 class Test_Chebfun(unittest.TestCase):
     def setUp(self):
         # Constuct the O(dx^-16) "spectrally accurate" chebfun p
         Chebfun.record = True
         self.p = Chebfun(f,)
+
+    def test_biglen(self):
+        self.assertGreaterEqual(len(self.p), 4)
 
     def test_len(self):
         self.assertEqual(len(self.p), len(self.p.chebyshev_coefficients()))
@@ -89,7 +92,7 @@ class Test_Chebfun(unittest.TestCase):
 
     def test_chebcoeff(self):
         new = Chebfun(chebcoeff=self.p.ai)
-        npt.assert_allclose(self.p(xs), new(xs))
+        npt.assert_allclose(self.p(xs).reshape(-1,1), new(xs))
 
     def test_cheb_plot(self):
         self.p.compare(f)
@@ -136,11 +139,9 @@ class Test_Chebfun(unittest.TestCase):
         self.assertFalse(mp)
 
     def test_integral(self):
-        def q(x):
-            return x*x
-        p = Chebfun(q)
+        p = Chebfun(Quad)
         i = p.integral()
-        self.assertAlmostEqual(i,2/3)
+        npt.assert_array_almost_equal(i,2/3)
 
     @unittest.expectedFailure
     def test_integrate(self):
@@ -149,12 +150,12 @@ class Test_Chebfun(unittest.TestCase):
     def test_differentiate(self):
         computed = self.p.differentiate()
         expected = Chebfun(fd)
-        npt.assert_allclose(computed(xs), expected(xs),)
+        npt.assert_allclose(computed(xs), expected(xs).reshape(-1,1),)
 
     def test_diffquad(self):
         self.p = .5*Chebfun(Quad)
         X = self.p.differentiate()
-        npt.assert_array_almost_equal(X(xs), xs)
+        npt.assert_array_almost_equal(X(xs), xs.reshape(-1,1))
 
     def test_diff_x(self):
         self.p = Chebfun(Identity)
@@ -181,6 +182,21 @@ class Test_Chebfun(unittest.TestCase):
 
 
 class Test_Misc(unittest.TestCase):
+    def test_init_from_data(self):
+        data = np.array([-1, 1.])
+        c = Chebfun(data)
+
+    def test_chebcoeff_one(self):
+        c = Chebfun(chebcoeff=np.array([[1.],]))
+        npt.assert_array_almost_equal(c(xs), 1.)
+
+
+    def test_has_p(self):
+        c1 = Chebfun(f, N=10)
+        len(c1)
+        c2 = Chebfun(f, )
+        len(c2)
+
     def test_truncate(self, N=17):
         """
         Check that the Chebyshev coefficients are properly truncated.
@@ -213,11 +229,11 @@ class Test_Misc(unittest.TestCase):
     def test_chebpoly(self, ns=[0,5]):
         for n in ns:
             c = chebpoly(n)
-            npt.assert_array_almost_equal(c.chebyshev_coefficients(), [0]*n+[1.])
+            npt.assert_array_almost_equal(c.chebyshev_coefficients(), np.array([0]*n+[1.]).reshape(-1,1))
 
     def test_list_init(self):
         c = Chebfun([1.])
-        npt.assert_array_almost_equal(c.chebyshev_coefficients(),[1.])
+        npt.assert_array_almost_equal(c.chebyshev_coefficients(),np.array([[1.]]))
 
     def test_scalar_init(self):
         one = Chebfun(1.)
@@ -237,7 +253,7 @@ class Test_Misc(unittest.TestCase):
         npt.assert_almost_equal(r(xs),rr(xs), decimal=13)
 
     def test_idct(self, N=64):
-        data = np.random.rand(N-1)
+        data = np.random.rand(N-1, 2)
         computed = idct(dct(data))
         npt.assert_allclose(computed, data[:N//2])
 
@@ -246,7 +262,7 @@ class Test_Misc(unittest.TestCase):
         even_data on vector of length N+1 returns a vector of size 2*N
         """
         N = 32
-        data = np.random.rand(N+1)
+        data = np.random.rand(N+1).reshape(-1,1)
         even = even_data(data)
         self.assertEqual(len(even), 2*N)
 
