@@ -13,7 +13,6 @@ Chebfun module
 from __future__ import division
 
 import numpy as np
-import scipy as sp
 import matplotlib.pyplot as plt
 
 import sys
@@ -28,18 +27,18 @@ def differentiator(A):
         + bug fixing
        """
     m, n = A.shape
-    SA = A*np.outer(2*np.arange(m),np.ones(n))
-    DA = np.zeros((m,n))
+    SA = A*np.outer(2*np.arange(m), np.ones(n))
+    DA = np.zeros((m, n))
     if m == 1: # constant
-        return np.zeros([1,n])
+        return np.zeros([1, n])
     if m == 2: # linear
-        return A[1:2,:]
-    DA[m-3:m-1,:]=SA[m-2:m,:]   
+        return A[1:2, :]
+    DA[m-3:m-1, :] = SA[m-2:m, :]   
     for j in range(int(np.floor(m/2)-1)):
-        k=m-3-2*j
-        DA[k,:] = SA[k+1,:] + DA[k+2,:]
-        DA[k-1,:] = SA[k,:] + DA[k+1,:]
-    DA[0,:] = (SA[1,:] + DA[2,:])*0.5
+        k = m-3-2*j
+        DA[k, :] = SA[k+1, :] + DA[k+2, :]
+        DA[k-1, :] = SA[k, :] + DA[k+1, :]
+    DA[0, :] = (SA[1, :] + DA[2, :])*0.5
     return DA
 
 def cast_scalar(method):
@@ -92,7 +91,7 @@ class Chebfun(object):
         Initialise from provided Chebyshev coefficients
         """
         ## if len(np.shape(chebcoeff)) == 1: # make sure the data is a matrix
-        ## 	chebcoeff = np.reshape(chebcoeff, (-1,1))
+        ## 	chebcoeff = np.reshape(chebcoeff, (-1, 1))
 
         self.N = N = len(chebcoeff)
         self.ai = chebcoeff
@@ -174,7 +173,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
             f = [f]
 
         try:
-            i = iter(f) # interpolation values provided
+            iter(f) # interpolation values provided
         except TypeError:
             pass
         else:
@@ -344,7 +343,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         """
         Return the roots of the first component of the chebfun.
         """
-        ai = self.ai[:,0]
+        ai = self.ai[:, 0]
         N = len(ai)
         coeffs = np.hstack([ai[-1::-1], ai[1:]])
         coeffs[N-1] *= 2
@@ -354,11 +353,11 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
     plot_res = 1000
 
-    def plot(self, interpolation_points=True, *args, **kwargs):
+    def plot(self, with_interpolation_points=True, *args, **kwargs):
         xs = np.linspace(-1, 1, self.plot_res)
         axis = plt.gca()
         axis.plot(xs, self(xs), *args, **kwargs)
-        if interpolation_points:
+        if with_interpolation_points:
             current_color = axis.lines[-1].get_color() # figure out current colour
             axis.plot(self.x, self.f, marker='.', linestyle='', color=current_color)
         plt.plot()
@@ -438,7 +437,7 @@ def chebpolyfit(f, N, sample=True):
     if len(np.shape(sampled)) == 1: # make it a matrix
         sampled = np.reshape(sampled, (-1, 1))
     if N == 0:
-        return f[0]*np.array([1.]).reshape(-1,1)
+        return f[0]*np.array([1.]).reshape(-1, 1)
     evened = even_data(sampled)
     coeffs = dct(evened)
     return coeffs
@@ -477,4 +476,5 @@ def interpolate(x, values):
     Returns a polynomial with vector coefficients which interpolates the values at the points x
     """
     return Bary(x, values)
+
 

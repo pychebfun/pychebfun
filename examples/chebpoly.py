@@ -13,7 +13,7 @@ def plot_first_chebyshev(N, alpha_coeff=10):
     """
     cs = [chebpoly(deg) for deg in range(N)]
     for k,c in enumerate(cs):
-        c.plot(interpolation_points=False, color='black', alpha=alpha_coeff/(k+alpha_coeff))
+        c.plot(with_interpolation_points=False, color='black', alpha=alpha_coeff/(k+alpha_coeff))
     return cs
 
 plot_first_chebyshev(50)

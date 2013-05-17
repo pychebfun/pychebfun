@@ -91,7 +91,7 @@ class Test_Chebfun(unittest.TestCase):
         a = plt.gca()
         self.assertEqual(len(a.lines),2)
         plt.clf()
-        self.p.plot(interpolation_points=False)
+        self.p.plot(with_interpolation_points=False)
         a = plt.gca()
         self.assertEqual(len(a.lines),1)
 
