@@ -266,6 +266,14 @@ class Test_Misc(unittest.TestCase):
         even = even_data(data)
         self.assertEqual(len(even), 2*N)
 
+    def test_chebpolyfit(self):
+        N = 32
+        data = np.random.rand(N-1, 2)
+        coeffs = chebpolyfit(data, N, sample=False)
+        result = idct(coeffs)
+        npt.assert_allclose(data, result)
+
+
 
     @unittest.expectedFailure
     def test_underflow(self):
