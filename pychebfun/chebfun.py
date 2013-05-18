@@ -66,25 +66,25 @@ class Chebfun(object):
         Raised when dichotomy does not converge.
         """
 
-    def init_from_data(self, f):
+    def init_from_data(self, data):
         """
         The data provided are the values at the Chebyshev points
         """
-        vals = np.array(f)
+        vals = np.array(data)
         N = len(vals)-1
         self.ai = chebpolyfit(vals, N, sample=False)
         self.x = interpolation_points(N)
         self.f = vals.copy()
         self.p  = interpolate(self.x, self.f)
 
-    def init_from_chebfun(self, f):
+    def init_from_chebfun(self, other):
         """
         Initialise from another instance of Chebfun
         """
-        self.ai = f.ai.copy()
-        self.x = f.x
-        self.f = f.f
-        self.p = f.p
+        self.ai = other.ai.copy()
+        self.x = other.x
+        self.f = other.f
+        self.p = other.p
 
     def init_from_chebcoeff(self, chebcoeff):
         """
