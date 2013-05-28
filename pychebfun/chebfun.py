@@ -370,7 +370,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         if dim == 1:
             axis.plot(xs, ys, *args, **kwargs)
         elif dim == 2:
-            axis.plot(ys[:,0], ys[:,1], *args, **kwargs)
+            axis.plot(ys[:, 0], ys[:, 1], *args, **kwargs)
         if with_interpolation_points:
             current_color = axis.lines[-1].get_color() # figure out current colour
             if dim == 1:
@@ -441,6 +441,9 @@ def interpolation_points(N):
     return np.cos(np.arange(N+1)*np.pi/N)
 
 def sample_function(f, N):
+    """
+    Sample a function on N+1 Chebyshev points.
+    """
     x = interpolation_points(N)
     return f(x).T
 
