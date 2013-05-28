@@ -72,7 +72,7 @@ class Chebfun(object):
         """
         vals = np.array(data)
         N = len(vals)-1
-        self.ai = chebpolyfit(vals, N, sample=False)
+        self.ai = chebpolyfit(vals)
         self.x = interpolation_points(N)
         self.f = vals.copy()
         self.p  = interpolate(self.x, self.f)
@@ -117,7 +117,8 @@ class Chebfun(object):
         for k in xrange(kmin, kmax):
             N = pow(2, k)
 
-            coeffs = chebpolyfit(f, N, sample=True)
+            sampled = sample_function(f, N)
+            coeffs = chebpolyfit(sampled)
 
             # 3) Check for negligible coefficients
             #    If within bound: get negligible coeffs and bread
@@ -443,18 +444,14 @@ def sample_function(f, N):
     x = interpolation_points(N)
     return f(x).T
 
-def chebpolyfit(f, N, sample=True):
+def chebpolyfit(sampled):
     """
-    Compute Chebyshev coefficients of a function f on N points.
+    Compute Chebyshev coefficients for values on N Chebyshev points.
     """
-    if sample:
-        sampled = sample_function(f, N)
-    else: # f is a vector
-        sampled = f
     if len(np.shape(sampled)) == 1: # make it a matrix
         sampled = np.reshape(sampled, (-1, 1))
-    if N == 0:
-        return f[0]*np.array([1.]).reshape(-1, 1)
+    if len(sampled) == 1:
+        return sampled[0]*np.array([1.]).reshape(-1, 1)
     evened = even_data(sampled)
     coeffs = dct(evened)
     return coeffs

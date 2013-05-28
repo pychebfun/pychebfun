@@ -286,7 +286,7 @@ class Test_Misc(unittest.TestCase):
     def test_chebpolyfit(self):
         N = 32
         data = np.random.rand(N-1, 2)
-        coeffs = chebpolyfit(data, N, sample=False)
+        coeffs = chebpolyfit(data)
         result = idct(coeffs)
         npt.assert_allclose(data, result)
 
