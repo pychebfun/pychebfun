@@ -218,6 +218,23 @@ class TestSimple(unittest.TestCase):
         p = Chebfun(Zero)
         self.assertEqual(len(p),5) # should be equal to the minimum length, 4+1
 
+class TestPolyfitShape(unittest.TestCase):
+    def test_scalar(self):
+        for datalen in [1,3]:
+            coeffs = chebpolyfit(np.ones([datalen]))
+            self.assertEqual(len(coeffs.shape), 1)
+
+    def test_vector(self):
+        for datalen in [1,3]:
+            coeffs = chebpolyfit(np.ones([datalen, 2]))
+            self.assertEqual(len(coeffs.shape), 2)
+
+    def test_list(self):
+        data = [[1.,2], [3,4]]
+        adata = np.array(data)
+        result = chebpolyfit(data)
+        expected = chebpolyfit(adata)
+        npt.assert_array_almost_equal(result, expected)
 
 class TestEven(unittest.TestCase):
     def test_scalar(self):

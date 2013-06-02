@@ -449,13 +449,13 @@ def sample_function(f, N):
 
 def chebpolyfit(sampled):
     """
-    Compute Chebyshev coefficients for values on N Chebyshev points.
+    Compute Chebyshev coefficients for values located on Chebyshev points.
+    sampled: array; first dimension is number of Chebyshev points
     """
-    if len(np.shape(sampled)) == 1: # make it a matrix
-        sampled = np.reshape(sampled, (-1, 1))
-    if len(sampled) == 1:
-        return sampled[0]*np.array([1.]).reshape(-1, 1)
-    evened = even_data(sampled)
+    asampled = np.asarray(sampled)
+    if len(asampled) == 1:
+        return asampled
+    evened = even_data(asampled)
     coeffs = dct(evened)
     return coeffs
 
