@@ -140,14 +140,6 @@ class Test_Chebfun(unittest.TestCase):
         """
         self.assertEqual(len(self.p.bnds), 6)
 
-    def test_zero(self):
-        """
-        Chebfun for zero has the minimal degree 5
-        """
-        p = Chebfun(Zero)
-        self.assertEqual(len(p),5) # should be equal to the minimum length, 4+1
-
-
     def test_nonzero(self):
         """
         nonzero is False for zero Chebfun
@@ -156,13 +148,6 @@ class Test_Chebfun(unittest.TestCase):
         mp = Chebfun(Zero)
         self.assertFalse(mp)
 
-    def test_integral(self):
-        """
-        Integral of chebfun of x**2 on [-1,1] is 2/3
-        """
-        p = Chebfun(Quad)
-        i = p.integral()
-        npt.assert_array_almost_equal(i,2/3)
 
     def test_integrate(self):
         self.skipTest('bug in Chebfun.integrate')
@@ -216,6 +201,22 @@ class TestDifferentiate(unittest.TestCase):
         one = Chebfun(1.)
         zero = one.differentiate()
         npt.assert_array_almost_equal(Zero(xs), 0.)
+
+class TestSimple(unittest.TestCase):
+    def test_integral(self):
+        """
+        Integral of chebfun of x**2 on [-1,1] is 2/3
+        """
+        p = Chebfun(Quad)
+        i = p.integral()
+        npt.assert_array_almost_equal(i,2/3)
+
+    def test_zero(self):
+        """
+        Chebfun for zero has the minimal degree 5
+        """
+        p = Chebfun(Zero)
+        self.assertEqual(len(p),5) # should be equal to the minimum length, 4+1
 
 
 class Test_Misc(unittest.TestCase):
