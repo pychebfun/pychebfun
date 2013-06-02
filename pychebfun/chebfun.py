@@ -430,7 +430,7 @@ def even_data(data):
     Construct Extended Data Vector (equivalent to creating an
     even extension of the original function)
     """
-    return np.vstack([data, data[-2:0:-1]])
+    return np.concatenate([data, data[-2:0:-1]],)
 
 def interpolation_points(N):
     """

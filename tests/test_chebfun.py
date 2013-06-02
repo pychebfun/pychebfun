@@ -219,6 +219,19 @@ class TestSimple(unittest.TestCase):
         self.assertEqual(len(p),5) # should be equal to the minimum length, 4+1
 
 
+class TestEven(unittest.TestCase):
+    def test_scalar(self):
+        data = np.arange(5) # [0, 1, 2, 3, 4]
+        result = even_data(data)
+        expected = np.array(range(5) + range(1,4)[::-1]) # [0, 1, 2, 3, 4, 3, 2, 1]
+        npt.assert_array_almost_equal(result, expected)
+
+    def test_vector(self):
+        data = np.array([[1.,2],[3.,4],[5,6]])
+        result = even_data(data)
+        expected = np.array([[1.,2],[3.,4],[5,6],[3.,4]])
+        npt.assert_array_almost_equal(result, expected)
+
 class Test_Misc(unittest.TestCase):
     def test_init_from_data(self):
         data = np.array([-1, 1.])
