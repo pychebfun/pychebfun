@@ -229,20 +229,6 @@ class Test_Misc(unittest.TestCase):
         fv = np.vectorize(f)
         p = Chebfun(fv)
 
-    def test_examples(self):
-        """
-        Check that the examples can be executed.
-        """
-        here = os.path.dirname(__file__)
-        example_folder = os.path.join(here,os.path.pardir,'examples')
-        files = os.listdir(example_folder)
-        for example in files:
-            file_name = os.path.join(example_folder,example)
-            try:
-                execfile(file_name, {})
-            except Exception as e:
-                raise Exception('Error in {0}: {0}'.format(example), e)
-
     def test_chebpoly(self, ns=[0,5]):
         for n in ns:
             c = chebpoly(n)
@@ -296,6 +282,21 @@ class Test_Misc(unittest.TestCase):
         self.skipTest('mysterious underflow error')
         Chebfun.max_nb_dichotomy = 13
         p = Chebfun(piecewise_continuous)
+
+class TestFunctional(unittest.TestCase):
+    def test_examples(self):
+        """
+        Check that the examples can be executed.
+        """
+        here = os.path.dirname(__file__)
+        example_folder = os.path.join(here,os.path.pardir,'examples')
+        files = os.listdir(example_folder)
+        for example in files:
+            file_name = os.path.join(example_folder,example)
+            try:
+                execfile(file_name, {})
+            except Exception as e:
+                raise Exception('Error in {0}: {0}'.format(example), e)
 
 class Test_Arithmetic(unittest.TestCase):
     def setUp(self):
