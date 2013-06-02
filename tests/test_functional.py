@@ -20,6 +20,10 @@ import numpy.testing as npt
 
 import unittest
 
+def f(x):
+    return np.sin(6*x) + np.sin(30*np.exp(x))
+
+
 class TestFunctional(unittest.TestCase):
     def test_examples(self):
         """
@@ -34,4 +38,30 @@ class TestFunctional(unittest.TestCase):
                 execfile(file_name, {})
             except Exception as e:
                 raise Exception('Error in {0}: {0}'.format(example), e)
+
+class TestPlot(unittest.TestCase):
+    def setUp(self):
+        # Constuct the O(dx^-16) "spectrally accurate" chebfun p
+        Chebfun.record = True
+        self.p = Chebfun()
+        self.p.init_from_function(f)
+
+    def test_plot(self):
+        self.p.plot()
+
+    def test_plot_interpolation_points(self):
+        plt.clf()
+        self.p.plot()
+        a = plt.gca()
+        self.assertEqual(len(a.lines),2)
+        plt.clf()
+        self.p.plot(with_interpolation_points=False)
+        a = plt.gca()
+        self.assertEqual(len(a.lines),1)
+
+    def test_cheb_plot(self):
+        self.p.compare(f)
+
+    def test_chebcoeffplot(self):
+        self.p.chebcoeffplot()
 
