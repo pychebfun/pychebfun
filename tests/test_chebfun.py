@@ -70,18 +70,30 @@ class Test_Chebfun(unittest.TestCase):
         self.assertGreaterEqual(len(self.p), 4)
 
     def test_len(self):
+        """
+        Length of chebfun is equal to the number of Cheb coefficients (i.e., degree)
+        """
         self.assertEqual(len(self.p), len(self.p.chebyshev_coefficients()))
 
     def test_error(self):
+        """
+        Chebfun is closed to function f up to tolerance
+        """
         x = xs
         err = abs(f(x)-self.p(x))
         npt.assert_array_almost_equal(self.p(x),f(x),decimal=13)
 
     def test_root(self):
+        """
+        Roots are zeros of the chebfun.
+        """
         roots = self.p.roots()
         npt.assert_array_almost_equal(f(roots),0)
 
     def test_all_roots(self):
+        """
+        Capture all rots.
+        """
         roots = self.p.roots()
         self.assertEqual(len(roots),22)
 
@@ -90,6 +102,9 @@ class Test_Chebfun(unittest.TestCase):
         npt.assert_allclose(self.p(xs).reshape(-1,1), new(xs))
 
     def test_prod(self):
+        """
+        Product p*p is correct.
+        """
         pp = self.p*self.p
         npt.assert_array_almost_equal(self.p(xs)*self.p(xs),pp(xs))
 
@@ -101,11 +116,17 @@ class Test_Chebfun(unittest.TestCase):
         self.sq = sq
 
     def test_chebyshev_points(self):
+        """
+        First and last interpolation points are -1 and 1
+        """
         N = pow(2,5)
         pts = interpolation_points(N)
         npt.assert_array_almost_equal(pts[[0,-1]],np.array([1.,-1]))
 
     def test_N(self):
+        """
+        Check initialisation with a fixed N
+        """
         N = len(self.p) - 1
         pN = Chebfun(f, N)
         self.assertEqual(len(pN.chebyshev_coefficients()), N+1)
@@ -114,20 +135,31 @@ class Test_Chebfun(unittest.TestCase):
         npt.assert_array_almost_equal(pN.chebyshev_coefficients(),self.p.chebyshev_coefficients())
 
     def test_record(self):
-        p = Chebfun(f)
-        self.assertEqual(len(p.bnds), 6)
+        """
+        Check that record works.
+        """
+        self.assertEqual(len(self.p.bnds), 6)
 
     def test_zero(self):
+        """
+        Chebfun for zero has the minimal degree 5
+        """
         p = Chebfun(Zero)
         self.assertEqual(len(p),5) # should be equal to the minimum length, 4+1
 
 
     def test_nonzero(self):
+        """
+        nonzero is False for zero Chebfun
+        """
         self.assertTrue(self.p)
         mp = Chebfun(Zero)
         self.assertFalse(mp)
 
     def test_integral(self):
+        """
+        Integral of chebfun of x**2 on [-1,1] is 2/3
+        """
         p = Chebfun(Quad)
         i = p.integral()
         npt.assert_array_almost_equal(i,2/3)
@@ -137,16 +169,25 @@ class Test_Chebfun(unittest.TestCase):
         q = self.p.integrate()
 
     def test_differentiate(self):
+        """
+        Derivative of Chebfun(f) is close to Chebfun(derivative of f)
+        """
         computed = self.p.differentiate()
         expected = Chebfun(fd)
         npt.assert_allclose(computed(xs), expected(xs).reshape(-1,1),)
 
     def test_diffquad(self):
+        """
+        Derivative of Chebfun(x**2/2) is close to identity function
+        """
         self.p = .5*Chebfun(Quad)
         X = self.p.differentiate()
         npt.assert_array_almost_equal(X(xs), xs.reshape(-1,1))
 
     def test_diff_x(self):
+        """
+        First and second derivative of Chebfun(x) are close to one and zero respectively.
+        """
         self.p = Chebfun(Identity)
         one = self.p.differentiate()
         zero = one.differentiate()
@@ -154,6 +195,9 @@ class Test_Chebfun(unittest.TestCase):
         npt.assert_allclose(Zero(xs), 0.)
 
     def test_diff_one(self):
+        """
+        Derivative of Chebfun(1) close to zero
+        """
         one = Chebfun(1.)
         zero = one.differentiate()
         npt.assert_array_almost_equal(Zero(xs), 0.)
@@ -167,6 +211,9 @@ class Test_Chebfun(unittest.TestCase):
         npt.assert_array_almost_equal(self.p(xs), p2(xs))
 
     def test_equal(self):
+        """
+        Chebfun(f) is equal to itself.
+        """
         self.assertEqual(self.p, Chebfun(self.p))
 
 
