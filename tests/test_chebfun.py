@@ -176,6 +176,21 @@ class Test_Chebfun(unittest.TestCase):
         expected = Chebfun(fd)
         npt.assert_allclose(computed(xs), expected(xs).reshape(-1,1),)
 
+    def test_interp_values(self):
+        """
+        Instanciate Chebfun from interpolation values.
+        """
+        p2 = Chebfun(self.p.f)
+        npt.assert_almost_equal(self.p.ai, p2.ai)
+        npt.assert_array_almost_equal(self.p(xs), p2(xs))
+
+    def test_equal(self):
+        """
+        Chebfun(f) is equal to itself.
+        """
+        self.assertEqual(self.p, Chebfun(self.p))
+
+class TestDifferentiate(unittest.TestCase):
     def test_diffquad(self):
         """
         Derivative of Chebfun(x**2/2) is close to identity function
@@ -201,20 +216,6 @@ class Test_Chebfun(unittest.TestCase):
         one = Chebfun(1.)
         zero = one.differentiate()
         npt.assert_array_almost_equal(Zero(xs), 0.)
-
-    def test_interp_values(self):
-        """
-        Instanciate Chebfun from interpolation values.
-        """
-        p2 = Chebfun(self.p.f)
-        npt.assert_almost_equal(self.p.ai, p2.ai)
-        npt.assert_array_almost_equal(self.p(xs), p2(xs))
-
-    def test_equal(self):
-        """
-        Chebfun(f) is equal to itself.
-        """
-        self.assertEqual(self.p, Chebfun(self.p))
 
 
 class Test_Misc(unittest.TestCase):
