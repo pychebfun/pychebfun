@@ -85,28 +85,9 @@ class Test_Chebfun(unittest.TestCase):
         roots = self.p.roots()
         self.assertEqual(len(roots),22)
 
-    def test_plot(self):
-        self.p.plot()
-
-    def test_plot_interpolation_points(self):
-        plt.clf()
-        self.p.plot()
-        a = plt.gca()
-        self.assertEqual(len(a.lines),2)
-        plt.clf()
-        self.p.plot(with_interpolation_points=False)
-        a = plt.gca()
-        self.assertEqual(len(a.lines),1)
-
     def test_chebcoeff(self):
         new = Chebfun(chebcoeff=self.p.ai)
         npt.assert_allclose(self.p(xs).reshape(-1,1), new(xs))
-
-    def test_cheb_plot(self):
-        self.p.compare(f)
-
-    def test_chebcoeffplot(self):
-        self.p.chebcoeffplot()
 
     def test_prod(self):
         pp = self.p*self.p
@@ -187,6 +168,32 @@ class Test_Chebfun(unittest.TestCase):
 
     def test_equal(self):
         self.assertEqual(self.p, Chebfun(self.p))
+
+class TestPlot(unittest.TestCase):
+    def setUp(self):
+        # Constuct the O(dx^-16) "spectrally accurate" chebfun p
+        Chebfun.record = True
+        self.p = Chebfun()
+        self.p.init_from_function(f)
+
+    def test_plot(self):
+        self.p.plot()
+
+    def test_plot_interpolation_points(self):
+        plt.clf()
+        self.p.plot()
+        a = plt.gca()
+        self.assertEqual(len(a.lines),2)
+        plt.clf()
+        self.p.plot(with_interpolation_points=False)
+        a = plt.gca()
+        self.assertEqual(len(a.lines),1)
+
+    def test_cheb_plot(self):
+        self.p.compare(f)
+
+    def test_chebcoeffplot(self):
+        self.p.chebcoeffplot()
 
 
 class Test_Misc(unittest.TestCase):
