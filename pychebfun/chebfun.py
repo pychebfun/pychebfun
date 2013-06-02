@@ -93,7 +93,7 @@ class Chebfun(object):
         ## if len(np.shape(chebcoeff)) == 1: # make sure the data is a matrix
         ## 	chebcoeff = np.reshape(chebcoeff, (-1, 1))
 
-        self.N = N = len(chebcoeff)
+        N = len(chebcoeff)
         self.ai = chebcoeff
         self.f = idct(chebcoeff)
         self.x = interpolation_points(N-1)
