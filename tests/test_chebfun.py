@@ -159,7 +159,7 @@ class Test_Chebfun(unittest.TestCase):
         """
         computed = self.p.differentiate()
         expected = Chebfun(fd)
-        npt.assert_allclose(computed(xs), expected(xs).reshape(-1,1),)
+        npt.assert_allclose(computed(xs), expected(xs),)
 
     def test_interp_values(self):
         """
@@ -182,7 +182,7 @@ class TestDifferentiate(unittest.TestCase):
         """
         self.p = .5*Chebfun(Quad)
         X = self.p.differentiate()
-        npt.assert_array_almost_equal(X(xs), xs.reshape(-1,1))
+        npt.assert_array_almost_equal(X(xs), xs)
 
     def test_diff_x(self):
         """
@@ -249,6 +249,14 @@ class TestEven(unittest.TestCase):
         expected = np.array([[1.,2],[3.,4],[5,6],[3.,4]])
         npt.assert_array_almost_equal(result, expected)
 
+class TestDifferentiator(unittest.TestCase):
+    def test_scalar_shape(self):
+        """
+        Differentiator returns the right shape
+        """
+        d = differentiator(np.array([1.]))
+        self.assertEqual(np.shape(d), np.shape(np.array([0.])))
+
 class Test_Misc(unittest.TestCase):
     def test_init_from_data(self):
         data = np.array([-1, 1.])
@@ -292,11 +300,11 @@ class Test_Misc(unittest.TestCase):
     def test_chebpoly(self, ns=[0,5]):
         for n in ns:
             c = chebpoly(n)
-            npt.assert_array_almost_equal(c.chebyshev_coefficients(), np.array([0]*n+[1.]).reshape(-1,1))
+            npt.assert_array_almost_equal(c.chebyshev_coefficients(), np.array([0]*n+[1.]))
 
     def test_list_init(self):
         c = Chebfun([1.])
-        npt.assert_array_almost_equal(c.chebyshev_coefficients(),np.array([[1.]]))
+        npt.assert_array_almost_equal(c.chebyshev_coefficients(),np.array([1.]))
 
     def test_scalar_init(self):
         one = Chebfun(1.)

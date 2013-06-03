@@ -24,21 +24,20 @@ def differentiator(A):
     """Differentiate a set of Chebyshev polynomial expansion 
        coefficients
        Originally from http://www.scientificpython.net/1/post/2012/04/chebyshev-differentiation.html
-        + bug fixing
+        + (lots of) bug fixing + pythonisation
        """
-    m, n = A.shape
-    SA = A*np.outer(2*np.arange(m), np.ones(n))
-    DA = np.zeros((m, n))
+    m = len(A)
+    SA = (A.T* 2*np.arange(m)).T
+    DA = np.zeros_like(A)
     if m == 1: # constant
-        return np.zeros([1, n])
+        return np.zeros_like(A[0:1])
     if m == 2: # linear
-        return A[1:2, :]
-    DA[m-3:m-1, :] = SA[m-2:m, :]   
-    for j in range(int(np.floor(m/2)-1)):
+        return A[1:2,]
+    DA[m-3:m-1,] = SA[m-2:m,]   
         k = m-3-2*j
-        DA[k, :] = SA[k+1, :] + DA[k+2, :]
-        DA[k-1, :] = SA[k, :] + DA[k+1, :]
-    DA[0, :] = (SA[1, :] + DA[2, :])*0.5
+        DA[k] = SA[k+1] + DA[k+2]
+        DA[k-1] = SA[k] + DA[k+1]
+    DA[0] = (SA[1] + DA[2])*0.5
     return DA
 
 def cast_scalar(method):
@@ -345,9 +344,9 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
     def roots(self):
         """
-        Return the roots of the first component of the chebfun.
+        Return the roots if the Chebfun is scalar
         """
-        ai = self.ai[:, 0]
+        ai = self.ai
         N = len(ai)
         coeffs = np.hstack([ai[-1::-1], ai[1:]])
         coeffs[N-1] *= 2
