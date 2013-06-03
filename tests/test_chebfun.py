@@ -142,7 +142,7 @@ class Test_Chebfun(unittest.TestCase):
 
     def test_nonzero(self):
         """
-        nonzero is False for zero Chebfun
+        nonzero is True for Chebfun(f) and False for Chebfun(0)
         """
         self.assertTrue(self.p)
         mp = Chebfun(Zero)
