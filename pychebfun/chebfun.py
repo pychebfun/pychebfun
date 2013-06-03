@@ -33,7 +33,8 @@ def differentiator(A):
         return np.zeros_like(A[0:1])
     if m == 2: # linear
         return A[1:2,]
-    DA[m-3:m-1,] = SA[m-2:m,]   
+    DA[m-3:m-1,] = SA[m-2:m,]
+    for j in range(m//2 - 1):
         k = m-3-2*j
         DA[k] = SA[k+1] + DA[k+2]
         DA[k-1] = SA[k] + DA[k+1]
