@@ -24,7 +24,9 @@ http://www2.maths.ox.ac.uk/chebfun/
 
 Pychebfun was started by Chris Swierczewski <cswiercz@amath.washington.edu> 
 from the Applied Mathematics department at the University of Washington in 
-Seattle, Washington. This work is licensed under the GNU General Public 
+Seattle, Washington, and is currently maintained by `Olivier Verdier <https://github.com/olivierverdier>`_.
+
+This work is licensed under the GNU General Public 
 License v2.
 
 
@@ -46,4 +48,4 @@ Primary authors
 Repository
 ----------
 
-pychebfun is hosted at `http://github.com/cswiercz/pychebfun`. 
+pychebfun is hosted at `http://github.com/olivierverdier/pychebfun`. 
