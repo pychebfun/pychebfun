@@ -70,7 +70,7 @@ class Chebfun(object):
         """
         The data provided are the values at the Chebyshev points
         """
-        vals = np.array(data)
+        vals = np.asarray(data, dtype=float)
         N = len(vals)-1
         self.ai = chebpolyfit(vals)
         self.x = interpolation_points(N)

@@ -265,6 +265,14 @@ class TestDifferentiator(unittest.TestCase):
         d = differentiator(np.array([1.]))
         self.assertEqual(np.shape(d), np.shape(np.array([0.])))
 
+class TestInitialise(unittest.TestCase):
+    def test_intlist(self):
+        """
+        Initialise with a list of integers
+        """
+        c = Chebfun()
+        c.init_from_data([1,2,3])
+
 class Test_Misc(unittest.TestCase):
     def test_init_from_data(self):
         data = np.array([-1, 1.])
