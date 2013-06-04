@@ -273,6 +273,13 @@ class TestInitialise(unittest.TestCase):
         c = Chebfun()
         c.init_from_data([1,2,3])
 
+    def test_chebcoefflist(self):
+        """
+        Initialise with a chebcoeff list
+        """
+        c = Chebfun()
+        c.init_from_chebcoeff([1.,2.])
+
 class Test_Misc(unittest.TestCase):
     def test_init_from_data(self):
         data = np.array([-1, 1.])

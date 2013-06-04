@@ -94,8 +94,8 @@ class Chebfun(object):
         ## 	chebcoeff = np.reshape(chebcoeff, (-1, 1))
 
         N = len(chebcoeff)
-        self.ai = chebcoeff
-        self.f = idct(chebcoeff)
+        self.ai = np.asarray(chebcoeff)
+        self.f = idct(self.ai)
         self.x = interpolation_points(N-1)
         self.p = interpolate(self.x, self.f)
 
