@@ -90,9 +90,6 @@ class Chebfun(object):
         """
         Initialise from provided Chebyshev coefficients
         """
-        ## if len(np.shape(chebcoeff)) == 1: # make sure the data is a matrix
-        ## 	chebcoeff = np.reshape(chebcoeff, (-1, 1))
-
         N = len(chebcoeff)
         self.ai = np.asarray(chebcoeff)
         self.f = idct(self.ai)
