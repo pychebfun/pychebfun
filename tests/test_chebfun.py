@@ -211,6 +211,14 @@ class TestSimple(unittest.TestCase):
         i = p.integral()
         npt.assert_array_almost_equal(i,2/3)
 
+    def test_norm(self):
+        """
+        Norm of x**2 is sqrt(2/5)
+        """
+        p = Chebfun()
+        p.init_from_function(Quad)
+        self.assertAlmostEqual(p.norm(), np.sqrt(2/5))
+
     def test_zero(self):
         """
         Chebfun for zero has the minimal degree 5

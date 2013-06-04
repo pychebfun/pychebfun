@@ -326,6 +326,14 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
         return val
 
+    def norm(self):
+        """
+        Return: square root of integral of |f|**2 over [-1,1]
+        """
+        square = self*self
+        integral = square.integral()
+        norm = np.sqrt(integral)
+        return norm
 
     def integrate(self):
         """
