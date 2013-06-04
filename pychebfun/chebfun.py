@@ -314,7 +314,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
     def chebyshev_coefficients(self):
         return self.ai
 
-    def integral(self):
+    def sum(self):
         """
         Evaluate the integral of the Chebfun over the given interval using
         Clenshaw-Curtis quadrature.
@@ -331,7 +331,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         Return: square root of integral of |f|**2 over [-1,1]
         """
         square = self*self
-        integral = square.integral()
+        integral = square.sum()
         norm = np.sqrt(integral)
         return norm
 

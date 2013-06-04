@@ -203,12 +203,12 @@ class TestDifferentiate(unittest.TestCase):
         npt.assert_array_almost_equal(Zero(xs), 0.)
 
 class TestSimple(unittest.TestCase):
-    def test_integral(self):
+    def test_sum(self):
         """
         Integral of chebfun of x**2 on [-1,1] is 2/3
         """
         p = Chebfun(Quad)
-        i = p.integral()
+        i = p.sum()
         npt.assert_array_almost_equal(i,2/3)
 
     def test_norm(self):
