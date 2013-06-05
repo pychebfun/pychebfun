@@ -63,7 +63,6 @@ xs = np.linspace(-1, 1, 1000)
 class Test_Chebfun(unittest.TestCase):
     def setUp(self):
         # Constuct the O(dx^-16) "spectrally accurate" chebfun p
-        Chebfun.record = True
         self.p = Chebfun(f,)
 
     def test_biglen(self):
@@ -133,12 +132,6 @@ class Test_Chebfun(unittest.TestCase):
         self.assertEqual(len(pN.chebyshev_coefficients()),len(pN))
         npt.assert_array_almost_equal(pN(xs), self.p(xs))
         npt.assert_array_almost_equal(pN.chebyshev_coefficients(),self.p.chebyshev_coefficients())
-
-    def test_record(self):
-        """
-        Check that record works.
-        """
-        self.assertEqual(len(self.p.bnds), 6)
 
     def test_nonzero(self):
         """

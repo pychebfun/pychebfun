@@ -59,7 +59,6 @@ class Chebfun(object):
     Construct a Lagrange interpolating polynomial over the Chebyshev points.
 
     """
-    max_nb_dichotomy = 12 # maximum number of dichotomy of the interval
 
     class NoConvergence(Exception):
         """
@@ -96,61 +95,22 @@ class Chebfun(object):
         self.x = interpolation_points(N-1)
         self.p = interpolate(self.x, self.f)
 
-    def dichotomy(self, f, kmin=None, kmax=None, raise_no_convergence=True):
-        """
-        Compute the coefficients for a function f by dichotomy.
-        kmin, kmax: log2 of number of interpolation points to try
-        raise_no_convergence: whether to raise an exception if the dichotomy does not converge
-        """
-        if kmin is None:
-            kmin = 2
-        if kmax is None:
-            kmax = self.max_nb_dichotomy
-
-        if self.record:
-            self.intermediate = []
-            self.bnds = []
-
-        for k in xrange(kmin, kmax):
-            N = pow(2, k)
-
-            sampled = sample_function(f, N)
-            coeffs = chebpolyfit(sampled)
-
-            # 3) Check for negligible coefficients
-            #    If within bound: get negligible coeffs and bread
-            bnd = 128*emach*abs(np.max(coeffs))
-            if self.record:
-                self.bnds.append(bnd)
-                self.intermediate.append(coeffs)
-
-            last = abs(coeffs[-2:])
-            if np.all(last <= bnd):
-                break
-        else:
-            if raise_no_convergence:
-                raise self.NoConvergence(last, bnd)
-        inds  = np.nonzero(abs(coeffs) >= bnd)
-        Nmax = inds[0][-1]
-        return coeffs, Nmax
-
     def init_from_function(self, f, N=None):
         """
         Initialise from a function to sample.
         N: optional parameter which indicates the range of the dichotomy
         """
+        args = {'f': f}
         if N is not None: # N is provided
             nextpow2 = int(np.log2(N))+1
-            kmin = nextpow2
-            kmax = nextpow2+1
-            raise_no_convergence = False
+            args['kmin'] = nextpow2
+            args['kmax'] = nextpow2+1
+            args['raise_no_convergence'] = False
         else:
-            kmin = None
-            kmax = None
-            raise_no_convergence = True
+            args['raise_no_convergence'] = True
 
         # Find out the right number of coefficients to keep
-        coeffs, Nmax = self.dichotomy(f, kmin, kmax, raise_no_convergence)
+        coeffs, Nmax = dichotomy(**args)
 
 
         self.ai = coeffs[:Nmax+1]
@@ -195,7 +155,6 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
 
 
-    record = False # whether to record convergence information
 
 
     def __repr__(self):
@@ -435,6 +394,33 @@ def basis(n):
     vals = np.ones(n+1)
     vals[-1::-2] = -1
     return Chebfun(vals)
+
+def dichotomy(f, kmin=2, kmax=12, raise_no_convergence=True):
+    """
+    Compute the coefficients for a function f by dichotomy.
+    kmin, kmax: log2 of number of interpolation points to try
+    raise_no_convergence: whether to raise an exception if the dichotomy does not converge
+    """
+
+    for k in xrange(kmin, kmax):
+        N = pow(2, k)
+
+        sampled = sample_function(f, N)
+        coeffs = chebpolyfit(sampled)
+
+        # 3) Check for negligible coefficients
+        #    If within bound: get negligible coeffs and bread
+        bnd = 128*emach*abs(np.max(coeffs))
+
+        last = abs(coeffs[-2:])
+        if np.all(last <= bnd):
+            break
+    else:
+        if raise_no_convergence:
+            raise Chebfun.NoConvergence(last, bnd)
+    inds  = np.nonzero(abs(coeffs) >= bnd)
+    Nmax = inds[0][-1]
+    return coeffs, Nmax
 
 def even_data(data):
     """
