@@ -133,6 +133,9 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
 
     def __repr__(self):
+        return "<Chebfun({0})>".format(repr(self.values))
+
+    def __str__(self):
         return "<Chebfun({0})>".format(len(self))
 
     #

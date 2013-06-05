@@ -220,6 +220,15 @@ class TestSimple(unittest.TestCase):
         p = Chebfun(Zero)
         self.assertEqual(len(p),5) # should be equal to the minimum length, 4+1
 
+    def test_repr(self):
+        """
+        Repr shows the interpolation values.
+        """
+        p = basis(1)
+        s = repr(p)
+        expected = '<Chebfun(array([ 1., -1.]))>'
+        self.assertEqual(s, expected)
+
 class TestPolyfitShape(unittest.TestCase):
     def test_scalar(self):
         for datalen in [1,3]:
