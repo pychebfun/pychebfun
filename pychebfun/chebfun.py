@@ -50,15 +50,14 @@ class Chebfun(object):
         """
         vals = np.asarray(data, dtype=float)
         N = len(vals)-1
-        self.points = interpolation_points(N)
+        points = interpolation_points(N)
         self.values = vals.copy()
-        self.p  = interpolate(self.points, self.values)
+        self.p  = interpolate(points, self.values)
 
     def init_from_chebfun(self, other):
         """
         Initialise from another instance of Chebfun
         """
-        self.points = other.points
         self.values = other.values
         self.p = other.p
 
@@ -69,8 +68,8 @@ class Chebfun(object):
         coeffs = np.asarray(chebcoeff)
         N = len(coeffs)
         self.values = idct(coeffs)
-        self.points = interpolation_points(N-1)
-        self.p = interpolate(self.points, self.values)
+        points = interpolation_points(N-1)
+        self.p = interpolate(points, self.values)
 
     def init_from_function(self, f, N=None):
         """
@@ -90,9 +89,9 @@ class Chebfun(object):
         coeffs, Nmax = dichotomy(**args)
 
 
-        self.points  = interpolation_points(Nmax)
-        self.values  = f(self.points)
-        self.p  = interpolate(self.points, self.values.T)
+        points  = interpolation_points(Nmax)
+        self.values  = f(points)
+        self.p  = interpolate(points, self.values.T)
 
     def __init__(self, f=None, N=None, chebcoeff=None,):
         """
@@ -321,7 +320,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         if with_interpolation_points:
             current_color = axis.lines[-1].get_color() # figure out current colour
             if dim == 1:
-                axis.plot(self.points, self.values, marker='.', linestyle='', color=current_color)
+                axis.plot(self.p.xi, self.values, marker='.', linestyle='', color=current_color)
             elif dim == 2:
                 axis.plot(self.values[0], self.values[1], marker='.', linestyle='', color=current_color)
                 axis.axis('equal')
@@ -342,7 +341,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         return ax
 
     def plot_interpolating_points(self):
-        plt.plot(self.points, self.values)
+        plt.plot(self.p.xi, self.values)
 
     def compare(self, f, *args, **kwds):
         """

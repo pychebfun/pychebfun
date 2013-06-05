@@ -279,7 +279,7 @@ def compare_ufunc(ufunc):
     x.init_from_function(lambda x:x)
     cf = ufunc(x)
     result = cf.values
-    expected = ufunc(cf.points)
+    expected = ufunc(cf.p.xi)
     return result, expected
 
 
