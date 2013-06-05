@@ -429,7 +429,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
         return ax
 
-def chebpoly(n):
+def basis(n):
     if n == 0:
         return Chebfun(np.array([1.]))
     vals = np.ones(n+1)

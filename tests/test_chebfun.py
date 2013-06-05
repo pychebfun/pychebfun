@@ -349,9 +349,9 @@ class Test_Misc(unittest.TestCase):
         fv = np.vectorize(f)
         p = Chebfun(fv)
 
-    def test_chebpoly(self, ns=[0,5]):
+    def test_basis(self, ns=[0,5]):
         for n in ns:
-            c = chebpoly(n)
+            c = basis(n)
             npt.assert_array_almost_equal(c.chebyshev_coefficients(), np.array([0]*n+[1.]))
 
     def test_list_init(self):
@@ -371,7 +371,7 @@ class Test_Misc(unittest.TestCase):
         Test some of the capabilities of operator overloading.
         """
         r = Chebfun(runge)
-        x = chebpoly(1)
+        x = basis(1)
         rr = 1./(1+25*x**2)
         npt.assert_almost_equal(r(xs),rr(xs), decimal=13)
 
