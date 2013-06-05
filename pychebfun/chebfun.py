@@ -20,27 +20,6 @@ from functools import wraps
 
 from scipy.interpolate import BarycentricInterpolator as Bary
 
-def differentiator(A):
-    """Differentiate a set of Chebyshev polynomial expansion 
-       coefficients
-       Originally from http://www.scientificpython.net/1/post/2012/04/chebyshev-differentiation.html
-        + (lots of) bug fixing + pythonisation
-       """
-    m = len(A)
-    SA = (A.T* 2*np.arange(m)).T
-    DA = np.zeros_like(A)
-    if m == 1: # constant
-        return np.zeros_like(A[0:1])
-    if m == 2: # linear
-        return A[1:2,]
-    DA[m-3:m-1,] = SA[m-2:m,]
-    for j in range(m//2 - 1):
-        k = m-3-2*j
-        DA[k] = SA[k+1] + DA[k+2]
-        DA[k-1] = SA[k] + DA[k+1]
-    DA[0] = (SA[1] + DA[2])*0.5
-    return DA
-
 def cast_scalar(method):
     """
     Used to cast scalar to Chebfuns
@@ -490,4 +469,25 @@ def interpolate(x, values):
     """
     return Bary(x, values)
 
+
+def differentiator(A):
+    """Differentiate a set of Chebyshev polynomial expansion 
+       coefficients
+       Originally from http://www.scientificpython.net/1/post/2012/04/chebyshev-differentiation.html
+        + (lots of) bug fixing + pythonisation
+       """
+    m = len(A)
+    SA = (A.T* 2*np.arange(m)).T
+    DA = np.zeros_like(A)
+    if m == 1: # constant
+        return np.zeros_like(A[0:1])
+    if m == 2: # linear
+        return A[1:2,]
+    DA[m-3:m-1,] = SA[m-2:m,]
+    for j in range(m//2 - 1):
+        k = m-3-2*j
+        DA[k] = SA[k+1] + DA[k+2]
+        DA[k-1] = SA[k] + DA[k+1]
+    DA[0] = (SA[1] + DA[2])*0.5
+    return DA
 
