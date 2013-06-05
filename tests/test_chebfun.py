@@ -159,7 +159,7 @@ class Test_Chebfun(unittest.TestCase):
         """
         Instanciate Chebfun from interpolation values.
         """
-        p2 = Chebfun(self.p.f)
+        p2 = Chebfun(self.p.values)
         npt.assert_almost_equal(self.p.chebyshev_coefficients(), p2.chebyshev_coefficients())
         npt.assert_array_almost_equal(self.p(xs), p2(xs))
 
@@ -278,8 +278,8 @@ def compare_ufunc(ufunc):
     x = Chebfun()
     x.init_from_function(lambda x:x)
     cf = ufunc(x)
-    result = cf.f
-    expected = ufunc(cf.x)
+    result = cf.values
+    expected = ufunc(cf.points)
     return result, expected
 
 
