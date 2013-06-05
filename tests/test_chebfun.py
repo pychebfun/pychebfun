@@ -97,8 +97,9 @@ class Test_Chebfun(unittest.TestCase):
         self.assertEqual(len(roots),22)
 
     def test_chebcoeff(self):
-        new = Chebfun(chebcoeff=self.p.ai)
-        npt.assert_allclose(self.p(xs).reshape(-1,1), new(xs))
+        new = Chebfun()
+        new.init_from_chebcoeff(chebcoeff=self.p.chebyshev_coefficients())
+        npt.assert_allclose(self.p(xs), new(xs))
 
     def test_prod(self):
         """
@@ -159,7 +160,7 @@ class Test_Chebfun(unittest.TestCase):
         Instanciate Chebfun from interpolation values.
         """
         p2 = Chebfun(self.p.f)
-        npt.assert_almost_equal(self.p.ai, p2.ai)
+        npt.assert_almost_equal(self.p.chebyshev_coefficients(), p2.chebyshev_coefficients())
         npt.assert_array_almost_equal(self.p(xs), p2(xs))
 
     def test_equal(self):

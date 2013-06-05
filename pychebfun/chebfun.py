@@ -71,7 +71,6 @@ class Chebfun(object):
         """
         vals = np.asarray(data, dtype=float)
         N = len(vals)-1
-        self.ai = chebpolyfit(vals)
         self.x = interpolation_points(N)
         self.f = vals.copy()
         self.p  = interpolate(self.x, self.f)
@@ -80,7 +79,6 @@ class Chebfun(object):
         """
         Initialise from another instance of Chebfun
         """
-        self.ai = other.ai.copy()
         self.x = other.x
         self.f = other.f
         self.p = other.p
@@ -89,9 +87,9 @@ class Chebfun(object):
         """
         Initialise from provided Chebyshev coefficients
         """
-        N = len(chebcoeff)
-        self.ai = np.asarray(chebcoeff)
-        self.f = idct(self.ai)
+        coeffs = np.asarray(chebcoeff)
+        N = len(coeffs)
+        self.f = idct(coeffs)
         self.x = interpolation_points(N-1)
         self.p = interpolate(self.x, self.f)
 
@@ -113,7 +111,6 @@ class Chebfun(object):
         coeffs, Nmax = dichotomy(**args)
 
 
-        self.ai = coeffs[:Nmax+1]
         self.x  = interpolation_points(Nmax)
         self.f  = f(self.x)
         self.p  = interpolate(self.x, self.f.T)
@@ -274,14 +271,15 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
     #
 
     def chebyshev_coefficients(self):
-        return self.ai
+        return chebpolyfit(self.f)
 
     def sum(self):
         """
         Evaluate the integral of the Chebfun over the given interval using
         Clenshaw-Curtis quadrature.
         """
-        ai2 = self.ai[::2]
+        ai = self.chebyshev_coefficients()
+        ai2 = ai[::2]
         n = len(ai2)
         Tints = 2/(1-(2*np.arange(n))**2)
         val = np.sum((Tints*ai2.T).T, axis=0)
@@ -310,14 +308,14 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         return self.differentiate()
 
     def differentiate(self):
-        bi = differentiator(self.ai)
+        bi = differentiator(self.chebyshev_coefficients())
         return Chebfun(chebcoeff=bi)
 
     def roots(self):
         """
         Return the roots if the Chebfun is scalar
         """
-        ai = self.ai
+        ai = self.chebyshev_coefficients()
         N = len(ai)
         coeffs = np.hstack([ai[-1::-1], ai[1:]])
         coeffs[N-1] *= 2
@@ -357,7 +355,8 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         fig = plt.figure()
         ax  = fig.add_subplot(111)
 
-        data = np.log10(np.abs(self.ai))
+        coeffs = self.chebyshev_coefficients()
+        data = np.log10(np.abs(coeffs))
         ax.plot(data, 'r' , *args, **kwds)
         ax.plot(data, 'r.', *args, **kwds)
 
