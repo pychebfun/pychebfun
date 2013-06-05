@@ -280,6 +280,35 @@ class TestInitialise(unittest.TestCase):
         c = Chebfun()
         c.init_from_chebcoeff([1.,2.])
 
+def compare_ufunc(ufunc):
+    x = Chebfun()
+    x.init_from_function(lambda x:x)
+    cf = ufunc(x)
+    result = cf.f
+    expected = ufunc(cf.x)
+    return result, expected
+
+
+class TestUfunc(unittest.TestCase):
+    """
+    Check that ufuncs work and give the right result.
+    """
+    def setUp(self):
+        self.x = Chebfun()
+        self.x.init_from_function(lambda x:x)
+
+    def test_cos(self):
+        r,e = compare_ufunc(np.cos)
+        npt.assert_array_almost_equal(r,e)
+
+    def test_exp(self):
+        r,e = compare_ufunc(np.exp)
+        npt.assert_array_almost_equal(r,e)
+
+    def test_sin(self):
+        r,e = compare_ufunc(np.sin)
+        npt.assert_array_almost_equal(r,e)
+
 class Test_Misc(unittest.TestCase):
     def test_init_from_data(self):
         data = np.array([-1, 1.])

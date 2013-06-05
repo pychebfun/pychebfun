@@ -303,6 +303,12 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         """
         return Chebfun(lambda x: np.sin(self(x)),)
 
+    def cos(self):
+        return Chebfun(lambda x: np.cos(self(x)))
+
+    def exp(self):
+        return Chebfun(lambda x: np.exp(self(x)))
+
 
     #
     # Numpy / Scipy Operator Overloads
