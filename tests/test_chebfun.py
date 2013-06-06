@@ -392,7 +392,7 @@ class Test_Misc(unittest.TestCase):
 
     def test_idct(self, N=64):
         data = np.random.rand(N-1, 2)
-        computed = idct(dct(data))
+        computed = chebpolyval(dct(data))
         npt.assert_allclose(computed, data[:N//2])
 
     def test_even_data(self):
@@ -408,7 +408,7 @@ class Test_Misc(unittest.TestCase):
         N = 32
         data = np.random.rand(N-1, 2)
         coeffs = chebpolyfit(data)
-        result = idct(coeffs)
+        result = chebpolyval(coeffs)
         npt.assert_allclose(data, result)
 
 

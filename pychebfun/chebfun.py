@@ -67,7 +67,7 @@ class Chebfun(object):
         """
         coeffs = np.asarray(chebcoeff)
         N = len(coeffs)
-        self.values = idct(coeffs)
+        self.values = chebpolyval(coeffs)
         points = interpolation_points(N-1)
         self.p = interpolate(points, self.values)
 
@@ -454,9 +454,10 @@ def dct(data):
     dctdata[-1] /= 2.
     return dctdata
 
-def idct(chebcoeff):
+def chebpolyval(chebcoeff):
     """
-    Compute the inverse DCT
+    Compute the interpolation values at Chebyshev points.
+    chebcoeff: Chebyshev coefficients
     """
     N = len(chebcoeff)
     if N == 1:
