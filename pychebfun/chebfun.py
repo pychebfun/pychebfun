@@ -49,8 +49,8 @@ class Chebfun(object):
         The data provided are the values at the Chebyshev points
         """
         vals = np.asarray(data, dtype=float)
-        N = len(vals)-1
-        points = interpolation_points(N)
+        N = len(vals)
+        points = interpolation_points(N-1)
         self.values = vals.copy()
         self.p  = interpolate(points, self.values)
 
