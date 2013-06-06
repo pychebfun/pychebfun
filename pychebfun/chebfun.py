@@ -288,8 +288,13 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
     def derivative(self):
         return self.differentiate()
 
-    def differentiate(self):
-        bi = differentiator(self.chebyshev_coefficients())
+    def differentiate(self, n=1):
+        """
+        n-th derivative
+        """
+        bi = self.chebyshev_coefficients()
+        for _ in range(n):
+            bi = differentiator(bi)
         return Chebfun(chebcoeff=bi)
 
     def roots(self):

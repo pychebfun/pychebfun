@@ -196,6 +196,18 @@ class TestDifferentiate(unittest.TestCase):
         zero = one.differentiate()
         npt.assert_array_almost_equal(Zero(xs), 0.)
 
+    def test_highdiff(self):
+        """
+        Higher order derivatives of exp(x)
+        """
+        e = Chebfun()
+        e.init_from_function(lambda x:np.exp(x))
+        e4 = e.differentiate(4)
+        result = e4(xs)
+        expected = e(xs)
+        npt.assert_allclose(result, expected)
+
+
 class TestSimple(unittest.TestCase):
     def test_sum(self):
         """
