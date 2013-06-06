@@ -50,7 +50,7 @@ class Chebfun(object):
         """
         vals = np.asarray(data, dtype=float)
         N = len(vals)
-        points = interpolation_points(N-1)
+        points = interpolation_points(N)
         self.values = vals.copy()
         self.p  = interpolate(points, self.values)
 
@@ -68,7 +68,7 @@ class Chebfun(object):
         coeffs = np.asarray(chebcoeff)
         N = len(coeffs)
         self.values = chebpolyval(coeffs)
-        points = interpolation_points(N-1)
+        points = interpolation_points(N)
         self.p = interpolate(points, self.values)
 
     def init_from_function(self, f, N=None):
@@ -89,7 +89,7 @@ class Chebfun(object):
         coeffs, Nmax = dichotomy(**args)
 
 
-        points  = interpolation_points(Nmax)
+        points  = interpolation_points(Nmax+1)
         self.values  = f(points)
         self.p  = interpolate(points, self.values.T)
 
@@ -416,17 +416,17 @@ def even_data(data):
 
 def interpolation_points(N):
     """
-    N+1 Chebyshev points in [-1, 1], boundaries included
+    N Chebyshev points in [-1, 1], boundaries included
     """
-    if N == 0:
+    if N == 1:
         return np.array([0.])
-    return np.cos(np.arange(N+1)*np.pi/N)
+    return np.cos(np.arange(N)*np.pi/(N-1))
 
 def sample_function(f, N):
     """
     Sample a function on N+1 Chebyshev points.
     """
-    x = interpolation_points(N)
+    x = interpolation_points(N+1)
     return f(x).T
 
 def chebpolyfit(sampled):
