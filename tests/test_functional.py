@@ -20,9 +20,7 @@ import numpy.testing as npt
 
 import unittest
 
-def f(x):
-    return np.sin(6*x) + np.sin(30*np.exp(x))
-
+from tools import *
 
 class TestFunctional(unittest.TestCase):
     def test_examples(self):

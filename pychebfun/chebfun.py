@@ -125,7 +125,7 @@ class Chebfun(object):
         N = len(avalues1)
         points = interpolation_points(N)
         self._values = avalues1
-        self.p = interpolate(points, avalues1.T)
+        self.p = interpolate(points, avalues1)
 
     def __repr__(self):
         return "<Chebfun({0})>".format(repr(self.values()))

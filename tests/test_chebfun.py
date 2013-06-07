@@ -29,30 +29,26 @@ def One(x):
 def Zero(x):
     return np.zeros_like(x, dtype=float)
 
+from tools import *
+
 def segment(x):
     y = np.expand_dims(x, axis=-1)
     zeros = np.zeros_like(y)
     return np.concatenate([y, zeros], axis=-1)
 
 class TestSegment(unittest.TestCase):
+    def setUp(self):
+        self.fun = segment
+
     def test_shape(self):
-        fun = circle
-        val = fun(0.)
+        val = self.fun(0.)
         self.assertEqual(val.shape, (2,))
-        val = fun(np.arange(3.))
-        self.assertEqual(val.shape, (3,2))
+        valv = self.fun(np.arange(3.))
+        self.assertEqual(valv.shape, (3,2))
 
-def circle(x):
-    return np.array([np.cos(np.pi*x), np.sin(np.pi*x)],).T
-
-def f(x):
-    return np.sin(6*x) + np.sin(30*np.exp(x))
-
-def fd(x):
-    """
-    Derivative of f
-    """
-    return 6*np.cos(6*x) + np.cos(30*np.exp(x))*30*np.exp(x)
+class TestCircle(TestSegment):
+    def setUp(self):
+        self.fun = circle
 
 def Quad(x):
     return x*x
@@ -337,13 +333,11 @@ class Test_Misc(unittest.TestCase):
         c = Chebfun.from_chebcoeff(np.array([[1.],]))
         npt.assert_array_almost_equal(c(xs), 1.)
 
-    def test_init_from_vector_function(self):
+    def test_init_from_segment(self):
         c = Chebfun.from_function(segment)
 
-    def test_plot_circle(self):
-        self.skipTest('functional test')
+    def test_init_from_circle(self):
         c = Chebfun.from_function(circle)
-        c.plot()
 
     def test_has_p(self):
         c1 = Chebfun.from_function(f, N=10)
@@ -445,3 +439,7 @@ class Test_Arithmetic(unittest.TestCase):
         z = self.p2 + rm
 
 
+## class Test_2D(Test_Chebfun):
+## 	def setUp(self):
+## 		Chebfun.record = True
+## 		self.p = Chebfun(segment,)
