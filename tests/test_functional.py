@@ -61,3 +61,11 @@ class TestPlot(unittest.TestCase):
     def test_chebcoeffplot(self):
         self.p.chebcoeffplot()
 
+    def test_plot_circle(self):
+        c = Chebfun.from_function(circle)
+        c.plot()
+
+    def test_error(self):
+        chebpolyplot(self.p)
+
+

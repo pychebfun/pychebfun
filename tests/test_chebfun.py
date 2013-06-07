@@ -2,10 +2,6 @@
 # coding: UTF-8
 from __future__ import division
 
-# to prevent plots from popping up
-import matplotlib
-matplotlib.use('agg')
-
 import os
 
 import sys
@@ -352,9 +348,6 @@ class Test_Misc(unittest.TestCase):
         small = Chebfun.from_function(f, N=N)
         new = Chebfun.from_function(small)
         self.assertEqual(len(new), len(small),)
-
-    def test_error(self):
-        chebpolyplot(f)
 
     def test_vectorized(self):
         fv = np.vectorize(f)
