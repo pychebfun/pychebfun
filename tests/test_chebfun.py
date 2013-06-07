@@ -30,12 +30,20 @@ def Zero(x):
     return np.zeros_like(x, dtype=float)
 
 def segment(x):
-    ones = np.ones_like(x)
-    zeros = np.zeros_like(x)
-    return np.vstack([ones, zeros])
+    y = np.expand_dims(x, axis=-1)
+    zeros = np.zeros_like(y)
+    return np.concatenate([y, zeros], axis=-1)
+
+class TestSegment(unittest.TestCase):
+    def test_shape(self):
+        fun = circle
+        val = fun(0.)
+        self.assertEqual(val.shape, (2,))
+        val = fun(np.arange(3.))
+        self.assertEqual(val.shape, (3,2))
 
 def circle(x):
-    return np.vstack([np.cos(np.pi*x), np.sin(np.pi*x)])
+    return np.array([np.cos(np.pi*x), np.sin(np.pi*x)],).T
 
 def f(x):
     return np.sin(6*x) + np.sin(30*np.exp(x))
@@ -63,7 +71,7 @@ xs = np.linspace(-1, 1, 1000)
 class Test_Chebfun(unittest.TestCase):
     def setUp(self):
         # Constuct the O(dx^-16) "spectrally accurate" chebfun p
-        self.p = Chebfun(f,)
+        self.p = Chebfun.from_function(f)
 
     def test_biglen(self):
         self.assertGreaterEqual(len(self.p), 4)
@@ -97,8 +105,7 @@ class Test_Chebfun(unittest.TestCase):
         self.assertEqual(len(roots),22)
 
     def test_chebcoeff(self):
-        new = Chebfun()
-        new.init_from_chebcoeff(chebcoeff=self.p.chebyshev_coefficients())
+        new = Chebfun.from_chebcoeff(self.p.chebyshev_coefficients())
         npt.assert_allclose(self.p(xs), new(xs))
 
     def test_prod(self):
@@ -111,7 +118,7 @@ class Test_Chebfun(unittest.TestCase):
     def test_square(self):
         def square(x):
             return self.p(x)*self.p(x)
-        sq = Chebfun(square)
+        sq = Chebfun.from_function(square)
         npt.assert_array_less(0, sq(xs))
         self.sq = sq
 
@@ -128,7 +135,7 @@ class Test_Chebfun(unittest.TestCase):
         Check initialisation with a fixed N
         """
         N = len(self.p) - 1
-        pN = Chebfun(f, N)
+        pN = Chebfun.from_function(f, N)
         self.assertEqual(len(pN.chebyshev_coefficients()), N+1)
         self.assertEqual(len(pN.chebyshev_coefficients()),len(pN))
         npt.assert_array_almost_equal(pN(xs), self.p(xs))
@@ -139,7 +146,7 @@ class Test_Chebfun(unittest.TestCase):
         nonzero is True for Chebfun(f) and False for Chebfun(0)
         """
         self.assertTrue(self.p)
-        mp = Chebfun(Zero)
+        mp = Chebfun.from_function(Zero)
         self.assertFalse(mp)
 
 
@@ -152,14 +159,14 @@ class Test_Chebfun(unittest.TestCase):
         Derivative of Chebfun(f) is close to Chebfun(derivative of f)
         """
         computed = self.p.differentiate()
-        expected = Chebfun(fd)
+        expected = fd
         npt.assert_allclose(computed(xs), expected(xs),)
 
     def test_interp_values(self):
         """
         Instanciate Chebfun from interpolation values.
         """
-        p2 = Chebfun(self.p.values)
+        p2 = Chebfun(self.p.values())
         npt.assert_almost_equal(self.p.chebyshev_coefficients(), p2.chebyshev_coefficients())
         npt.assert_array_almost_equal(self.p(xs), p2(xs))
 
@@ -167,14 +174,14 @@ class Test_Chebfun(unittest.TestCase):
         """
         Chebfun(f) is equal to itself.
         """
-        self.assertEqual(self.p, Chebfun(self.p))
+        self.assertEqual(self.p, chebfun(self.p))
 
 class TestDifferentiate(unittest.TestCase):
     def test_diffquad(self):
         """
         Derivative of Chebfun(x**2/2) is close to identity function
         """
-        self.p = .5*Chebfun(Quad)
+        self.p = .5*Chebfun.from_function(Quad)
         X = self.p.differentiate()
         npt.assert_array_almost_equal(X(xs), xs)
 
@@ -182,7 +189,7 @@ class TestDifferentiate(unittest.TestCase):
         """
         First and second derivative of Chebfun(x) are close to one and zero respectively.
         """
-        self.p = Chebfun(Identity)
+        self.p = Chebfun.from_function(Identity)
         one = self.p.differentiate()
         zero = one.differentiate()
         npt.assert_allclose(one(xs), 1.)
@@ -200,8 +207,7 @@ class TestDifferentiate(unittest.TestCase):
         """
         Higher order derivatives of exp(x)
         """
-        e = Chebfun()
-        e.init_from_function(lambda x:np.exp(x))
+        e = Chebfun.from_function(lambda x:np.exp(x))
         e4 = e.differentiate(4)
         result = e4(xs)
         expected = e(xs)
@@ -213,7 +219,7 @@ class TestSimple(unittest.TestCase):
         """
         Integral of chebfun of x**2 on [-1,1] is 2/3
         """
-        p = Chebfun(Quad)
+        p = Chebfun.from_function(Quad)
         i = p.sum()
         npt.assert_array_almost_equal(i,2/3)
 
@@ -221,15 +227,14 @@ class TestSimple(unittest.TestCase):
         """
         Norm of x**2 is sqrt(2/5)
         """
-        p = Chebfun()
-        p.init_from_function(Quad)
+        p = Chebfun.from_function(Quad)
         self.assertAlmostEqual(p.norm(), np.sqrt(2/5))
 
     def test_zero(self):
         """
         Chebfun for zero has the minimal degree 5
         """
-        p = Chebfun(Zero)
+        p = Chebfun.from_function(Zero)
         self.assertEqual(len(p),5) # should be equal to the minimum length, 4+1
 
     def test_repr(self):
@@ -285,21 +290,18 @@ class TestInitialise(unittest.TestCase):
         """
         Initialise with a list of integers
         """
-        c = Chebfun()
-        c.init_from_data([1,2,3])
+        c = Chebfun([1,2,3])
 
     def test_chebcoefflist(self):
         """
         Initialise with a chebcoeff list
         """
-        c = Chebfun()
-        c.init_from_chebcoeff([1.,2.])
+        c = Chebfun.from_chebcoeff([1.,2.])
 
 def compare_ufunc(ufunc):
-    x = Chebfun()
-    x.init_from_function(lambda x:x)
+    x = Chebfun.from_function(lambda x:x)
     cf = ufunc(x)
-    result = cf.values
+    result = cf.values()
     expected = ufunc(cf.p.xi)
     return result, expected
 
@@ -309,8 +311,7 @@ class TestUfunc(unittest.TestCase):
     Check that ufuncs work and give the right result.
     """
     def setUp(self):
-        self.x = Chebfun()
-        self.x.init_from_function(lambda x:x)
+        self.x = Chebfun.from_function(lambda x:x)
 
     def test_cos(self):
         r,e = compare_ufunc(np.cos)
@@ -329,32 +330,33 @@ class Test_Misc(unittest.TestCase):
         data = np.array([-1, 1.])
         c = Chebfun(data)
 
-    def test_empty_init(self):
-        c = Chebfun()
+    def test_scalar_init(self):
+        c = Chebfun(0.)
 
     def test_chebcoeff_one(self):
-        c = Chebfun(chebcoeff=np.array([[1.],]))
+        c = Chebfun.from_chebcoeff(np.array([[1.],]))
         npt.assert_array_almost_equal(c(xs), 1.)
 
     def test_init_from_vector_function(self):
-        c = Chebfun(segment)
+        c = Chebfun.from_function(segment)
 
     def test_plot_circle(self):
-        c = Chebfun(circle)
+        self.skipTest('functional test')
+        c = Chebfun.from_function(circle)
         c.plot()
 
     def test_has_p(self):
-        c1 = Chebfun(f, N=10)
+        c1 = Chebfun.from_function(f, N=10)
         len(c1)
-        c2 = Chebfun(f, )
+        c2 = Chebfun.from_function(f, )
         len(c2)
 
     def test_truncate(self, N=17):
         """
         Check that the Chebyshev coefficients are properly truncated.
         """
-        small = Chebfun(f, N=N)
-        new = Chebfun(small)
+        small = Chebfun.from_function(f, N=N)
+        new = Chebfun.from_function(small)
         self.assertEqual(len(new), len(small),)
 
     def test_error(self):
@@ -362,7 +364,7 @@ class Test_Misc(unittest.TestCase):
 
     def test_vectorized(self):
         fv = np.vectorize(f)
-        p = Chebfun(fv)
+        p = Chebfun.from_function(fv)
 
     def test_basis(self, ns=[0,5]):
         for n in ns:
@@ -379,13 +381,13 @@ class Test_Misc(unittest.TestCase):
 
     def test_no_convergence(self):
         with self.assertRaises(Chebfun.NoConvergence):
-            Chebfun(np.sign)
+            Chebfun.from_function(np.sign)
 
     def test_runge(self):
         """
         Test some of the capabilities of operator overloading.
         """
-        r = Chebfun(runge)
+        r = Chebfun.from_function(runge)
         x = basis(1)
         rr = 1./(1+25*x**2)
         npt.assert_almost_equal(r(xs),rr(xs), decimal=13)
@@ -415,19 +417,18 @@ class Test_Misc(unittest.TestCase):
 
     def test_underflow(self):
         self.skipTest('mysterious underflow error')
-        Chebfun.max_nb_dichotomy = 13
-        p = Chebfun(piecewise_continuous)
+        p = Chebfun.from_function(piecewise_continuous, N=pow(2,10)-1)
 
 class Test_Arithmetic(unittest.TestCase):
     def setUp(self):
-        self.p1 = Chebfun(f)
-        self.p2 = Chebfun(runge)
+        self.p1 = Chebfun.from_function(f)
+        self.p2 = Chebfun.from_function(runge)
 
     def test_scalar_mul(self):
         self.assertEqual(self.p1, self.p1)
         self.assertEqual(self.p1*1, 1*self.p1)
         self.assertEqual(self.p1*1, self.p1)
-        self.assertEqual(0*self.p1, Chebfun(Zero))
+        self.assertEqual(0*self.p1, Chebfun.from_function(Zero))
 
     def test_commutativity(self):
         self.assertEqual(self.p1*self.p2, self.p2*self.p1)
@@ -444,9 +445,3 @@ class Test_Arithmetic(unittest.TestCase):
         z = self.p2 + rm
 
 
-
-if __name__ == '__main__':
-    unittest.main()
-    ## suite = unittest.TestLoader().loadTestsFromTestCase(Test_Chebfun)
-    ## unittest.TextTestRunner(verbosity=2).run(suite)
-    

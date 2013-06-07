@@ -33,6 +33,40 @@ def cast_scalar(method):
 
 emach     = sys.float_info.epsilon                        # machine epsilon
 
+def chebfun(f=None, N=None, chebcoeff=None,):
+    """
+Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1, 1]`.
+
+:param callable f: Python, Numpy, or Sage function
+:param int N: (default = None)  specify number of interpolating points
+:param np.array chebcoeff: (default = np.array(0)) specify the coefficients of a Chebfun
+    """
+
+    if np.isscalar(f):
+        f = [f]
+
+    try:
+        iter(f) # interpolation values provided
+    except TypeError:
+        pass
+    else:
+        return Chebfun(f)
+
+    if isinstance(f, Chebfun): # copy if f is another Chebfun
+        return Chebfun.from_chebfun(f)
+
+    if chebcoeff is not None: # if the coefficients of a Chebfun are given
+        return Chebfun.from_chebcoeff(chebcoeff)
+
+    # from this point, we assume that f is a function
+    if f is not None:
+        return Chebfun.from_function(f, N)
+
+    return Chebfun([])
+
+
+
+
 class Chebfun(object):
     """
     Construct a Lagrange interpolating polynomial over the Chebyshev points.
@@ -44,34 +78,24 @@ class Chebfun(object):
         Raised when dichotomy does not converge.
         """
 
-    def init_from_data(self, data):
-        """
-        The data provided are the values at the Chebyshev points
-        """
-        vals = np.asarray(data, dtype=float)
-        N = len(vals)
-        points = interpolation_points(N)
-        self.values = vals.copy()
-        self.p  = interpolate(points, self.values)
-
-    def init_from_chebfun(self, other):
+    @classmethod
+    def from_chebfun(self, other):
         """
         Initialise from another instance of Chebfun
         """
-        self.values = other.values
-        self.p = other.p
+        return self(other.values())
 
-    def init_from_chebcoeff(self, chebcoeff):
+    @classmethod
+    def from_chebcoeff(self, chebcoeff):
         """
         Initialise from provided Chebyshev coefficients
         """
         coeffs = np.asarray(chebcoeff)
-        N = len(coeffs)
-        self.values = chebpolyval(coeffs)
-        points = interpolation_points(N)
-        self.p = interpolate(points, self.values)
+        values = chebpolyval(coeffs)
+        return self(values)
 
-    def init_from_function(self, f, N=None):
+    @classmethod
+    def from_function(self, f, N=None):
         """
         Initialise from a function to sample.
         N: optional parameter which indicates the range of the dichotomy
@@ -88,52 +112,23 @@ class Chebfun(object):
         # Find out the right number of coefficients to keep
         coeffs, Nmax = dichotomy(**args)
 
-
         points  = interpolation_points(Nmax+1)
-        self.values  = f(points)
-        self.p  = interpolate(points, self.values.T)
+        values  = f(points)
+        return self(values)
 
-    def __init__(self, f=None, N=None, chebcoeff=None,):
+    def __init__(self, values):
         """
-Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1, 1]`.
-
-:param callable f: Python, Numpy, or Sage function
-:param int N: (default = None)  specify number of interpolating points
-:param np.array chebcoeff: (default = np.array(0)) specify the coefficients of a Chebfun
+        Init a Chebfun obejcts from values at Chebyshev points.
         """
-
-        if np.isscalar(f):
-            f = [f]
-
-        try:
-            iter(f) # interpolation values provided
-        except TypeError:
-            pass
-        else:
-            self.init_from_data(f)
-            return
-
-        if isinstance(f, Chebfun): # copy if f is another Chebfun
-            self.init_from_chebfun(f)
-            return
-
-        if chebcoeff is not None: # if the coefficients of a Chebfun are given
-            self.init_from_chebcoeff(chebcoeff)
-            return
-
-        # from this point, we assume that f is a function
-        if f is not None:
-            self.init_from_function(f, N)
-
-        # at this point, none of the initialisation worked, the Chebfun object is empy
-        # but may be initialised manually with one of the init_ methods
-
-
-
-
+        avalues = np.asarray(values, dtype=float)
+        avalues1 = np.atleast_1d(avalues)
+        N = len(avalues1)
+        points = interpolation_points(N)
+        self._values = avalues1
+        self.p = interpolate(points, avalues1.T)
 
     def __repr__(self):
-        return "<Chebfun({0})>".format(repr(self.values))
+        return "<Chebfun({0})>".format(repr(self.values()))
 
     def __str__(self):
         return "<Chebfun({0})>".format(len(self))
@@ -164,7 +159,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         """
         Addition
         """
-        return Chebfun(lambda x: self(x) + other(x),)
+        return self.from_function(lambda x: self(x) + other(x),)
 
     __radd__ = __add__
 
@@ -174,7 +169,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         """
         Chebfun subtraction.
         """
-        return Chebfun(lambda x: self(x) - other(x),)
+        return self.from_function(lambda x: self(x) - other(x),)
 
     def __rsub__(self, other):
         return -(self - other)
@@ -185,7 +180,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         """
         Chebfun multiplication.
         """
-        return Chebfun(lambda x: self(x) * other(x),)
+        return self.from_function(lambda x: self(x) * other(x),)
 
     __rmul__ = __mul__
 
@@ -194,13 +189,13 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         """
         Chebfun division
         """
-        return Chebfun(lambda x: self(x) / other(x),)
+        return self.from_function(lambda x: self(x) / other(x),)
 
     __truediv__ = __div__
 
     @cast_scalar
     def __rdiv__(self, other):
-        return Chebfun(lambda x: other(x)/self(x))
+        return self.from_function(lambda x: other(x)/self(x))
 
     __rtruediv__ = __rdiv__
 
@@ -208,17 +203,17 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         """
         Chebfun negation.
         """
-        return Chebfun(lambda x: -self(x),)
+        return self.from_function(lambda x: -self(x),)
 
     def __pow__(self, other):
-        return Chebfun(lambda x: self(x)**other)
+        return self.from_function(lambda x: self(x)**other)
 
 
     def sqrt(self):
         """
         Square root of Chebfun.
         """
-        return Chebfun(lambda x: np.sqrt(self(x)),)
+        return self.from_function(lambda x: np.sqrt(self(x)),)
 
     def __abs__(self):
         """
@@ -226,7 +221,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 
         (Coerces to NumPy absolute value.)
         """
-        return Chebfun(lambda x: np.abs(self(x)),)
+        return self.from_function(lambda x: np.abs(self(x)),)
 
     def abs(self):
         """
@@ -238,13 +233,13 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         """
         Sine of Chebfun
         """
-        return Chebfun(lambda x: np.sin(self(x)),)
+        return self.from_function(lambda x: np.sin(self(x)),)
 
     def cos(self):
-        return Chebfun(lambda x: np.cos(self(x)))
+        return self.from_function(lambda x: np.cos(self(x)))
 
     def exp(self):
-        return Chebfun(lambda x: np.exp(self(x)))
+        return self.from_function(lambda x: np.exp(self(x)))
 
 
     #
@@ -252,7 +247,10 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
     #
 
     def chebyshev_coefficients(self):
-        return chebpolyfit(self.values)
+        return chebpolyfit(self.values())
+
+    def values(self):
+        return self._values
 
     def sum(self):
         """
@@ -295,7 +293,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         bi = self.chebyshev_coefficients()
         for _ in range(n):
             bi = differentiator(bi)
-        return Chebfun(chebcoeff=bi)
+        return self.from_chebcoeff(chebcoeff=bi)
 
     def roots(self):
         """
@@ -328,9 +326,9 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         if with_interpolation_points:
             current_color = axis.lines[-1].get_color() # figure out current colour
             if dim == 1:
-                axis.plot(self.p.xi, self.values, marker='.', linestyle='', color=current_color)
+                axis.plot(self.p.xi, self.values(), marker='.', linestyle='', color=current_color)
             elif dim == 2:
-                axis.plot(self.values[0], self.values[1], marker='.', linestyle='', color=current_color)
+                axis.plot(self.values()[0], self.values()[1], marker='.', linestyle='', color=current_color)
                 axis.axis('equal')
         plt.plot()
 
@@ -349,7 +347,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
         return ax
 
     def plot_interpolating_points(self):
-        plt.plot(self.p.xi, self.values)
+        plt.plot(self.p.xi, self.values())
 
     def compare(self, f, *args, **kwds):
         """
@@ -427,7 +425,7 @@ def sample_function(f, N):
     Sample a function on N+1 Chebyshev points.
     """
     x = interpolation_points(N+1)
-    return f(x).T
+    return f(x)
 
 def chebpolyfit(sampled):
     """

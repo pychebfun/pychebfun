@@ -42,9 +42,7 @@ class TestFunctional(unittest.TestCase):
 class TestPlot(unittest.TestCase):
     def setUp(self):
         # Constuct the O(dx^-16) "spectrally accurate" chebfun p
-        Chebfun.record = True
-        self.p = Chebfun()
-        self.p.init_from_function(f)
+        self.p = Chebfun.from_function(f)
 
     def test_plot(self):
         self.p.plot()

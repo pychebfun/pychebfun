@@ -46,10 +46,10 @@ def chebpolyplot(f, Nmax=100, normpts=1000, ord=2, compare=False, points_only=Fa
 
     x            = np.linspace(-1,1,normpts)    
     Nvals        = range(10,Nmax,10)
-    normvalscheb = [la.norm(f(x)-Chebfun(f,N=n)(x), ord=ord) for n in Nvals]
+    normvalscheb = [la.norm(f(x)-Chebfun.from_function(f,N=n)(x), ord=ord) for n in Nvals]
 
     if compare:
-        normvalsequi = [la.norm(f(x)-Chebfun(f,N=n,spacing='equidistant')(x), ord=ord) for n in Nvals]
+        normvalsequi = [la.norm(f(x)-Chebfun.from_function(f,N=n,spacing='equidistant')(x), ord=ord) for n in Nvals]
 
     # plot this 
     if not points_only:

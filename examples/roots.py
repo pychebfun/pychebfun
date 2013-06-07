@@ -7,7 +7,7 @@ x = linspace(-1,1,5000)
 
 # Computing the roots of the corresponding chebfun. Uses the specrally accurate
 # Chebyshev expansion.
-p = Chebfun(f)
+p = chebfun(f)
 r = p.roots()
 
 print "Roots (Chebfun):", r

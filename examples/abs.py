@@ -23,7 +23,7 @@ abses = [functools.partial(abse, epsilon=pow(10,-k)) for k in range(4)]
 cs = []
 for f in abses:
     try:
-        c = Chebfun(f)
+        c = chebfun(f)
     except c.NoConvergence:
         break
     else:
