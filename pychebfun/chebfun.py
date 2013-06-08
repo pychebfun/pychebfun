@@ -170,13 +170,13 @@ class Chebfun(object):
         big = diff > 0
         small = not big
         # pad the chebyshev coefficients of the small one with zeros
-        coeffs = ps[small].chebyshev_coefficients()
-        padded = np.lib.pad(coeffs, (0, np.abs(diff)), mode='constant', constant_values=(0, 0))
-        # compute the values
-        values = chebpolyval(padded)
+        small_coeffs = ps[small].chebyshev_coefficients()
+        big_coeffs = ps[big].chebyshev_coefficients()
+        padded = np.zeros_like(big_coeffs)
+        padded[:len(small_coeffs)] = small_coeffs
         # add the values and create a new Chebfun with them
-        new_values = values + ps[big].values()
-        return self.from_data(new_values)
+        chebsum = big_coeffs + padded
+        return self.from_chebcoeff(chebsum)
 
     __radd__ = __add__
 
