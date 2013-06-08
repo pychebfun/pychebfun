@@ -328,7 +328,7 @@ class Chebfun(object):
             if dim == 1:
                 axis.plot(self.p.xi, self.values(), marker='.', linestyle='', color=current_color)
             elif dim == 2:
-                axis.plot(self.values()[0], self.values()[1], marker='.', linestyle='', color=current_color)
+                axis.plot(self.values()[:,0], self.values()[:,1], marker='.', linestyle='', color=current_color)
                 axis.axis('equal')
         plt.plot()
 
