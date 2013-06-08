@@ -324,10 +324,15 @@ class Test_Misc(unittest.TestCase):
 
     def test_scalar_init(self):
         c = Chebfun(0.)
+        npt.assert_allclose(c(xs), 0.)
+
+    def test_empty_init(self):
+        c = Chebfun()
+        npt.assert_allclose(c(xs), 0.)
 
     def test_chebcoeff_one(self):
         c = Chebfun.from_chebcoeff(np.array([[1.],]))
-        npt.assert_array_almost_equal(c(xs), 1.)
+        npt.assert_allclose(c(xs), 1.)
 
     def test_init_from_segment(self):
         c = Chebfun.from_function(segment)

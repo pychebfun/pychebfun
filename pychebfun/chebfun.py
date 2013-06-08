@@ -116,7 +116,7 @@ class Chebfun(object):
         values  = f(points)
         return self(values)
 
-    def __init__(self, values):
+    def __init__(self, values=0.):
         """
         Init a Chebfun obejcts from values at Chebyshev points.
         """
