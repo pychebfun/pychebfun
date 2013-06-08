@@ -79,6 +79,10 @@ class Chebfun(object):
         """
 
     @classmethod
+    def from_data(self, data):
+        return self(data)
+
+    @classmethod
     def from_chebfun(self, other):
         """
         Initialise from another instance of Chebfun
@@ -159,7 +163,20 @@ class Chebfun(object):
         """
         Addition
         """
-        return self.from_function(lambda x: self(x) + other(x),)
+        ps = [self, other]
+        # length difference
+        diff = len(other) - len(self)
+        # determine which of self/other is the smaller/bigger
+        big = diff > 0
+        small = not big
+        # pad the chebyshev coefficients of the small one with zeros
+        coeffs = ps[small].chebyshev_coefficients()
+        padded = np.lib.pad(coeffs, (0, np.abs(diff)), mode='constant', constant_values=(0, 0))
+        # compute the values
+        values = chebpolyval(padded)
+        # add the values and create a new Chebfun with them
+        new_values = values + ps[big].values()
+        return self.from_data(new_values)
 
     __radd__ = __add__
 
@@ -169,7 +186,7 @@ class Chebfun(object):
         """
         Chebfun subtraction.
         """
-        return self.from_function(lambda x: self(x) - other(x),)
+        return self + (-other)
 
     def __rsub__(self, other):
         return -(self - other)
@@ -203,7 +220,7 @@ class Chebfun(object):
         """
         Chebfun negation.
         """
-        return self.from_function(lambda x: -self(x),)
+        return self.from_data(-self.values())
 
     def __pow__(self, other):
         return self.from_function(lambda x: self(x)**other)

@@ -416,6 +416,14 @@ class Test_Arithmetic(unittest.TestCase):
         self.p1 = Chebfun.from_function(f)
         self.p2 = Chebfun.from_function(runge)
 
+    def test_add(self):
+        s = Chebfun.from_function(np.sin)
+        c = Chebfun.from_function(np.cos)
+        r = c + s
+        def expected(x):
+            return np.sin(x) + np.cos(x)
+        npt.assert_allclose(r(xs), expected(xs))
+
     def test_scalar_mul(self):
         self.assertEqual(self.p1, self.p1)
         self.assertEqual(self.p1*1, 1*self.p1)
@@ -431,10 +439,24 @@ class Test_Arithmetic(unittest.TestCase):
         b = self.p2 - self.p1
         self.assertEqual(a+b,0)
 
-    def test_neg(self):
-        self.skipTest('problem due to lack of scaling strategy')
+    def test_cancel(self):
+        """
+        The Chebfun f-f should be equal to zero and of length one.
+        """
         rm = -self.p2
         z = self.p2 + rm
+        npt.assert_allclose(z(xs), np.zeros_like(xs), rtol=1e-7, atol=1e-8)
+        self.assertEqual(len(z), 1)
+
+    def test_add_mistype(self):
+        """
+        Possible to add a Chebfun and a function 
+        """
+        self.skipTest('not possible to add function and chebfun yet')
+        def f(x):
+            return np.sin(x)
+        c = Chebfun.from_function(f)
+        c + f
 
 
 ## class Test_2D(Test_Chebfun):
