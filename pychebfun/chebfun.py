@@ -122,7 +122,7 @@ class Chebfun(object):
 
     def __init__(self, values=0.):
         """
-        Init a Chebfun obejcts from values at Chebyshev points.
+        Init a Chebfun objects from values at Chebyshev points.
         """
         avalues = np.asarray(values, dtype=float)
         avalues1 = np.atleast_1d(avalues)
