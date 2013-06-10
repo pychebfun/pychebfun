@@ -90,13 +90,20 @@ class Chebfun(object):
         return self(other.values())
 
     @classmethod
-    def from_chebcoeff(self, chebcoeff):
+    def from_chebcoeff(self, chebcoeff, prune=True, scale=1.):
         """
         Initialise from provided Chebyshev coefficients
+        prune: Whether to prune the negligible coefficients
+        scale: the scale to use when pruning
         """
         coeffs = np.asarray(chebcoeff)
-        values = chebpolyval(coeffs)
-        return self(values)
+        if prune:
+            N = self._cutoff(coeffs, scale)
+            pruned_coeffs = coeffs[:N]
+        else:
+            pruned_coeffs = coeffs
+        values = chebpolyval(pruned_coeffs)
+        return self(values, scale)
 
     @classmethod
     def from_function(self, f, N=None):
@@ -114,19 +121,43 @@ class Chebfun(object):
             args['raise_no_convergence'] = True
 
         # Find out the right number of coefficients to keep
-        coeffs, Nmax = dichotomy(**args)
+        coeffs = dichotomy(**args)
 
-        return self.from_chebcoeff(coeffs[:Nmax+1])
+        return self.from_chebcoeff(coeffs,)
 
-    def __init__(self, values=0.):
+    @classmethod
+    def _threshold(self, scale):
+        bnd = 128*emach*scale
+        return bnd
+
+    @classmethod
+    def _cutoff(self, coeffs, scale):
+        """
+        Compute cutoff index after which the coefficients are deemed negligible.
+        """
+        bnd = self._threshold(scale)
+        inds  = np.nonzero(abs(coeffs) >= bnd)
+        if len(inds[0]):
+            N = inds[0][-1]
+        else:
+            N = 0
+        return N+1
+
+    def __init__(self, values=0., scale=None):
         """
         Init a Chebfun objects from values at Chebyshev points.
+        values: Interpolation values
+        scale: The actual scale; computed automatically if not given
         """
         avalues = np.asarray(values, dtype=float)
         avalues1 = np.atleast_1d(avalues)
         N = len(avalues1)
         points = interpolation_points(N)
         self._values = avalues1
+        if scale is not None:
+            self._scale = scale
+        else:
+            self._scale = np.max(np.abs(self._values))
         self.p = interpolate(points, avalues1)
 
     def __repr__(self):
@@ -174,7 +205,8 @@ class Chebfun(object):
         padded[:len(small_coeffs)] = small_coeffs
         # add the values and create a new Chebfun with them
         chebsum = big_coeffs + padded
-        return self.from_chebcoeff(chebsum)
+        new_scale = np.max([self._scale, other._scale])
+        return self.from_chebcoeff(chebsum, scale=new_scale)
 
     __radd__ = __add__
 
@@ -393,7 +425,7 @@ def basis(n):
     vals[-1::-2] = -1
     return Chebfun(vals)
 
-def dichotomy(f, kmin=2, kmax=12, raise_no_convergence=True):
+def dichotomy(f, kmin=2, kmax=12, raise_no_convergence=True,):
     """
     Compute the coefficients for a function f by dichotomy.
     kmin, kmax: log2 of number of interpolation points to try
@@ -408,7 +440,7 @@ def dichotomy(f, kmin=2, kmax=12, raise_no_convergence=True):
 
         # 3) Check for negligible coefficients
         #    If within bound: get negligible coeffs and bread
-        bnd = 128*emach*abs(np.max(coeffs))
+        bnd = Chebfun._threshold(abs(np.max(coeffs)))
 
         last = abs(coeffs[-2:])
         if np.all(last <= bnd):
@@ -416,9 +448,7 @@ def dichotomy(f, kmin=2, kmax=12, raise_no_convergence=True):
     else:
         if raise_no_convergence:
             raise Chebfun.NoConvergence(last, bnd)
-    inds  = np.nonzero(abs(coeffs) >= bnd)
-    Nmax = inds[0][-1]
-    return coeffs, Nmax
+    return coeffs
 
 def even_data(data):
     """

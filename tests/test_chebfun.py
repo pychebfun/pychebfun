@@ -227,7 +227,7 @@ class TestSimple(unittest.TestCase):
         Chebfun for zero has the minimal degree 5
         """
         p = Chebfun.from_function(Zero)
-        self.assertEqual(len(p),5) # should be equal to the minimum length, 4+1
+        self.assertEqual(len(p),1) # should be equal to the minimum length, 1
 
     def test_repr(self):
         """
@@ -289,6 +289,13 @@ class TestInitialise(unittest.TestCase):
         Initialise with a chebcoeff list
         """
         c = Chebfun.from_chebcoeff([1.,2.])
+
+    def test_prune(self):
+        """
+        Prune works even if the coefficient is zero
+        """
+        N = Chebfun._cutoff(np.array([0.]), scale=1)
+        self.assertEqual(N, 1)
 
 def compare_ufunc(ufunc):
     x = Chebfun.from_function(lambda x:x)
