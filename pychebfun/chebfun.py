@@ -116,9 +116,7 @@ class Chebfun(object):
         # Find out the right number of coefficients to keep
         coeffs, Nmax = dichotomy(**args)
 
-        points  = interpolation_points(Nmax+1)
-        values  = f(points)
-        return self(values)
+        return self.from_chebcoeff(coeffs[:Nmax+1])
 
     def __init__(self, values=0.):
         """
