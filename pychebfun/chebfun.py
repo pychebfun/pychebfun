@@ -106,6 +106,32 @@ class Chebfun(object):
         return self(values, scale)
 
     @classmethod
+    def dichotomy(self, f, kmin=2, kmax=12, raise_no_convergence=True,):
+        """
+        Compute the coefficients for a function f by dichotomy.
+        kmin, kmax: log2 of number of interpolation points to try
+        raise_no_convergence: whether to raise an exception if the dichotomy does not converge
+        """
+
+        for k in xrange(kmin, kmax):
+            N = pow(2, k)
+
+            sampled = sample_function(f, N)
+            coeffs = chebpolyfit(sampled)
+
+            # 3) Check for negligible coefficients
+            #    If within bound: get negligible coeffs and bread
+            bnd = self._threshold(abs(np.max(coeffs)))
+
+            last = abs(coeffs[-2:])
+            if np.all(last <= bnd):
+                break
+        else:
+            if raise_no_convergence:
+                raise self.NoConvergence(last, bnd)
+        return coeffs
+
+    @classmethod
     def from_function(self, f, N=None):
         """
         Initialise from a function to sample.
@@ -121,7 +147,7 @@ class Chebfun(object):
             args['raise_no_convergence'] = True
 
         # Find out the right number of coefficients to keep
-        coeffs = dichotomy(**args)
+        coeffs = self.dichotomy(**args)
 
         return self.from_chebcoeff(coeffs,)
 
@@ -424,31 +450,6 @@ def basis(n):
     vals = np.ones(n+1)
     vals[-1::-2] = -1
     return Chebfun(vals)
-
-def dichotomy(f, kmin=2, kmax=12, raise_no_convergence=True,):
-    """
-    Compute the coefficients for a function f by dichotomy.
-    kmin, kmax: log2 of number of interpolation points to try
-    raise_no_convergence: whether to raise an exception if the dichotomy does not converge
-    """
-
-    for k in xrange(kmin, kmax):
-        N = pow(2, k)
-
-        sampled = sample_function(f, N)
-        coeffs = chebpolyfit(sampled)
-
-        # 3) Check for negligible coefficients
-        #    If within bound: get negligible coeffs and bread
-        bnd = Chebfun._threshold(abs(np.max(coeffs)))
-
-        last = abs(coeffs[-2:])
-        if np.all(last <= bnd):
-            break
-    else:
-        if raise_no_convergence:
-            raise Chebfun.NoConvergence(last, bnd)
-    return coeffs
 
 def even_data(data):
     """
