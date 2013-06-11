@@ -230,6 +230,17 @@ class TestSimple(unittest.TestCase):
         p = Chebfun.from_function(Quad)
         self.assertAlmostEqual(p.norm(), np.sqrt(2/5))
 
+    def test_dot(self):
+        """
+        f.0 = 0
+        f.1 = f.sum()
+        """
+        p = Chebfun.from_function(np.sin)
+        z = p.dot(Chebfun(0.))
+        self.assertAlmostEqual(z, 0.)
+        s = p.dot(Chebfun(1.))
+        self.assertAlmostEqual(s, p.sum())
+
     def test_zero(self):
         """
         Chebfun for zero has the minimal degree 5

@@ -339,13 +339,18 @@ class Chebfun(object):
 
         return val
 
+    def dot(self, other):
+        """
+        Return the Hilbert scalar product $\int f.g$.
+        """
+        prod = self * other
+        return prod.sum()
+
     def norm(self):
         """
-        Return: square root of integral of |f|**2 over [-1,1]
+        Return: square root of scalar product with itself.
         """
-        square = self*self
-        integral = square.sum()
-        norm = np.sqrt(integral)
+        norm = np.sqrt(self.dot(self))
         return norm
 
     def integrate(self):
