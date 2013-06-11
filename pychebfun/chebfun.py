@@ -282,39 +282,8 @@ class Chebfun(object):
     def __pow__(self, other):
         return self.from_function(lambda x: self(x)**other)
 
-
-    def sqrt(self):
-        """
-        Square root of Chebfun.
-        """
-        return self.from_function(lambda x: np.sqrt(self(x)),)
-
     def __abs__(self):
-        """
-        Absolute value of Chebfun. (Python)
-
-        (Coerces to NumPy absolute value.)
-        """
-        return self.from_function(lambda x: np.abs(self(x)),)
-
-    def abs(self):
-        """
-        Absolute value of Chebfun. (NumPy)
-        """
-        return self.__abs__()
-
-    def sin(self):
-        """
-        Sine of Chebfun
-        """
-        return self.from_function(lambda x: np.sin(self(x)),)
-
-    def cos(self):
-        return self.from_function(lambda x: np.cos(self(x)))
-
-    def exp(self):
-        return self.from_function(lambda x: np.exp(self(x)))
-
+        return self.from_function(lambda x: abs(self(x)))
 
     #
     # Numpy / Scipy Operator Overloads
@@ -450,6 +419,20 @@ class Chebfun(object):
         ax.plot(x, abs(f(x)-self(x)), 'k')
 
         return ax
+
+def _add_delegate(func):
+    def method(self):
+        return self.from_function(lambda x: func(self(x)))
+    name = func.__name__
+    method.__name__ = name
+    method.__doc__ = "delegate for numpy's ufunc {}".format(name)
+    setattr(Chebfun, name, method)
+
+# Following list generated from:
+# https://github.com/qsnake/numpy/blob/master/numpy/core/code_generators/generate_umath.py
+for func in [np.arccos, np.arccosh, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, ]:
+    _add_delegate(func)
+
 
 def basis(n):
     if n == 0:

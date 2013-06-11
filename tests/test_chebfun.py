@@ -323,31 +323,31 @@ class TestInitialise(unittest.TestCase):
         self.assertEqual(N, 1)
 
 def compare_ufunc(ufunc):
-    x = Chebfun.from_function(lambda x:x)
-    cf = ufunc(x)
+    # transformation from [-1, 1] to [1/4, 3/4]
+    trans = lambda x: (x+2)/4
+    x2 = Chebfun.from_function(trans)
+    cf = ufunc(x2)
     result = cf.values()
-    expected = ufunc(cf.p.xi)
-    return result, expected
+    expected = ufunc(trans(cf.p.xi))
+    npt.assert_allclose(result, expected)
 
 
 class TestUfunc(unittest.TestCase):
     """
     Check that ufuncs work and give the right result.
+    arccosh is not tested
     """
-    def setUp(self):
-        self.x = Chebfun.from_function(lambda x:x)
 
-    def test_cos(self):
-        r,e = compare_ufunc(np.cos)
-        npt.assert_array_almost_equal(r,e)
+def _add_ufunc_test(ufunc):
+    name = ufunc.__name__
+    def test_func(self):
+        compare_ufunc(ufunc)
+    test_name = 'test_{}'.format(name)
+    test_func.__name__ = test_name
+    setattr(TestUfunc, test_name, test_func)
 
-    def test_exp(self):
-        r,e = compare_ufunc(np.exp)
-        npt.assert_array_almost_equal(r,e)
-
-    def test_sin(self):
-        r,e = compare_ufunc(np.sin)
-        npt.assert_array_almost_equal(r,e)
+for func in [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, np.abs]:
+    _add_ufunc_test(func)
 
 class Test_Misc(unittest.TestCase):
     def test_init_from_data(self):
