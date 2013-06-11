@@ -19,6 +19,7 @@ import sys
 from functools import wraps
 
 from scipy.interpolate import BarycentricInterpolator as Bary
+import numpy.polynomial as poly
 
 def cast_scalar(method):
     """
@@ -349,13 +350,12 @@ class Chebfun(object):
 
     def integrate(self):
         """
-        Return the Chebfun representing the integral of self over the domain.
-
-        (Simply numerically integrates the underlying Barcentric polynomial.)
+        Return the Chebfun representing the primitive of self over the domain, starting at zero.
         """
-        return Chebfun(self.p.integrate)
+        coeffs = self.chebyshev_coefficients()
+        int_coeffs = poly.chebyshev.chebint(coeffs)
+        return self.from_chebcoeff(int_coeffs)
 
- 
     def derivative(self):
         return self.differentiate()
 

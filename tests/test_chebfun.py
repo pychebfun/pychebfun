@@ -143,7 +143,6 @@ class Test_Chebfun(unittest.TestCase):
 
 
     def test_integrate(self):
-        self.skipTest('bug in Chebfun.integrate')
         q = self.p.integrate()
 
     def test_differentiate(self):
@@ -204,6 +203,15 @@ class TestDifferentiate(unittest.TestCase):
         result = e4(xs)
         expected = e(xs)
         npt.assert_allclose(result, expected)
+    
+    def test_integrate(self):
+        """
+        Integrate exp
+        """
+        e = Chebfun.from_function(lambda x:np.exp(x))
+        result = e.integrate()
+        expected = e - 1
+        npt.assert_allclose(result(xs), expected(xs))
 
 
 class TestSimple(unittest.TestCase):
