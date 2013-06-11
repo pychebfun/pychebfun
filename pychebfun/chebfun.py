@@ -377,7 +377,7 @@ class Chebfun(object):
             if dim == 1:
                 axis.plot(self.p.xi, self.values(), marker='.', linestyle='', color=current_color)
             elif dim == 2:
-                axis.plot(self.values()[:,0], self.values()[:,1], marker='.', linestyle='', color=current_color)
+                axis.plot(self.values()[:, 0], self.values()[:, 1], marker='.', linestyle='', color=current_color)
                 axis.axis('equal')
         plt.plot()
 
@@ -420,10 +420,10 @@ class Chebfun(object):
 
         return ax
 
-def _add_delegate(func):
+def _add_delegate(ufunc):
     def method(self):
-        return self.from_function(lambda x: func(self(x)))
-    name = func.__name__
+        return self.from_function(lambda x: ufunc(self(x)))
+    name = ufunc.__name__
     method.__name__ = name
     method.__doc__ = "delegate for numpy's ufunc {}".format(name)
     setattr(Chebfun, name, method)
