@@ -246,6 +246,12 @@ class TestSimple(unittest.TestCase):
         expected = '<Chebfun(array([ 1., -1.]))>'
         self.assertEqual(s, expected)
 
+    def test_root(self):
+        r = np.random.rand()
+        p = Chebfun.from_function(lambda x: np.sin(x-r))
+        roots = p.roots()
+        npt.assert_allclose(roots, r)
+
 class TestPolyfitShape(unittest.TestCase):
     def test_scalar(self):
         for datalen in [1,3]:

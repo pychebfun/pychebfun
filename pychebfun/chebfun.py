@@ -371,14 +371,16 @@ class Chebfun(object):
     def roots(self):
         """
         Return the roots if the Chebfun is scalar
+        The computation is done via trigonometric polynomials
         """
         ai = self.chebyshev_coefficients()
         N = len(ai)
         coeffs = np.hstack([ai[-1::-1], ai[1:]])
         coeffs[N-1] *= 2
-        zNq = np.poly1d(coeffs)
-        roots = np.array([np.real(r) for r in zNq.roots if np.allclose(abs(r), 1.)])
-        return np.unique(roots)
+        complex_roots = poly.polynomial.polyroots(coeffs)
+        real_roots = np.array([np.real(r) for r in complex_roots if np.allclose(abs(r), 1.)])
+        roots = np.unique(real_roots)
+        return roots
 
     plot_res = 1000
 
