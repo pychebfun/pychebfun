@@ -271,6 +271,12 @@ class TestSimple(unittest.TestCase):
         ts = np.linspace(0, 2*np.pi, 100)
         npt.assert_allclose(Tn(np.cos(ts)), np.cos(n*ts))
 
+    def test_complex(self):
+        n = 10
+        r = np.random.randn(n) + 1j*np.random.randn(n)
+        c = Chebfun.from_data(r)
+        xs = interpolation_points(n)
+        npt.assert_allclose(c(xs), r)
 
 class TestPolyfitShape(unittest.TestCase):
     def test_scalar(self):

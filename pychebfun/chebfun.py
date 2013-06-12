@@ -176,7 +176,7 @@ class Chebfun(object):
         values: Interpolation values
         scale: The actual scale; computed automatically if not given
         """
-        avalues = np.asarray(values, dtype=float)
+        avalues = np.asarray(values,)
         avalues1 = np.atleast_1d(avalues)
         N = len(avalues1)
         points = interpolation_points(N)
