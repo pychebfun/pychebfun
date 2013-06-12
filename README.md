@@ -58,6 +58,9 @@ f.differentiate() # derivative of f
 f.integrate() # primitive of f: ∫_0^x f(y) dy
 ```
 
+You can see in [this example][5] how to compute the maxima and minima of an arbitrary function by computing the zeros of its derivative.
+![Extrema](https://github.com/pychebfun/pychebfun/raw/master/images/extrema.png)
+
 One can also have vector coefficients:
 ```python
 def circle(x):
@@ -111,4 +114,5 @@ pychebfun is hosted at http://github.com/pychebfun/pychebfun.
 [2]: http://www2.maths.ox.ac.uk/chebfun/
 [3]: mailto:cswiercz@amath.washington.edu
 [4]: https://github.com/pychebfun/pychebfun/tree/master/examples
+[5]: https://github.com/pychebfun/pychebfun/tree/master/examples/extrema.py
 
