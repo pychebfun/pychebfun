@@ -185,7 +185,7 @@ class Chebfun(object):
             self._scale = scale
         else:
             self._scale = np.max(np.abs(self._values))
-        self.p = interpolate(points, avalues1)
+        self.p = interpolator(points, avalues1)
 
     def __repr__(self):
         return "<Chebfun({0})>".format(repr(self.values()))
@@ -516,11 +516,21 @@ def chebpolyval(chebcoeff):
         values = complex_values
     return values
 
-def interpolate(x, values):
+def interpolator(x, values):
     """
-    Returns a polynomial with vector coefficients which interpolates the values at the points x
+    Returns a polynomial with vector coefficients which interpolates the values at the Chebyshev points x
     """
-    return Bary(x, values)
+    # hacking the barycentric interpolator by computing the weights in advance
+    p = Bary([0.])
+    N = len(values)
+    weights = np.ones(N)
+    weights[0] = .5
+    weights[1::2] = -1
+    weights[-1] *= .5
+    p.wi = weights
+    p.xi = x
+    p.set_yi(values)
+    return p
 
 
 def differentiator(A):
