@@ -122,7 +122,7 @@ class Chebfun(object):
 
             # 3) Check for negligible coefficients
             #    If within bound: get negligible coeffs and bread
-            bnd = self._threshold(abs(np.max(coeffs)))
+            bnd = self._threshold(np.max(np.abs(coeffs)))
 
             last = abs(coeffs[-2:])
             if np.all(last <= bnd):

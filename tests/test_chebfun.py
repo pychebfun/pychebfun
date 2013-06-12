@@ -278,6 +278,10 @@ class TestSimple(unittest.TestCase):
         xs = interpolation_points(n)
         npt.assert_allclose(c(xs), r)
 
+    def test_mx(self):
+        c = Chebfun.from_function(lambda x:-x)
+        npt.assert_allclose(c(xs), -xs)
+
 class TestPolyfitShape(unittest.TestCase):
     def test_scalar(self):
         for datalen in [1,3]:
