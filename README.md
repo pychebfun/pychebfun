@@ -95,11 +95,13 @@ See 'INSTALL' located in this directory.
 
 
 
-## Primary authors
+## Current Maintainer
 
- * Chris Swierczewski <cswiercz@gmail.com>
  * Olivier Verdier <olivier.verdier@gmail.com>
 
+## Contributors
+
+ * Chris Swierczewski <cswiercz@gmail.com>
 
 ## Repository
 
