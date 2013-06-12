@@ -187,6 +187,10 @@ class Chebfun(object):
             self._scale = np.max(np.abs(self._values))
         self.p = interpolator(points, avalues1)
 
+    @classmethod
+    def identity(self):
+        return self.from_data([1., -1.])
+
     def __repr__(self):
         return "<Chebfun({0})>".format(repr(self.values()))
 

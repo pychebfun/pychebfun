@@ -282,6 +282,10 @@ class TestSimple(unittest.TestCase):
         c = Chebfun.from_function(lambda x:-x)
         npt.assert_allclose(c(xs), -xs)
 
+    def test_identity(self):
+        c = Chebfun.identity()
+        npt.assert_allclose(c(xs), xs)
+
 class TestPolyfitShape(unittest.TestCase):
     def test_scalar(self):
         for datalen in [1,3]:
