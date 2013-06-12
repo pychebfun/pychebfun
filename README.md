@@ -4,6 +4,74 @@
 
 The Chebfun system is designed to perform fast and accurate functional computations. The system incorporates the use of Chebyshev polynomial expansions, Lagrange interpolation with the barycentric formula, and Clenshaw-Curtis quadrature to perform fast functional evaluation, integration, root-finding, and other operations.
 
+## Getting Started
+
+As a minimal example, you can run the following:
+```python
+import numpy as np; from pychebfun import *
+x = Chebfun.identity
+# define a function
+f = Chebfun.from_function(lambda x:np.tan(x+1/4) + np.cos(10*x**2 + np.exp(np.exp(x))))
+# evaluate at some point in [-1, 1]
+f(.5)
+f(np.linspace(-.5, .5, 200))
+# plot it:
+f.plot()
+```
+
+One can also use the general constructor `chebfun`:
+```python
+f = chebfun(lambda x:np.tan(x+1/4) + np.cos(10*x**2 + np.exp(np.exp(x))))
+```
+
+Note that one can could have defined the function `f` in a more intuitive manner by
+```python
+x = Chebfun.identity
+f = np.tan(x+1/4) + np.cos(10*x**2 + np.exp(np.exp(x)))
+```
+
+It is possible to multiply, add, subtract chebfuns between themselves and also with scalars:
+```python
+g = 2*np.sin(10*np.pi*x)
+f+g
+1+f
+f-g
+2*f*g - 1
+```
+
+One can find all the roots of a function with `roots`:
+```python
+f.roots() # all the roots of f on [-1, 1]
+```
+
+One can compute the integral of f:
+```python
+f.sum() # integral of f from -1 to 1
+dot(f,g) # integral of f.g from -1 to 1
+```
+
+An arbitrary function can be differentiated and integrated:
+```python
+f.differentiate() # derivative of f
+f.integrate() # primitive of f: ∫_0^x f(y) dy
+```
+
+One can also have vector coefficients:
+```python
+def circle(x):
+	return np.array([np.cos(np.pi*x), np.sin(np.pi*x)],).T
+c = Chebfun.from_function(circle)
+```
+
+If you are interested in experimenting with the innards of chebfun, you should be aware of the following functions:
+```python
+basis(10) # Chebyshev polynomial of degree 10
+Chebfun.from_chebcoeff([0.,1,2]) # Chebfun with prescribed chebcoeffs
+interpolation_points(10) # 10 Chebyshev interpolation points in [-1, 1]
+chebpolyfit([1.,2]) # compute Chebyshev coefficients given values at Chebyshev points
+chebpolyval([1., 2.]) # compute values at Chebyshev points given Chebyshev coefficients
+```
+
 ![Example](https://github.com/olivierverdier/pychebfun/raw/master/example.png)
 
 The pychebfun project is based on the mathematical work of Battles and Trefethen et. al. yet is optimized to take advantage of the tools in the Numpy/Scipy and Sage libraries. This project is solely for the educational purposes of the owner and is not meant to compete with the Matlab library created by Battles and Trefethen. Any questions regarding the Chebfun package for Matlab should be directed towards the [Chebfun team][2].
