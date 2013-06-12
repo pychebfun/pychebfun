@@ -416,10 +416,10 @@ class Test_Misc(unittest.TestCase):
         rr = 1./(1+25*x**2)
         npt.assert_almost_equal(r(xs),rr(xs), decimal=13)
 
-    def test_idct(self, N=64):
+    def test_chebpolyfitval(self, N=64):
         data = np.random.rand(N-1, 2)
-        computed = chebpolyval(dct(data))
-        npt.assert_allclose(computed, data[:N//2])
+        computed = chebpolyval(chebpolyfit(data))
+        npt.assert_allclose(computed, data)
 
     def test_even_data(self):
         """

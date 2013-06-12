@@ -479,14 +479,18 @@ import scipy.fftpack as fftpack
 
 def dct(data):
     """
-    Compute DCT
+    Compute DCT using FFT
     """
     N = len(data)//2
-    dctdata     = fftpack.dct(data[:N+1].T, 1).T
-    dctdata     /= N
-    dctdata[0]  /= 2.
-    dctdata[-1] /= 2.
-    return dctdata
+    fftdata     = fftpack.fft(data, axis=0)[:N+1]
+    fftdata     /= N
+    fftdata[0]  /= 2.
+    fftdata[-1] /= 2.
+    if np.isrealobj(data):
+        data = np.real(fftdata)
+    else:
+        data = fftdata
+    return data
 
 def chebpolyval(chebcoeff):
     """
@@ -497,13 +501,18 @@ def chebpolyval(chebcoeff):
     if N == 1:
         return chebcoeff
 
-    data = 2.*chebcoeff
+    data = even_data(chebcoeff)/2
     data[0] *= 2
-    data[-1] *= 2
-    data *= N
+    data[N-1] *= 2
 
-    idctdata = fftpack.dct(data.T, 1).T/(4*N)
-    return idctdata
+    fftdata = 2*(N-1)*fftpack.ifft(data, axis=0)
+    complex_values = fftdata[:N]
+    # convert to real if input was real
+    if np.isrealobj(chebcoeff):
+        values = np.real(complex_values)
+    else:
+        values = complex_values
+    return values
 
 def interpolate(x, values):
     """
