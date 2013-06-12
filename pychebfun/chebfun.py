@@ -445,6 +445,8 @@ def even_data(data):
     """
     Construct Extended Data Vector (equivalent to creating an
     even extension of the original function)
+    Return: array of length 2(N-1)
+    For instance, [0,1,2,3,4] --> [0,1,2,3,4,3,2,1]
     """
     return np.concatenate([data, data[-2:0:-1]],)
 
