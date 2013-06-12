@@ -6,10 +6,11 @@ The Chebfun system is designed to perform fast and accurate functional computati
 
 ## Getting Started
 
+This is a minimal documentation about `pychebfun`.
+
 As a minimal example, you can run the following:
 ```python
 import numpy as np; from pychebfun import *
-x = Chebfun.identity
 # define a function
 f = Chebfun.from_function(lambda x:np.tan(x+1/4) + np.cos(10*x**2 + np.exp(np.exp(x))))
 # evaluate at some point in [-1, 1]
@@ -18,6 +19,7 @@ f(np.linspace(-.5, .5, 200))
 # plot it:
 f.plot()
 ```
+![Example](https://github.com/pychebfun/pychebfun/raw/master/images/ex1.png)
 
 One can also use the general constructor `chebfun`:
 ```python
@@ -61,7 +63,9 @@ One can also have vector coefficients:
 def circle(x):
 	return np.array([np.cos(np.pi*x), np.sin(np.pi*x)],).T
 c = Chebfun.from_function(circle)
+c.plot()
 ```
+![Example](https://github.com/pychebfun/pychebfun/raw/master/images/circle.png)
 
 If you are interested in experimenting with the innards of chebfun, you should be aware of the following functions:
 ```python
@@ -72,7 +76,8 @@ chebpolyfit([1.,2]) # compute Chebyshev coefficients given values at Chebyshev p
 chebpolyval([1., 2.]) # compute values at Chebyshev points given Chebyshev coefficients
 ```
 
-![Example](https://github.com/olivierverdier/pychebfun/raw/master/example.png)
+You should also take a look at the [examples][4] bundled with this project.
+![Example](https://github.com/pychebfun/pychebfun/raw/master/images/example.png)
 
 The pychebfun project is based on the mathematical work of Battles and Trefethen et. al. yet is optimized to take advantage of the tools in the Numpy/Scipy and Sage libraries. This project is solely for the educational purposes of the owner and is not meant to compete with the Matlab library created by Battles and Trefethen. Any questions regarding the Chebfun package for Matlab should be directed towards the [Chebfun team][2].
 
@@ -98,9 +103,10 @@ See 'INSTALL' located in this directory.
 
 ## Repository
 
-pychebfun is hosted at http://github.com/olivierverdier/pychebfun. 
+pychebfun is hosted at http://github.com/pychebfun/pychebfun. 
 
 [1]: https://github.com/olivierverdier
 [2]: http://www2.maths.ox.ac.uk/chebfun/
-[3]:  mailto:cswiercz@amath.washington.edu
+[3]: mailto:cswiercz@amath.washington.edu
+[4]: https://github.com/pychebfun/pychebfun/tree/master/examples
 
