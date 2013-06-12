@@ -263,6 +263,15 @@ class TestSimple(unittest.TestCase):
         roots = p.roots()
         npt.assert_allclose(roots, r)
 
+    def test_basis(self, n=4):
+        """
+        Tn(cos(t)) = cos(nt)
+        """
+        Tn = basis(n)
+        ts = np.linspace(0, 2*np.pi, 100)
+        npt.assert_allclose(Tn(np.cos(ts)), np.cos(n*ts))
+
+
 class TestPolyfitShape(unittest.TestCase):
     def test_scalar(self):
         for datalen in [1,3]:

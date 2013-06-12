@@ -438,7 +438,7 @@ def basis(n):
     if n == 0:
         return Chebfun(np.array([1.]))
     vals = np.ones(n+1)
-    vals[-1::-2] = -1
+    vals[1::2] = -1
     return Chebfun(vals)
 
 def even_data(data):
