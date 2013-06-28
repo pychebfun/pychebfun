@@ -521,6 +521,15 @@ class TestVector(unittest.TestCase):
     Tests for the vector chebfuns.
     """
 
+    def test_scalarvectormult(self):
+        """
+        Possible to multiply scalar with vector chebfun.
+        """
+        v = Chebfun.from_function(segment)
+        s = np.sin(Chebfun.identity())
+        m = s * v
+        assert_equal(m[0], s*v[0])
+
     def test_slice(self):
         """
         Test slicing: f[0] should return the first component.

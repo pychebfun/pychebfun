@@ -413,7 +413,7 @@ class Chebfun(object):
 
 def _add_operator(op):
     def method(self, other):
-        return self.from_function(lambda x: op(self(x), other(x)),)
+        return self.from_function(lambda x: op(self(x).T, other(x).T).T,)
     cast_method = cast_scalar(method)
     name = op.__name__
     cast_method.__name__ = name
