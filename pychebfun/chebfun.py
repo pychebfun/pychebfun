@@ -206,6 +206,9 @@ class Chebfun(object):
     def size(self):
         return self.p.n
 
+    def __getitem__(self, s):
+        return Chebfun.from_data(self.values().T[s].T)
+
     def __nonzero__(self):
         """
         Test for difference from zero (up to tolerance)

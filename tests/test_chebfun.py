@@ -516,6 +516,21 @@ class Test_Arithmetic(unittest.TestCase):
         c = Chebfun.from_function(f)
         c + f
 
+class TestVector(unittest.TestCase):
+    """
+    Tests for the vector chebfuns.
+    """
+
+    def test_slice(self):
+        """
+        Test slicing: f[0] should return the first component.
+        """
+        s = Chebfun.from_function(segment)
+        assert_equal(s[0], Chebfun.identity())
+        assert_equal(s[1], Chebfun(0.))
+        assert_equal(s[:], s)
+
+
 
 ## class Test_2D(Test_Chebfun):
 ## 	def setUp(self):
