@@ -345,11 +345,12 @@ class TestInitialise(unittest.TestCase):
         N = Chebfun._cutoff(np.array([0.]), scale=1)
         self.assertEqual(N, 1)
 
-def compare_ufunc(ufunc):
+def compare_ufunc(self, ufunc):
     # transformation from [-1, 1] to [1/4, 3/4]
     trans = lambda x: (x+2)/4
     x2 = Chebfun.from_function(trans)
     cf = ufunc(x2)
+    self.assertIsInstance(cf, Chebfun)
     result = cf.values()
     expected = ufunc(trans(cf.p.xi))
     npt.assert_allclose(result, expected)
@@ -364,7 +365,7 @@ class TestUfunc(unittest.TestCase):
 def _add_ufunc_test(ufunc):
     name = ufunc.__name__
     def test_func(self):
-        compare_ufunc(ufunc)
+        compare_ufunc(self, ufunc)
     test_name = 'test_{}'.format(name)
     test_func.__name__ = test_name
     setattr(TestUfunc, test_name, test_func)
