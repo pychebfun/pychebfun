@@ -15,7 +15,7 @@ plot(x,f(x),'k',linewidth=10,alpha=0.3, label="Actual $f$")
 interps   = [20,40,60]
 ps = [chebfun(f,N=N) for N in interps]
 for p in ps:
-    label = "Chebfun Interpolant: $N=%d$" % len(p)
+    label = "Chebfun Interpolant: $N=%d$" % p.size()
     p.plot(linewidth=3, label=label)
 
 legend()

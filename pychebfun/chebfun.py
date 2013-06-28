@@ -195,7 +195,7 @@ class Chebfun(object):
         return "<Chebfun({0})>".format(repr(self.values()))
 
     def __str__(self):
-        return "<Chebfun({0})>".format(len(self))
+        return "<Chebfun({0})>".format(self.size())
 
     #
     # Basic Operator Overloads
@@ -203,7 +203,7 @@ class Chebfun(object):
     def __call__(self, x):
         return self.p(x)
 
-    def __len__(self):
+    def size(self):
         return self.p.n
 
     def __nonzero__(self):
@@ -225,7 +225,7 @@ class Chebfun(object):
         """
         ps = [self, other]
         # length difference
-        diff = len(other) - len(self)
+        diff = other.size() - self.size()
         # determine which of self/other is the smaller/bigger
         big = diff > 0
         small = not big
@@ -415,7 +415,7 @@ class Chebfun(object):
         ax  = fig.add_subplot(211)
         
         ax.plot(x, f(x), '#dddddd', linewidth=10, label='Actual', *args, **kwds)
-        label = 'Chebfun Interpolant (d={0})'.format(len(self))
+        label = 'Chebfun Interpolant (d={0})'.format(self.size())
         self.plot(color='red', label=label, *args, **kwds)
         ax.legend(loc='best')
 

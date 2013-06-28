@@ -66,13 +66,13 @@ class Test_Chebfun(unittest.TestCase):
         self.p = Chebfun.from_function(f)
 
     def test_biglen(self):
-        self.assertGreaterEqual(len(self.p), 4)
+        self.assertGreaterEqual(self.p.size(), 4)
 
     def test_len(self):
         """
         Length of chebfun is equal to the number of Cheb coefficients (i.e., degree)
         """
-        self.assertEqual(len(self.p), len(self.p.chebyshev_coefficients()))
+        self.assertEqual(self.p.size(), len(self.p.chebyshev_coefficients()))
 
     def test_error(self):
         """
@@ -126,10 +126,10 @@ class Test_Chebfun(unittest.TestCase):
         """
         Check initialisation with a fixed N
         """
-        N = len(self.p) - 1
+        N = self.p.size() - 1
         pN = Chebfun.from_function(f, N)
         self.assertEqual(len(pN.chebyshev_coefficients()), N+1)
-        self.assertEqual(len(pN.chebyshev_coefficients()),len(pN))
+        self.assertEqual(len(pN.chebyshev_coefficients()),pN.size())
         npt.assert_array_almost_equal(pN(xs), self.p(xs))
         npt.assert_array_almost_equal(pN.chebyshev_coefficients(),self.p.chebyshev_coefficients())
 
@@ -246,7 +246,7 @@ class TestSimple(unittest.TestCase):
         Chebfun for zero has the minimal degree 5
         """
         p = Chebfun.from_function(Zero)
-        self.assertEqual(len(p),1) # should be equal to the minimum length, 1
+        self.assertEqual(p.size(),1) # should be equal to the minimum length, 1
 
     def test_repr(self):
         """
@@ -397,9 +397,9 @@ class Test_Misc(unittest.TestCase):
 
     def test_has_p(self):
         c1 = Chebfun.from_function(f, N=10)
-        len(c1)
+        c1.p
         c2 = Chebfun.from_function(f, )
-        len(c2)
+        c2.p
 
     def test_truncate(self, N=17):
         """
@@ -407,7 +407,7 @@ class Test_Misc(unittest.TestCase):
         """
         small = Chebfun.from_function(f, N=N)
         new = Chebfun.from_function(small)
-        self.assertEqual(len(new), len(small),)
+        self.assertEqual(new.size(), small.size(),)
 
     def test_vectorized(self):
         fv = np.vectorize(f)
@@ -501,7 +501,7 @@ class Test_Arithmetic(unittest.TestCase):
         rm = -self.p2
         z = self.p2 + rm
         npt.assert_allclose(z(xs), np.zeros_like(xs), rtol=1e-7, atol=1e-8)
-        self.assertEqual(len(z), 1)
+        self.assertEqual(z.size(), 1)
 
     def test_add_mistype(self):
         """
