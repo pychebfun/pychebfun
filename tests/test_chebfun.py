@@ -27,6 +27,12 @@ def Zero(x):
 
 from tools import *
 
+def assert_equal(c1, c2, *args, **kwargs):
+    """
+    Check that two Chebfuns are equal by comparing their values.
+    """
+    npt.assert_allclose(c1(xs), c2(xs), *args, **kwargs)
+
 def segment(x):
     y = np.expand_dims(x, axis=-1)
     zeros = np.zeros_like(y)
@@ -78,9 +84,7 @@ class Test_Chebfun(unittest.TestCase):
         """
         Chebfun is closed to function f up to tolerance
         """
-        x = xs
-        err = abs(f(x)-self.p(x))
-        npt.assert_array_almost_equal(self.p(x),f(x),decimal=13)
+        assert_equal(self.p, f, atol=1e-13)
 
     def test_root(self):
         """
@@ -98,14 +102,14 @@ class Test_Chebfun(unittest.TestCase):
 
     def test_chebcoeff(self):
         new = Chebfun.from_chebcoeff(self.p.chebyshev_coefficients())
-        npt.assert_allclose(self.p(xs), new(xs))
+        assert_equal(self.p, new)
 
     def test_prod(self):
         """
         Product p*p is correct.
         """
         pp = self.p*self.p
-        npt.assert_array_almost_equal(self.p(xs)*self.p(xs),pp(xs))
+        assert_equal(lambda x: self.p(x)*self.p(x), pp, atol=1e-13)
 
     def test_square(self):
         def square(x):
@@ -130,8 +134,8 @@ class Test_Chebfun(unittest.TestCase):
         pN = Chebfun.from_function(f, N)
         self.assertEqual(len(pN.chebyshev_coefficients()), N+1)
         self.assertEqual(len(pN.chebyshev_coefficients()),pN.size())
-        npt.assert_array_almost_equal(pN(xs), self.p(xs))
-        npt.assert_array_almost_equal(pN.chebyshev_coefficients(),self.p.chebyshev_coefficients())
+        assert_equal(pN, self.p)
+        npt.assert_allclose(pN.chebyshev_coefficients(),self.p.chebyshev_coefficients())
 
     def test_nonzero(self):
         """
@@ -151,7 +155,7 @@ class Test_Chebfun(unittest.TestCase):
         """
         computed = self.p.differentiate()
         expected = fd
-        npt.assert_allclose(computed(xs), expected(xs),)
+        assert_equal(computed, expected)
 
     def test_interp_values(self):
         """
@@ -159,7 +163,7 @@ class Test_Chebfun(unittest.TestCase):
         """
         p2 = Chebfun(self.p.values())
         npt.assert_almost_equal(self.p.chebyshev_coefficients(), p2.chebyshev_coefficients())
-        npt.assert_array_almost_equal(self.p(xs), p2(xs))
+        assert_equal(self.p, p2)
 
     def test_equal(self):
         """
@@ -174,7 +178,7 @@ class TestDifferentiate(unittest.TestCase):
         """
         self.p = .5*Chebfun.from_function(Quad)
         X = self.p.differentiate()
-        npt.assert_array_almost_equal(X(xs), xs)
+        assert_equal(X, lambda x:x)
 
     def test_diff_x(self):
         """
@@ -192,7 +196,7 @@ class TestDifferentiate(unittest.TestCase):
         """
         one = Chebfun(1.)
         zero = one.differentiate()
-        npt.assert_array_almost_equal(Zero(xs), 0.)
+        npt.assert_allclose(Zero(xs), 0.)
 
     def test_highdiff(self):
         """
@@ -200,9 +204,7 @@ class TestDifferentiate(unittest.TestCase):
         """
         e = Chebfun.from_function(lambda x:np.exp(x))
         e4 = e.differentiate(4)
-        result = e4(xs)
-        expected = e(xs)
-        npt.assert_allclose(result, expected)
+        assert_equal(e4, e)
     
     def test_integrate(self):
         """
@@ -211,7 +213,7 @@ class TestDifferentiate(unittest.TestCase):
         e = Chebfun.from_function(lambda x:np.exp(x))
         result = e.integrate()
         expected = e - 1
-        npt.assert_allclose(result(xs), expected(xs))
+        assert_equal(result, expected)
 
 
 class TestSimple(unittest.TestCase):
@@ -280,11 +282,11 @@ class TestSimple(unittest.TestCase):
 
     def test_mx(self):
         c = Chebfun.from_function(lambda x:-x)
-        npt.assert_allclose(c(xs), -xs)
+        assert_equal(c, lambda x:-x)
 
     def test_identity(self):
         c = Chebfun.identity()
-        npt.assert_allclose(c(xs), xs)
+        assert_equal(c, lambda x:x)
 
 class TestPolyfitShape(unittest.TestCase):
     def test_scalar(self):
@@ -438,7 +440,7 @@ class Test_Misc(unittest.TestCase):
         r = Chebfun.from_function(runge)
         x = basis(1)
         rr = 1./(1+25*x**2)
-        npt.assert_almost_equal(r(xs),rr(xs), decimal=13)
+        assert_equal(r, rr, rtol=1e-13)
 
     def test_chebpolyfitval(self, N=64):
         data = np.random.rand(N-1, 2)
@@ -478,7 +480,7 @@ class Test_Arithmetic(unittest.TestCase):
         r = c + s
         def expected(x):
             return np.sin(x) + np.cos(x)
-        npt.assert_allclose(r(xs), expected(xs))
+        assert_equal(r, expected)
 
     def test_scalar_mul(self):
         self.assertEqual(self.p1, self.p1)
