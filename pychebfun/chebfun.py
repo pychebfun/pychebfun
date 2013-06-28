@@ -12,6 +12,8 @@ Chebfun module
 """
 from __future__ import division
 
+import operator
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -255,30 +257,14 @@ class Chebfun(object):
     def __rsub__(self, other):
         return -(self - other)
 
+    def __rmul__(self, other):
+        return self.__mul__(other)
 
-    @cast_scalar
-    def __mul__(self, other):
-        """
-        Chebfun multiplication.
-        """
-        return self.from_function(lambda x: self(x) * other(x),)
+    def __truediv__(self, other):
+        return self.__div__(other)
 
-    __rmul__ = __mul__
-
-    @cast_scalar
-    def __div__(self, other):
-        """
-        Chebfun division
-        """
-        return self.from_function(lambda x: self(x) / other(x),)
-
-    __truediv__ = __div__
-
-    @cast_scalar
-    def __rdiv__(self, other):
-        return self.from_function(lambda x: other(x)/self(x))
-
-    __rtruediv__ = __rdiv__
+    def __rtruediv__(self, other):
+        return self.__rdiv__(other)
 
     def __neg__(self):
         """
@@ -286,8 +272,6 @@ class Chebfun(object):
         """
         return self.from_data(-self.values())
 
-    def __pow__(self, other):
-        return self.from_function(lambda x: self(x)**other)
 
     def __abs__(self):
         return self.from_function(lambda x: abs(self(x)))
@@ -426,6 +410,21 @@ class Chebfun(object):
         ax.plot(x, abs(f(x)-self(x)), 'k')
 
         return ax
+
+def _add_operator(op):
+    def method(self, other):
+        return self.from_function(lambda x: op(self(x), other(x)),)
+    cast_method = cast_scalar(method)
+    name = op.__name__
+    cast_method.__name__ = name
+    cast_method.__doc__ = "operator {}".format(name)
+    setattr(Chebfun, name, cast_method)
+
+def __rdiv__(a, b):
+    return b/a
+
+for op in [operator.__mul__, operator.__div__, operator.__pow__, __rdiv__]:#, 'div', 'pow']:
+    _add_operator(op)
 
 def _add_delegate(ufunc):
     def method(self):
