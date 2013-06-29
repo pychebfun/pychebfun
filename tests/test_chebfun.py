@@ -169,7 +169,7 @@ class Test_Chebfun(unittest.TestCase):
         """
         Chebfun(f) is equal to itself.
         """
-        self.assertEqual(self.p, chebfun(self.p))
+        assert_equal(self.p, Chebfun.from_function(self.p))
 
 class TestDifferentiate(unittest.TestCase):
     def test_diffquad(self):
