@@ -66,9 +66,12 @@ def runge(x):
 
 xs = np.linspace(-1, 1, 1000)
 
-class Test_Chebfun(unittest.TestCase):
+class Test_sinsinexp(unittest.TestCase):
+    """
+    Tests with function np.sin(6*x) + np.sin(30*np.exp(x))
+    """
     def setUp(self):
-        # Constuct the O(dx^-16) "spectrally accurate" chebfun p
+        # Construct the O(dx^-16) "spectrally accurate" chebfun p
         self.p = Chebfun.from_function(f)
 
     def test_biglen(self):
