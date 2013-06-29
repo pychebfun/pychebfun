@@ -240,9 +240,6 @@ class Chebfun(object):
     def __call__(self, x):
         return self.p(x)
 
-    def size(self):
-        return self.p.n
-
     def __getitem__(self, s):
         """
         Components s of the chebfun.
@@ -317,6 +314,9 @@ class Chebfun(object):
     # ----------------------------------------------------------------
     # Attributes
     # ----------------------------------------------------------------
+
+    def size(self):
+        return self.p.n
 
     def chebyshev_coefficients(self):
         return chebpolyfit(self.values())
