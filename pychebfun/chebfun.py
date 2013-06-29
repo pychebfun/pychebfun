@@ -78,6 +78,9 @@ class Chebfun(object):
     Construct a Lagrange interpolating polynomial over the Chebyshev points.
 
     """
+    # ----------------------------------------------------------------
+    # Initialisation methods
+    # ----------------------------------------------------------------
 
     class NoConvergence(Exception):
         """
@@ -86,6 +89,9 @@ class Chebfun(object):
 
     @classmethod
     def from_data(self, data):
+        """
+        Initialise from interpolation values.
+        """
         return self(data)
 
     @classmethod
@@ -159,6 +165,9 @@ class Chebfun(object):
 
     @classmethod
     def _threshold(self, scale):
+        """
+        Compute the threshold at which Chebyshev coefficients are trimmed.
+        """
         bnd = 128*emach*scale
         return bnd
 
@@ -194,6 +203,9 @@ class Chebfun(object):
 
     @classmethod
     def identity(self):
+        """
+        The Chebfun for the identity function x -> x.
+        """
         return self.from_data([1., -1.])
 
     def __repr__(self):
@@ -202,9 +214,10 @@ class Chebfun(object):
     def __str__(self):
         return "<Chebfun({0})>".format(self.size())
 
-    #
+    # ----------------------------------------------------------------
     # Basic Operator Overloads
-    #
+    # ----------------------------------------------------------------
+
     def __call__(self, x):
         return self.p(x)
 
@@ -212,6 +225,9 @@ class Chebfun(object):
         return self.p.n
 
     def __getitem__(self, s):
+        """
+        Components s of the chebfun.
+        """
         return Chebfun.from_data(self.values().T[s].T)
 
     def __nonzero__(self):
@@ -279,15 +295,19 @@ class Chebfun(object):
     def __abs__(self):
         return self.from_function(lambda x: abs(self(x)))
 
-    #
-    # Numpy / Scipy Operator Overloads
-    #
+    # ----------------------------------------------------------------
+    # Attributes
+    # ----------------------------------------------------------------
 
     def chebyshev_coefficients(self):
         return chebpolyfit(self.values())
 
     def values(self):
         return self._values
+
+    # ----------------------------------------------------------------
+    # Integration and derivation
+    # ----------------------------------------------------------------
 
     def sum(self):
         """
@@ -335,6 +355,9 @@ class Chebfun(object):
         for _ in range(n):
             bi = differentiator(bi)
         return self.from_chebcoeff(chebcoeff=bi)
+    # ----------------------------------------------------------------
+    # Roots
+    # ----------------------------------------------------------------
 
     def roots(self):
         """
@@ -349,6 +372,10 @@ class Chebfun(object):
         real_roots = np.array([np.real(r) for r in complex_roots if np.allclose(abs(r), 1.)])
         roots = np.unique(real_roots)
         return roots
+
+    # ----------------------------------------------------------------
+    # Plotting Methods
+    # ----------------------------------------------------------------
 
     plot_res = 1000
 
@@ -414,6 +441,10 @@ class Chebfun(object):
 
         return ax
 
+# ----------------------------------------------------------------
+# Add overloaded operators
+# ----------------------------------------------------------------
+
 def _add_operator(op):
     def method(self, other):
         return self.from_function(lambda x: op(self(x).T, other(x).T).T,)
@@ -428,6 +459,10 @@ def __rdiv__(a, b):
 
 for op in [operator.__mul__, operator.__div__, operator.__pow__, __rdiv__]:#, 'div', 'pow']:
     _add_operator(op)
+
+# ----------------------------------------------------------------
+# Add numpy ufunc delegates
+# ----------------------------------------------------------------
 
 def _add_delegate(ufunc):
     def method(self):
@@ -449,6 +484,10 @@ def basis(n):
     vals = np.ones(n+1)
     vals[1::2] = -1
     return Chebfun(vals)
+
+# ----------------------------------------------------------------
+# Interpolation and evaluation (go from values to coefficients)
+# ----------------------------------------------------------------
 
 def even_data(data):
     """
@@ -541,6 +580,9 @@ def interpolator(x, values):
     p.set_yi(values)
     return p
 
+# ----------------------------------------------------------------
+# Helper for differentiation.
+# ----------------------------------------------------------------
 
 def differentiator(A):
     """Differentiate a set of Chebyshev polynomial expansion 
