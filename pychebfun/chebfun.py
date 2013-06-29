@@ -45,6 +45,19 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
 :param np.array chebcoeff: (default = np.array(0)) specify the coefficients of a Chebfun
     """
 
+    # Chebyshev coefficients
+    if chebcoeff is not None:
+        return Chebfun.from_chebcoeff(chebcoeff)
+
+    # another Chebfun instance
+    if isinstance(f, Chebfun):
+        return Chebfun.from_chebfun(f)
+
+    # callable
+    if hasattr(f, '__call__'):
+        return Chebfun.from_function(f, N)
+
+    # from here on, assume that f is None, or iterable
     if np.isscalar(f):
         f = [f]
 
@@ -55,17 +68,7 @@ Create a Chebyshev polynomial approximation of the function $f$ on the interval 
     else:
         return Chebfun(f)
 
-    if isinstance(f, Chebfun): # copy if f is another Chebfun
-        return Chebfun.from_chebfun(f)
-
-    if chebcoeff is not None: # if the coefficients of a Chebfun are given
-        return Chebfun.from_chebcoeff(chebcoeff)
-
-    # from this point, we assume that f is a function
-    if f is not None:
-        return Chebfun.from_function(f, N)
-
-    return Chebfun([])
+    raise TypeError('Impossible to initialise the Chebfun object from an object of type {}'.format(type(f)))
 
 
 

@@ -66,6 +66,42 @@ def runge(x):
 
 xs = np.linspace(-1, 1, 1000)
 
+class Test_chebfuninit(unittest.TestCase):
+    """
+    Test that the initialisation function chebfun works as expected.
+    """
+    def test_from_function(self):
+        cr = chebfun(f)
+        ce = Chebfun.from_function(f)
+        assert_equal(cr, ce)
+
+    def test_from_chebcoeffs(self):
+        coeffs = np.random.randn(10)
+        cr = chebfun(chebcoeff=coeffs)
+        ce = Chebfun.from_chebcoeff(coeffs)
+        assert_equal(cr, ce)
+
+    def test_from_chebfun(self):
+        ce = Chebfun.from_function(f)
+        cr = chebfun(ce)
+        assert_equal(cr, ce)
+
+    def test_from_values(self):
+        values = np.random.randn(10)
+        cr = chebfun(values)
+        ce = Chebfun.from_data(values)
+        assert_equal(cr, ce)
+
+    def test_error(self):
+        """
+        Error if chebfun is called with another type.
+        """
+        class C(object):
+            pass
+        with self.assertRaises(TypeError):
+            chebfun(C())
+
+
 class Test_sinsinexp(unittest.TestCase):
     """
     Tests with function np.sin(6*x) + np.sin(30*np.exp(x))
