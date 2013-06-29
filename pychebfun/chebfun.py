@@ -476,8 +476,8 @@ def _add_operator(op):
 def __rdiv__(a, b):
     return b/a
 
-for op in [operator.__mul__, operator.__div__, operator.__pow__, __rdiv__]:#, 'div', 'pow']:
-    _add_operator(op)
+for _op in [operator.__mul__, operator.__div__, operator.__pow__, __rdiv__]:
+    _add_operator(_op)
 
 # ----------------------------------------------------------------
 # Add numpy ufunc delegates
