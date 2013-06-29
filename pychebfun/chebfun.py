@@ -201,12 +201,31 @@ class Chebfun(object):
             self._scale = np.max(np.abs(self._values))
         self.p = interpolator(points, avalues1)
 
+    # ----------------------------------------------------------------
+    # Standard construction class methods.
+    # ----------------------------------------------------------------
+
     @classmethod
     def identity(self):
         """
         The Chebfun for the identity function x -> x.
         """
         return self.from_data([1., -1.])
+
+    @classmethod
+    def basis(self, n):
+        """
+        Chebyshev basis functions T_n.
+        """
+        if n == 0:
+            return self(np.array([1.]))
+        vals = np.ones(n+1)
+        vals[1::2] = -1
+        return self(vals)
+
+    # ----------------------------------------------------------------
+    # String representation
+    # ----------------------------------------------------------------
 
     def __repr__(self):
         return "<Chebfun({0})>".format(repr(self.values()))
@@ -477,13 +496,6 @@ def _add_delegate(ufunc):
 for func in [np.arccos, np.arccosh, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, ]:
     _add_delegate(func)
 
-
-def basis(n):
-    if n == 0:
-        return Chebfun(np.array([1.]))
-    vals = np.ones(n+1)
-    vals[1::2] = -1
-    return Chebfun(vals)
 
 # ----------------------------------------------------------------
 # Interpolation and evaluation (go from values to coefficients)

@@ -293,7 +293,7 @@ class TestSimple(unittest.TestCase):
         """
         Repr shows the interpolation values.
         """
-        p = basis(1)
+        p = Chebfun.basis(1)
         s = repr(p)
         expected = '<Chebfun(array([ 1., -1.]))>'
         self.assertEqual(s, expected)
@@ -308,7 +308,7 @@ class TestSimple(unittest.TestCase):
         """
         Tn(cos(t)) = cos(nt)
         """
-        Tn = basis(n)
+        Tn = Chebfun.basis(n)
         ts = np.linspace(0, 2*np.pi, 100)
         npt.assert_allclose(Tn(np.cos(ts)), np.cos(n*ts))
 
@@ -457,7 +457,7 @@ class Test_Misc(unittest.TestCase):
 
     def test_basis(self, ns=[0,5]):
         for n in ns:
-            c = basis(n)
+            c = Chebfun.basis(n)
             npt.assert_array_almost_equal(c.chebyshev_coefficients(), np.array([0]*n+[1.]))
 
     def test_list_init(self):
@@ -477,7 +477,7 @@ class Test_Misc(unittest.TestCase):
         Test some of the capabilities of operator overloading.
         """
         r = Chebfun.from_function(runge)
-        x = basis(1)
+        x = Chebfun.basis(1)
         rr = 1./(1+25*x**2)
         assert_equal(r, rr, rtol=1e-13)
 
