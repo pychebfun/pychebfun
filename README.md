@@ -28,7 +28,7 @@ f = chebfun(lambda x:np.tan(x+1/4) + np.cos(10*x**2 + np.exp(np.exp(x))))
 
 Note that one can could have defined the function `f` in a more intuitive manner by
 ```python
-x = Chebfun.identity
+x = Chebfun.identity()
 f = np.tan(x+1/4) + np.cos(10*x**2 + np.exp(np.exp(x)))
 ```
 
