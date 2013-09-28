@@ -398,28 +398,68 @@ class Chebfun(object):
 
     plot_res = 1000
 
-    def plot(self, with_interpolation_points=True, *args, **kwargs):
-        xs = np.linspace(-1, 1, self.plot_res)
-        axis = plt.gca()
-        ys = self(xs)
-        # figuring out the dimension of the data; should be factored out
-        shape = np.shape(ys)
+    def dimension_info(self):
+        """
+        Dimension information of the chebfun.
+        """
+        vals = self.values()
+        # "local" degree of freedom; whether it is a complex or real chebfun
+        t = vals.dtype.kind
+        if t == 'c':
+            dof = 2
+        else:
+            dof = 1
+        # "global" degree of freedom: the dimension
+        shape = np.shape(vals)
         if len(shape) == 1:
             dim = 1
         else:
             dim = shape[1]
-        if dim == 1:
-            axis.plot(xs, ys, *args, **kwargs)
-        elif dim == 2:
-            axis.plot(ys[:, 0], ys[:, 1], *args, **kwargs)
+        return dim, dof
+
+    def plot_data(self):
+        """
+        Plot data depending on the dimension of the chebfun.
+        """
+        ts = np.linspace(-1, 1, self.plot_res)
+        values = self(ts)
+        dim, dof = self.dimension_info()
+        if 1 == dim and 1 == dof: # 1D real
+            xs = ts
+            ys = values
+            xi = self.p.xi
+            yi = self.values()
+            d = 1
+        elif 2 == dim and 1 == dof: # 2D real
+            xs = values[:, 0]
+            ys = values[:, 1]
+            xi = self.values()[:, 0]
+            yi = self.values()[:, 1]
+            d = 2
+        elif 1 == dim and 2 == dof: # 1D complex
+            xs = np.real(values)
+            ys = np.imag(values)
+            xi = np.real(self.values())
+            yi = np.imag(self.values())
+            d = 2
+        else:
+            raise ValueError("Too many dimensions to plot")
+        return xs, ys, xi, yi, d
+
+    def plot(self, with_interpolation_points=True, *args, **kwargs):
+        """
+        Plot the chebfun with the additional arguments args, kwargs.
+        """
+        xs, ys, xi, yi, d = self.plot_data()
+        axis = plt.gca()
+        axis.plot(xs, ys, *args, **kwargs)
         if with_interpolation_points:
             current_color = axis.lines[-1].get_color() # figure out current colour
-            if dim == 1:
-                axis.plot(self.p.xi, self.values(), marker='.', linestyle='', color=current_color)
-            elif dim == 2:
-                axis.plot(self.values()[:, 0], self.values()[:, 1], marker='.', linestyle='', color=current_color)
-                axis.axis('equal')
+            axis.plot(xi, yi, marker='.', linestyle='', color=current_color)
         plt.plot()
+        if 2 == d:
+            axis.axis('equal')
+        return axis
 
     def chebcoeffplot(self, *args, **kwds):
         """

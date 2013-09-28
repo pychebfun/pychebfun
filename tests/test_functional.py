@@ -39,6 +39,9 @@ class TestPlot(unittest.TestCase):
         self.p = Chebfun.from_function(f)
 
     def test_plot(self):
+        xs,ys,xi,yi,d = self.p.plot_data()
+        self.assertEqual(d, 1)
+        npt.assert_allclose(ys, f(xs))
         self.p.plot()
 
     def test_plot_interpolation_points(self):
@@ -59,6 +62,18 @@ class TestPlot(unittest.TestCase):
 
     def test_plot_circle(self):
         c = Chebfun.from_function(circle)
+        xs,ys,xi,yi,d = c.plot_data()
+        self.assertEqual(d, 2,)
+        dist = np.square(xs) + np.square(ys)
+        npt.assert_allclose(dist, 1, err_msg="The plot should be a circle")
+        c.plot()
+
+    def test_plot_complex(self):
+        c = np.exp(1j*np.pi*Chebfun.identity())
+        xs,ys,xi,yi,d = c.plot_data()
+        self.assertEqual(d, 2, "dimension is two for complex chebfun")
+        dist = np.square(xs) + np.square(ys)
+        npt.assert_allclose(dist, 1, err_msg="The plot should be a circle")
         c.plot()
 
     def test_error(self):
