@@ -37,40 +37,6 @@ def cast_scalar(method):
 emach     = sys.float_info.epsilon                        # machine epsilon
 
 
-def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
-    """
-    Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1, 1]`.
-    
-    :param callable f: Python, Numpy, or Sage function
-    :param int N: (default = None)  specify number of interpolating points
-    :param np.array chebcoeff: (default = np.array(0)) specify the coefficients of a Fun
-    """
-
-    # Chebyshev coefficients
-    if chebcoeff is not None:
-        return Chebfun.from_chebcoeff(chebcoeff,domain)
-
-    # another Fun instance
-    if isinstance(f, Fun):
-        return Chebfun.from_fun(f)
-
-    # callable
-    if hasattr(f, '__call__'):
-        return Chebfun.from_function(f, domain, N)
-
-    # from here on, assume that f is None, or iterable
-    if np.isscalar(f):
-        f = [f]
-
-    try:
-        iter(f) # interpolation values provided
-    except TypeError:
-        pass
-    else:
-        return Chebfun(f,domain)
-
-    raise TypeError('Impossible to initialise the Fun object from an object of type {}'.format(type(f)))
-
 
 class Fun(object):
     """
@@ -773,3 +739,46 @@ def differentiator(A):
 # General Aliases
 # ----------------------------------------------------------------
 chebpts = interpolation_points
+
+# ----------------------------------------------------------------
+# Constructor inspired by the Matlab version
+# ----------------------------------------------------------------
+
+def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
+    """
+    Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1, 1]`.
+    
+    :param callable f: Python, Numpy, or Sage function
+    :param int N: (default = None)  specify number of interpolating points
+    :param np.array chebcoeff: (default = np.array(0)) specify the coefficients of a Fun
+    """
+
+    # Chebyshev coefficients
+    if chebcoeff is not None:
+        return Chebfun.from_chebcoeff(chebcoeff,domain)
+
+    # another Fun instance
+    if isinstance(f, Fun):
+        return Chebfun.from_fun(f)
+
+    # callable
+    if hasattr(f, '__call__'):
+        return Chebfun.from_function(f, domain, N)
+
+    # from here on, assume that f is None, or iterable
+    if np.isscalar(f):
+        f = [f]
+
+    try:
+        iter(f) # interpolation values provided
+    except TypeError:
+        pass
+    else:
+        return Chebfun(f,domain)
+
+    raise TypeError('Impossible to initialise the Fun object from an object of type {}'.format(type(f)))
+
+
+
+
+
