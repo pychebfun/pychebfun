@@ -30,7 +30,7 @@ def cast_scalar(method):
     @wraps(method)
     def new_method(self, other):
         if np.isscalar(other):
-            other = Fun([other],self.domain())
+            other = type(self)([other],self.domain())
         return method(self, other)
     return new_method
 
