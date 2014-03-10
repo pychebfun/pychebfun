@@ -23,6 +23,8 @@ from functools import wraps
 from scipy.interpolate import BarycentricInterpolator as Bary
 import numpy.polynomial as poly
 
+import scipy.fftpack as fftpack
+
 def cast_scalar(method):
     """
     Used to cast scalar to Funs
@@ -40,15 +42,16 @@ emach     = sys.float_info.epsilon                        # machine epsilon
 
 class Fun(object):
     """
-    Construct a Lagrange interpolating polynomial over the Chebyshev points.
+    Construct a Lagrange interpolating polynomial over arbitrary points.
     Fun objects consist in essence of two components:
     
-        1) A Chebyshev interpolant on [-1,1],
+        1) An interpolant on [-1,1],
         2) A domain attribute [a,b].
         
     These two pieces of information are used to define and subsequently 
     keep track of operations upon Chebyshev interpolants defined on an 
     arbitrary real interval [a,b].
+
     """
     
     # ----------------------------------------------------------------
@@ -92,7 +95,7 @@ class Fun(object):
             pruned_coeffs = coeffs[:N]
         else:
             pruned_coeffs = coeffs
-        values = chebpolyval(pruned_coeffs)
+        values = self.chebpolyval(pruned_coeffs)
         return self(values, domain, vscale)
 
     @classmethod
@@ -106,8 +109,8 @@ class Fun(object):
         for k in xrange(kmin, kmax):
             N = pow(2, k)
 
-            sampled = sample_function(f, N)
-            coeffs = chebpolyfit(sampled)
+            sampled = self.sample_function(f, N)
+            coeffs = self.chebpolyfit(sampled)
 
             # 3) Check for negligible coefficients
             #    If within bound: get negligible coeffs and bread
@@ -175,13 +178,13 @@ class Fun(object):
         avalues = np.asarray(values,)
         avalues1 = np.atleast_1d(avalues)
         N = len(avalues1)
-        points = interpolation_points(N)
+        points = self.interpolation_points(N)
         self._values = avalues1
         if vscale is not None:
             self._vscale = vscale
         else:
             self._vscale = np.max(np.abs(self._values))
-        self.p = interpolator(points, avalues1)
+        self.p = self.interpolator(points, avalues1)
 
         self._domain = np.array(domain)
         a,b = domain[0], domain[-1]
@@ -327,7 +330,7 @@ class Fun(object):
         return self.p.n
 
     def chebyshev_coefficients(self):
-        return chebpolyfit(self.values())
+        return self.chebpolyfit(self.values())
 
     def values(self):
         return self._values
@@ -385,7 +388,7 @@ class Fun(object):
         ak = self.chebyshev_coefficients()
         a_, b_ = self.domain()
         for _ in range(n):
-            ak = differentiator(ak)
+            ak = self.differentiator(ak)
         return self.from_chebcoeff((2./(b_-a_))**n*ak,domain=self.domain())
         
     # ----------------------------------------------------------------
@@ -440,6 +443,7 @@ class Fun(object):
         if subinterval[1] > self._domain[1]:
             raise ValueError(subinterval[1],self._domain[1]) 
         return Chebfun.from_function(self, subinterval)
+
 
     # ----------------------------------------------------------------
     # Class method aliases
@@ -558,6 +562,106 @@ class Fun(object):
         return ax
 
 
+    # ----------------------------------------------------------------
+    # Interpolation and evaluation (go from values to coefficients)
+    # ----------------------------------------------------------------
+
+    @classmethod
+    def interpolation_points(self, N):
+        """
+        N Chebyshev points in [-1, 1], boundaries included
+        """
+        if N == 1:
+            return np.array([0.])
+        return np.cos(np.arange(N)*np.pi/(N-1))
+
+    @classmethod
+    def sample_function(self, f, N):
+        """
+        Sample a function on N+1 Chebyshev points.
+        """
+        x = self.interpolation_points(N+1)
+        return f(x)
+
+    @classmethod
+    def chebpolyfit(self, sampled):
+        """
+        Compute Chebyshev coefficients for values located on Chebyshev points.
+        sampled: array; first dimension is number of Chebyshev points
+        """
+        asampled = np.asarray(sampled)
+        if len(asampled) == 1:
+            return asampled
+        evened = even_data(asampled)
+        coeffs = dct(evened)
+        return coeffs
+
+    @classmethod
+    def chebpolyval(self, chebcoeff):
+        """
+        Compute the interpolation values at Chebyshev points.
+        chebcoeff: Chebyshev coefficients
+        """
+        N = len(chebcoeff)
+        if N == 1:
+            return chebcoeff
+
+        data = even_data(chebcoeff)/2
+        data[0] *= 2
+        data[N-1] *= 2
+
+        fftdata = 2*(N-1)*fftpack.ifft(data, axis=0)
+        complex_values = fftdata[:N]
+        # convert to real if input was real
+        if np.isrealobj(chebcoeff):
+            values = np.real(complex_values)
+        else:
+            values = complex_values
+        return values
+
+    @classmethod
+    def interpolator(self, x, values):
+        """
+        Returns a polynomial with vector coefficients which interpolates the values at the Chebyshev points x
+        """
+        # hacking the barycentric interpolator by computing the weights in advance
+        p = Bary([0.])
+        N = len(values)
+        weights = np.ones(N)
+        weights[0] = .5
+        weights[1::2] = -1
+        weights[-1] *= .5
+        p.wi = weights
+        p.xi = x
+        p.set_yi(values)
+        return p
+
+    # ----------------------------------------------------------------
+    # Helper for differentiation.
+    # ----------------------------------------------------------------
+
+    @classmethod
+    def differentiator(self, A):
+        """Differentiate a set of Chebyshev polynomial expansion 
+           coefficients
+           Originally from http://www.scientificpython.net/1/post/2012/04/chebyshev-differentiation.html
+            + (lots of) bug fixing + pythonisation
+           """
+        m = len(A)
+        SA = (A.T* 2*np.arange(m)).T
+        DA = np.zeros_like(A)
+        if m == 1: # constant
+            return np.zeros_like(A[0:1])
+        if m == 2: # linear
+            return A[1:2,]
+        DA[m-3:m-1,] = SA[m-2:m,]
+        for j in range(m//2 - 1):
+            k = m-3-2*j
+            DA[k] = SA[k+1] + DA[k+2]
+            DA[k-1] = SA[k] + DA[k+1]
+        DA[0] = (SA[1] + DA[2])*0.5
+        return DA
+
 class Chebfun(Fun):
     """
     Eventually set this up so that a Chebfun is a collection of Funs. This 
@@ -589,36 +693,6 @@ def _add_operator(op):
     cast_method.__name__ = name
     cast_method.__doc__ = "operator {}".format(name)
     setattr(Fun, name, cast_method)
-
-def __rdiv__(a, b):
-    return b/a
-
-for _op in [operator.__mul__, operator.__div__, operator.__pow__, __rdiv__]:
-    _add_operator(_op)
-
-# ----------------------------------------------------------------
-# Add numpy ufunc delegates
-# ----------------------------------------------------------------
-
-def _add_delegate(ufunc):
-    def method(self):
-        return self.from_function(
-            lambda x: ufunc(self(x)),domain=self.domain(),)
-    name = ufunc.__name__
-    method.__name__ = name
-    method.__doc__ = "delegate for numpy's ufunc {}".format(name)
-    setattr(Fun, name, method)
-
-# Following list generated from:
-# https://github.com/qsnake/numpy/blob/master/numpy/core/code_generators/generate_umath.py
-for func in [np.arccos, np.arccosh, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, ]:
-    _add_delegate(func)
-
-
-# ----------------------------------------------------------------
-# Interpolation and evaluation (go from values to coefficients)
-# ----------------------------------------------------------------
-
 def even_data(data):
     """
     Construct Extended Data Vector (equivalent to creating an
@@ -627,35 +701,6 @@ def even_data(data):
     For instance, [0,1,2,3,4] --> [0,1,2,3,4,3,2,1]
     """
     return np.concatenate([data, data[-2:0:-1]],)
-
-def interpolation_points(N):
-    """
-    N Chebyshev points in [-1, 1], boundaries included
-    """
-    if N == 1:
-        return np.array([0.])
-    return np.cos(np.arange(N)*np.pi/(N-1))
-
-def sample_function(f, N):
-    """
-    Sample a function on N+1 Chebyshev points.
-    """
-    x = interpolation_points(N+1)
-    return f(x)
-
-def chebpolyfit(sampled):
-    """
-    Compute Chebyshev coefficients for values located on Chebyshev points.
-    sampled: array; first dimension is number of Chebyshev points
-    """
-    asampled = np.asarray(sampled)
-    if len(asampled) == 1:
-        return asampled
-    evened = even_data(asampled)
-    coeffs = dct(evened)
-    return coeffs
-
-import scipy.fftpack as fftpack
 
 def dct(data):
     """
@@ -672,68 +717,48 @@ def dct(data):
         data = fftdata
     return data
 
-def chebpolyval(chebcoeff):
-    """
-    Compute the interpolation values at Chebyshev points.
-    chebcoeff: Chebyshev coefficients
-    """
-    N = len(chebcoeff)
-    if N == 1:
-        return chebcoeff
+# ----------------------------------------------------------------
+# Add overloaded operators
+# ----------------------------------------------------------------
 
-    data = even_data(chebcoeff)/2
-    data[0] *= 2
-    data[N-1] *= 2
+def _add_operator(op):
+    def method(self, other):
+        return self.from_function(lambda x: op(self(x).T, other(x).T).T,)
+    cast_method = cast_scalar(method)
+    name = op.__name__
+    cast_method.__name__ = name
+    cast_method.__doc__ = "operator {}".format(name)
+    setattr(Chebfun, name, cast_method)
 
-    fftdata = 2*(N-1)*fftpack.ifft(data, axis=0)
-    complex_values = fftdata[:N]
-    # convert to real if input was real
-    if np.isrealobj(chebcoeff):
-        values = np.real(complex_values)
+def __rdiv__(a, b):
+    return b/a
+
+for _op in [operator.__mul__, operator.__div__, operator.__pow__, __rdiv__]:
+    _add_operator(_op)
+
+# ----------------------------------------------------------------
+# Add numpy ufunc delegates
+# ----------------------------------------------------------------
+
+def _add_delegate(ufunc, nonlinear=True):
+    if nonlinear:
+        def method(self):
+            return self.from_function(lambda x: ufunc(self(x)))
     else:
-        values = complex_values
-    return values
+        def method(self):
+            return self.from_data(ufunc(self.values()))
+    name = ufunc.__name__
+    method.__name__ = name
+    method.__doc__ = "delegate for numpy's ufunc {}".format(name)
+    setattr(Fun, name, method)
 
-def interpolator(x, values):
-    """
-    Returns a polynomial with vector coefficients which interpolates the values at the Chebyshev points x
-    """
-    # hacking the barycentric interpolator by computing the weights in advance
-    p = Bary([0.])
-    N = len(values)
-    weights = np.ones(N)
-    weights[0] = .5
-    weights[1::2] = -1
-    weights[-1] *= .5
-    p.wi = weights
-    p.xi = x
-    p.set_yi(values)
-    return p
+# Following list generated from:
+# https://github.com/numpy/numpy/blob/master/numpy/core/code_generators/generate_umath.py
+for func in [np.arccos, np.arccosh, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, ]:
+    _add_delegate(func)
+for func in [np.real, np.imag]:
+    _add_delegate(func, nonlinear=False)
 
-# ----------------------------------------------------------------
-# Helper for differentiation.
-# ----------------------------------------------------------------
-
-def differentiator(A):
-    """Differentiate a set of Chebyshev polynomial expansion 
-       coefficients
-       Originally from http://www.scientificpython.net/1/post/2012/04/chebyshev-differentiation.html
-        + (lots of) bug fixing + pythonisation
-       """
-    m = len(A)
-    SA = (A.T* 2*np.arange(m)).T
-    DA = np.zeros_like(A)
-    if m == 1: # constant
-        return np.zeros_like(A[0:1])
-    if m == 2: # linear
-        return A[1:2,]
-    DA[m-3:m-1,] = SA[m-2:m,]
-    for j in range(m//2 - 1):
-        k = m-3-2*j
-        DA[k] = SA[k+1] + DA[k+2]
-        DA[k-1] = SA[k] + DA[k+1]
-    DA[0] = (SA[1] + DA[2])*0.5
-    return DA
 
 # ----------------------------------------------------------------
 # General Aliases
