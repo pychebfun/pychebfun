@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # coding: UTF-8
 """
-Fun module
+Chebfun module
 ==============
 
 .. moduleauthor :: Chris Swierczewski <cswiercz@gmail.com>
 .. moduleauthor :: Olivier Verdier <olivier.verdier@gmail.com>
 .. moduleauthor :: Gregory Potter <ghpotter@gmail.com>
-.. moduleauthor :: Mark Richardson <mrichardson82@gmail.com>
 
 """
 from __future__ import division
