@@ -170,7 +170,7 @@ class Test_sinsinexp(unittest.TestCase):
         Check initialisation with a fixed N
         """
         N = self.p.size() - 1
-        pN = Chebfun.from_function(f, N)
+        pN = Chebfun.from_function(f, N=N)
         self.assertEqual(len(pN.chebyshev_coefficients()), N+1)
         self.assertEqual(len(pN.chebyshev_coefficients()),pN.size())
         assert_equal(pN, self.p)
@@ -250,9 +250,9 @@ class TestDifferentiate(unittest.TestCase):
         Integrate exp
         """
         e = Chebfun.from_function(lambda x:np.exp(x))
-        result = e.integrate()
-        expected = e - 1
-        assert_equal(result, expected)
+        antideriv = e.integrate()
+        result = antideriv - antideriv(antideriv._domain[0])    
+        assert_equal(result, e - e(antideriv._domain[0]))
 
 
 class TestSimple(unittest.TestCase):
@@ -289,14 +289,14 @@ class TestSimple(unittest.TestCase):
         p = Chebfun.from_function(Zero)
         self.assertEqual(p.size(),1) # should be equal to the minimum length, 1
 
-    def test_repr(self):
-        """
-        Repr shows the interpolation values.
-        """
-        p = Chebfun.basis(1)
-        s = repr(p)
-        expected = '<Chebfun(array([ 1., -1.]))>'
-        self.assertEqual(s, expected)
+#    def test_repr(self):
+#        """
+#        Repr shows the interpolation values.
+#        """
+#        p = Chebfun.basis(1)
+#        s = repr(p)
+#        expected = '<Chebfun(array([ 1., -1.]))>'
+#        self.assertEqual(s, expected)
 
     def test_root(self):
         r = np.random.rand()
@@ -383,7 +383,7 @@ class TestInitialise(unittest.TestCase):
         """
         Prune works even if the coefficient is zero
         """
-        N = Chebfun._cutoff(np.array([0.]), scale=1)
+        N = Chebfun._cutoff(np.array([0.]), vscale=1)
         self.assertEqual(N, 1)
 
 def compare_ufunc(self, ufunc):
@@ -578,8 +578,10 @@ class TestVector(unittest.TestCase):
         assert_equal(s[1], Chebfun(0.))
         assert_equal(s[:], s)
 
-
-
+class TestIntervalComputations(unittest.TestCase):
+    
+    def 
+    
 ## class Test_2D(Test_Chebfun):
 ## 	def setUp(self):
 ## 		Chebfun.record = True

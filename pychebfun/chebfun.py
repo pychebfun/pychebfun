@@ -208,7 +208,7 @@ class Fun(object):
         avalues = np.asarray(values,)
         avalues1 = np.atleast_1d(avalues)
         N = len(avalues1)
-        points = chebpts(N)
+        points = interpolation_points(N)
         self._values = avalues1
         if vscale is not None:
             self._vscale = vscale
@@ -216,7 +216,7 @@ class Fun(object):
             self._vscale = np.max(np.abs(self._values))
         self.p = interpolator(points, avalues1)
 
-        self._domain = domain
+        self._domain = np.array(domain)
         a,b = domain[0], domain[-1]
         
         # maps from (to) [-1,1] to (from) [a,b]
@@ -387,7 +387,7 @@ class Fun(object):
         return 0.5*(b_-a_)*val
 
 
-    def inner(self, other):
+    def dot(self, other):
         """
         Return the Hilbert scalar product $\int f.g$.
         """
@@ -398,10 +398,10 @@ class Fun(object):
         """
         Return: square root of scalar product with itself.
         """
-        norm = np.sqrt(self.inner(self))
+        norm = np.sqrt(self.dot(self))
         return norm
 
-    def cumsum(self):
+    def integrate(self):
         """
         Return the Fun representing the primitive of self over the domain. The 
         output starts at zero on the left-hand side of the domain.
@@ -412,7 +412,7 @@ class Fun(object):
         antiderivative = self.from_chebcoeff(int_coeffs,domain=self.domain()) 
         return antiderivative - antiderivative(a)
 
-    def diff(self, n=1):
+    def differentiate(self, n=1):
         """
         n-th derivative, default 1.      
         """
@@ -441,6 +441,12 @@ class Fun(object):
         roots = np.unique(real_roots)
         return self._map_ui_ab(roots)
 
+    # ----------------------------------------------------------------
+    # Class method aliases
+    # ----------------------------------------------------------------
+    diff = differentiate
+    cumsum = integrate
+    
     # ----------------------------------------------------------------
     # Plotting Methods
     # ----------------------------------------------------------------
@@ -496,14 +502,14 @@ class Fun(object):
             raise ValueError("Too many dimensions to plot")
         return xs, ys, xi, yi, d
 
-    def plot(self, plot_chebpts=True, *args, **kwargs):
+    def plot(self, with_interpolation_points=False, *args, **kwargs):
         """
         Plot the fun with the additional arguments args, kwargs.
         """
         xs, ys, xi, yi, d = self.plot_data()
         axis = plt.gca()
         axis.plot(xs, ys, *args, **kwargs)
-        if plot_chebpts:
+        if with_interpolation_points:
             current_color = axis.lines[-1].get_color() # figure out current colour
             axis.plot(xi, yi, marker='.', linestyle='', color=current_color)
         plt.plot()
@@ -511,7 +517,7 @@ class Fun(object):
             axis.axis('equal')
         return axis
 
-    def plotcoeffs(self, *args, **kwds):
+    def chebcoeffplot(self, *args, **kwds):
         """
         Plot the coefficients.
         """
@@ -525,7 +531,7 @@ class Fun(object):
 
         return ax
 
-    def plot_chebpts(self, *args, **kwargs):
+    def plot_interpolation_points(self, *args, **kwargs):
         plt.plot(self._map_ui_ab(self.p.xi), self.values(), *args, **kwargs)
 
     def compare(self, f, *args, **kwds):
@@ -566,10 +572,7 @@ def same_domain(fun1,fun2):
     """
     Returns True if the domains of two Fun objects are the same.
     """
-    try:
-        return fun1.domain() == fun2.domain()
-    except:
-        return False
+    return ( fun1.domain() == fun2.domain() ).all()
             
 # ----------------------------------------------------------------
 # Add overloaded operators
@@ -625,7 +628,7 @@ def even_data(data):
     """
     return np.concatenate([data, data[-2:0:-1]],)
 
-def chebpts(N):
+def interpolation_points(N):
     """
     N Chebyshev points in [-1, 1], boundaries included
     """
@@ -637,7 +640,7 @@ def sample_function(f, N):
     """
     Sample a function on N+1 Chebyshev points.
     """
-    x = chebpts(N+1)
+    x = interpolation_points(N+1)
     return f(x)
 
 def chebpolyfit(sampled):
@@ -731,3 +734,8 @@ def differentiator(A):
         DA[k-1] = SA[k] + DA[k+1]
     DA[0] = (SA[1] + DA[2])*0.5
     return DA
+
+# ----------------------------------------------------------------
+# General Aliases
+# ----------------------------------------------------------------
+chebpts = interpolation_points
