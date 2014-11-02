@@ -219,10 +219,9 @@ class Fun(object):
         self._domain = np.array(domain)
         a,b = domain[0], domain[-1]
         
-        # maps from (to) [-1,1] to (from) [a,b]
-        self._map_ab_ui = lambda x: (2.0*x-a-b)/(b-a)
-        self._map_ui_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b) 
-            
+        # maps from [-1,1] <-> [a,b]
+        self._ab_to_ui = lambda x: (2.0*x-a-b)/(b-a)
+        self._ui_to_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b) 
  
     # ----------------------------------------------------------------
     # Standard construction class methods.
@@ -275,7 +274,7 @@ class Fun(object):
     # ----------------------------------------------------------------
 
     def __call__(self, x):
-        return self.p(self._map_ab_ui(x))
+        return self.p(self._ab_to_ui(x))
 
     def __getitem__(self, s):
         """
@@ -439,7 +438,7 @@ class Fun(object):
         complex_roots = poly.polynomial.polyroots(coeffs)
         real_roots = np.array([np.real(r) for r in complex_roots if np.allclose(abs(r), 1.)])
         roots = np.unique(real_roots)
-        return self._map_ui_ab(roots)
+        return self._ui_to_ab(roots)
 
     # ----------------------------------------------------------------
     # Class method aliases
@@ -483,19 +482,19 @@ class Fun(object):
         if 1 == dim and 1 == dof: # 1D real
             xs = ts
             ys = values
-            xi = self._map_ui_ab(self.p.xi)
+            xi = self._ui_to_ab(self.p.xi)
             yi = self.values()
             d = 1
         elif 2 == dim and 1 == dof: # 2D real
             xs = values[:, 0]
             ys = values[:, 1]
-            xi = self._map_ui_ab(self.values()[:, 0])
+            xi = self._ui_to_ab(self.values()[:, 0])
             yi = self.values()[:, 1]
             d = 2
         elif 1 == dim and 2 == dof: # 1D complex
             xs = np.real(values)
             ys = np.imag(values)
-            xi = self._map_ui_ab(np.real(self.values()))
+            xi = self._ui_to_ab(np.real(self.values()))
             yi = np.imag(self.values())
             d = 2
         else:
@@ -532,7 +531,7 @@ class Fun(object):
         return ax
 
     def plot_interpolation_points(self, *args, **kwargs):
-        plt.plot(self._map_ui_ab(self.p.xi), self.values(), *args, **kwargs)
+        plt.plot(self._ui_to_ab(self.p.xi), self.values(), *args, **kwargs)
 
     def compare(self, f, *args, **kwds):
         """

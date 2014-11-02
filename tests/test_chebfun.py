@@ -1,37 +1,29 @@
 #!/usr/bin/env python
 # coding: UTF-8
+
 from __future__ import division
-
 import os
-
 import sys
+
+import itertools
+import unittest
+import numpy as np
+import numpy.testing as npt
+
+from pychebfun import *
+from tools import *
+
+np.seterr(all='raise')
 testdir = os.path.dirname(__file__)
 moduledir = os.path.join(testdir, os.path.pardir)
 sys.path.insert(0, moduledir)
-from pychebfun import *
 
-import numpy as np
-np.seterr(all='raise')
-import numpy.testing as npt
-
-import unittest
-
-def Identity(x):
-    return x
-
-def One(x):
-    return np.ones_like(x, dtype=float)
-
-def Zero(x):
-    return np.zeros_like(x, dtype=float)
-
-from tools import *
-
-def assert_equal(c1, c2, *args, **kwargs):
+def assert_close(c1, c2, xx=xs, *args, **kwargs):
     """
-    Check that two Chebfuns are equal by comparing their values.
+    Check that two callable objects are close approximations of one another 
+    by evaluating at a number of points on an interval (default [-1,1]).
     """
-    npt.assert_allclose(c1(xs), c2(xs), *args, **kwargs)
+    npt.assert_allclose(c1(xx), c2(xx), *args, **kwargs)
 
 def segment(x):
     y = np.expand_dims(x, axis=-1)
@@ -64,7 +56,6 @@ def piecewise_continuous(x):
 def runge(x):
     return 1./(1+25*x**2)
 
-xs = np.linspace(-1, 1, 1000)
 
 class Test_chebfuninit(unittest.TestCase):
     """
@@ -73,24 +64,24 @@ class Test_chebfuninit(unittest.TestCase):
     def test_from_function(self):
         cr = chebfun(f)
         ce = Chebfun.from_function(f)
-        assert_equal(cr, ce)
+        assert_close(cr, ce)
 
     def test_from_chebcoeffs(self):
         coeffs = np.random.randn(10)
         cr = chebfun(chebcoeff=coeffs)
         ce = Chebfun.from_chebcoeff(coeffs)
-        assert_equal(cr, ce)
+        assert_close(cr, ce)
 
     def test_from_chebfun(self):
         ce = Chebfun.from_function(f)
         cr = chebfun(ce)
-        assert_equal(cr, ce)
+        assert_close(cr, ce)
 
     def test_from_values(self):
         values = np.random.randn(10)
         cr = chebfun(values)
         ce = Chebfun.from_data(values)
-        assert_equal(cr, ce)
+        assert_close(cr, ce)
 
     def test_error(self):
         """
@@ -123,7 +114,7 @@ class Test_sinsinexp(unittest.TestCase):
         """
         Chebfun is closed to function f up to tolerance
         """
-        assert_equal(self.p, f, atol=1e-13)
+        assert_close(self.p, f, atol=1e-13)
 
     def test_root(self):
         """
@@ -141,14 +132,14 @@ class Test_sinsinexp(unittest.TestCase):
 
     def test_chebcoeff(self):
         new = Chebfun.from_chebcoeff(self.p.chebyshev_coefficients())
-        assert_equal(self.p, new)
+        assert_close(self.p, new)
 
     def test_prod(self):
         """
         Product p*p is correct.
         """
         pp = self.p*self.p
-        assert_equal(lambda x: self.p(x)*self.p(x), pp, atol=1e-13)
+        assert_close(lambda x: self.p(x)*self.p(x), pp, atol=1e-13)
 
     def test_square(self):
         def square(x):
@@ -173,7 +164,7 @@ class Test_sinsinexp(unittest.TestCase):
         pN = Chebfun.from_function(f, N=N)
         self.assertEqual(len(pN.chebyshev_coefficients()), N+1)
         self.assertEqual(len(pN.chebyshev_coefficients()),pN.size())
-        assert_equal(pN, self.p)
+        assert_close(pN, self.p)
         npt.assert_allclose(pN.chebyshev_coefficients(),self.p.chebyshev_coefficients())
 
     def test_nonzero(self):
@@ -194,7 +185,7 @@ class Test_sinsinexp(unittest.TestCase):
         """
         computed = self.p.differentiate()
         expected = fd
-        assert_equal(computed, expected)
+        assert_close(computed, expected)
 
     def test_interp_values(self):
         """
@@ -202,13 +193,13 @@ class Test_sinsinexp(unittest.TestCase):
         """
         p2 = Chebfun(self.p.values())
         npt.assert_almost_equal(self.p.chebyshev_coefficients(), p2.chebyshev_coefficients())
-        assert_equal(self.p, p2)
+        assert_close(self.p, p2)
 
     def test_equal(self):
         """
         Chebfun(f) is equal to itself.
         """
-        assert_equal(self.p, Chebfun.from_function(self.p))
+        assert_close(self.p, Chebfun.from_function(self.p))
 
 class TestDifferentiate(unittest.TestCase):
     def test_diffquad(self):
@@ -217,7 +208,7 @@ class TestDifferentiate(unittest.TestCase):
         """
         self.p = .5*Chebfun.from_function(Quad)
         X = self.p.differentiate()
-        assert_equal(X, lambda x:x)
+        assert_close(X, lambda x:x)
 
     def test_diff_x(self):
         """
@@ -243,7 +234,7 @@ class TestDifferentiate(unittest.TestCase):
         """
         e = Chebfun.from_function(lambda x:np.exp(x))
         e4 = e.differentiate(4)
-        assert_equal(e4, e)
+        assert_close(e4, e)
     
     def test_integrate(self):
         """
@@ -252,7 +243,7 @@ class TestDifferentiate(unittest.TestCase):
         e = Chebfun.from_function(lambda x:np.exp(x))
         antideriv = e.integrate()
         result = antideriv - antideriv(antideriv._domain[0])    
-        assert_equal(result, e - e(antideriv._domain[0]))
+        assert_close(result, e - e(antideriv._domain[0]))
 
 
 class TestSimple(unittest.TestCase):
@@ -321,11 +312,11 @@ class TestSimple(unittest.TestCase):
 
     def test_mx(self):
         c = Chebfun.from_function(lambda x:-x)
-        assert_equal(c, lambda x:-x)
+        assert_close(c, lambda x:-x)
 
     def test_identity(self):
         c = Chebfun.identity()
-        assert_equal(c, lambda x:x)
+        assert_close(c, lambda x:x)
 
 class TestPolyfitShape(unittest.TestCase):
     def test_scalar(self):
@@ -479,7 +470,7 @@ class Test_Misc(unittest.TestCase):
         r = Chebfun.from_function(runge)
         x = Chebfun.basis(1)
         rr = 1./(1+25*x**2)
-        assert_equal(r, rr, rtol=1e-13)
+        assert_close(r, rr, rtol=1e-13)
 
     def test_chebpolyfitval(self, N=64):
         data = np.random.rand(N-1, 2)
@@ -502,8 +493,6 @@ class Test_Misc(unittest.TestCase):
         result = chebpolyval(coeffs)
         npt.assert_allclose(data, result)
 
-
-
     def test_underflow(self):
         self.skipTest('mysterious underflow error')
         p = Chebfun.from_function(piecewise_continuous, N=pow(2,10)-1)
@@ -519,7 +508,7 @@ class Test_Arithmetic(unittest.TestCase):
         r = c + s
         def expected(x):
             return np.sin(x) + np.cos(x)
-        assert_equal(r, expected)
+        assert_close(r, expected)
 
     def test_scalar_mul(self):
         self.assertEqual(self.p1, self.p1)
@@ -567,22 +556,126 @@ class TestVector(unittest.TestCase):
         v = Chebfun.from_function(segment)
         s = np.sin(Chebfun.identity())
         m = s * v
-        assert_equal(m[0], s*v[0])
+        assert_close(m[0], s*v[0])
 
     def test_slice(self):
         """
         Test slicing: f[0] should return the first component.
         """
         s = Chebfun.from_function(segment)
-        assert_equal(s[0], Chebfun.identity())
-        assert_equal(s[1], Chebfun(0.))
-        assert_equal(s[:], s)
+        assert_close(s[0], Chebfun.identity())
+        assert_close(s[1], Chebfun(0.))
+        assert_close(s[:], s)
 
-class TestIntervalComputations(unittest.TestCase):
+#------------------------------------------------------------------------------    
+# Unit test for arbtirary interval Chebfuns
+#------------------------------------------------------------------------------
+
+fun_inds = range(len(functions))
+dom_inds = range(len(domains))
     
-    def 
+def _add_setUp_method(fun_ind,dom_ind):
+    this_chebfun_name = 'chebfun_fun{}_dom{}'.format(fun_ind,dom_ind)
+    this_chebfun = chebfun(functions[fun_ind],domains[dom_ind])
+    setattr(TestArbIntervals, this_chebfun_name, this_chebfun)
+
+def _add_domain_test_method(fun_ind,dom_ind):
+    def test_func(self):
+        this_chebfun_name = 'chebfun_fun{}_dom{}'.format(fun_ind,dom_ind)    
+        this_chebfun = getattr(TestArbIntervals, this_chebfun_name)
+        self.assertEqual(this_chebfun._domain[0],domains[dom_ind][0])
+        self.assertEqual(this_chebfun._domain[1],domains[dom_ind][1])
+    test_name = 'test_domains_fun{}_dom{}'.format(fun_ind,dom_ind)
+    test_func.__name__ = test_name
+    setattr(TestArbIntervals, test_name, test_func)    
+
+def _add_evaluation_test_method(fun_ind,dom_ind):
+    def test_func(self):
+        this_chebfun_name = 'chebfun_fun{}_dom{}'.format(fun_ind,dom_ind)    
+        this_chebfun = getattr(TestArbIntervals, this_chebfun_name)    
+        xx = map_ui_ab(xs,domains[dom_ind][0],domains[dom_ind][1])
+        assert_close(this_chebfun,functions[fun_ind],xx)        
+    test_name = 'test_evaluation_fun{}_dom{}'.format(fun_ind,dom_ind)
+    test_func.__name__ = test_name
+    setattr(TestArbIntervals, test_name, test_func)  
+
+def _add_first_deriv_test_method(fun_ind,dom_ind):
+    def test_func(self):
+        this_chebfun_name = 'chebfun_fun{}_dom{}'.format(fun_ind,dom_ind)    
+        this_chebfun = getattr(TestArbIntervals, this_chebfun_name)    
+        xx = map_ui_ab(xs,domains[dom_ind][0],domains[dom_ind][1])
+        assert_close(this_chebfun.diff(),first_derivs[fun_ind],xx)        
+    test_name = 'test_first_deriv_fun{}_dom{}'.format(fun_ind,dom_ind)
+    test_func.__name__ = test_name
+    setattr(TestArbIntervals, test_name, test_func)  
+
+def _add_definite_integral_test_method(fun_ind,dom_ind):
+    def test_func(self):
+        this_chebfun_name = 'chebfun_fun{}_dom{}'.format(fun_ind,dom_ind)    
+        this_chebfun = getattr(TestArbIntervals, this_chebfun_name)
+        actual = integrals[fun_ind][dom_ind]
+        self.assertAlmostEqual(this_chebfun.sum(),actual,places=14)
+    test_name = 'test_definite_integral_fun{}_dom{}'.format(fun_ind,dom_ind)
+    test_func.__name__ = test_name
+    setattr(TestArbIntervals, test_name, test_func)  
+
+def _add_roots_test_method(fun_ind,dom_ind):
+    def test_func(self):
+        this_chebfun_name = 'chebfun_fun{}_dom{}'.format(fun_ind,dom_ind)    
+        this_chebfun = getattr(TestArbIntervals, this_chebfun_name)
+        actual = roots[fun_ind][dom_ind]
+        self.assertAlmostEqual(norm(this_chebfun.roots()-actual),0.,places=12)
+    test_name = 'test_roots_fun{}_dom{}'.format(fun_ind,dom_ind)
+    test_func.__name__ = test_name
+    setattr(TestArbIntervals, test_name, test_func)  
+
+def compare_ufunc_arb_interval(self, ufunc):
+    xx = Chebfun.from_function(lambda x: x,[0.25,0.75])
+    ff = ufunc(xx)
+    self.assertIsInstance(ff, Chebfun)
+    result = ff.values()
+    expected = ufunc(ff._ui_to_ab(ff.p.xi))
+    npt.assert_allclose(result, expected)
+
+def _add_ufunc_test_arb_interval(ufunc):
+    name = ufunc.__name__
+    def test_func(self):
+        compare_ufunc_arb_interval(self, ufunc)
+    test_name = 'test_non_ui_{}'.format(name)
+    test_func.__name__ = test_name
+    setattr(TestArbIntervals, test_name, test_func)
+
+class TestArbIntervals(unittest.TestCase):
+    """Test the various operations for Chebfun on arbitrary intervals"""
+
+for fun_ind,dom_ind in itertools.product(fun_inds,dom_inds):
+    _add_setUp_method(fun_ind,dom_ind)
+    _add_domain_test_method(fun_ind,dom_ind)
+    _add_evaluation_test_method(fun_ind,dom_ind)
+    _add_first_deriv_test_method(fun_ind,dom_ind)
+    _add_definite_integral_test_method(fun_ind,dom_ind)
+    _add_roots_test_method(fun_ind,dom_ind)
     
-## class Test_2D(Test_Chebfun):
-## 	def setUp(self):
-## 		Chebfun.record = True
-## 		self.p = Chebfun(segment,)
+for func in [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, np.abs]:
+    _add_ufunc_test_arb_interval(func)
+    
+    
+# class Test_2D(Test_Chebfun):
+# 	def setUp(self):
+# 		Chebfun.record = True
+# 		self.p = Chebfun(segment,)
+
+if __name__ == "__main__":
+
+    import nose
+    from cStringIO import StringIO    
+    
+    module_name = sys.modules[__name__].__file__
+
+    old_stdout = sys.stdout
+    sys.stdout = mystdout = StringIO()
+    result = nose.run(argv=[sys.argv[0],
+                            module_name,
+                            '--verbosity=2'])
+    sys.stdout = old_stdout
+#    print mystdout.getvalue()
