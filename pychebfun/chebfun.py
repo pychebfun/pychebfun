@@ -14,6 +14,7 @@ from __future__ import division
 import operator
 
 import numpy as np
+from scipy import linalg  
 import matplotlib.pyplot as plt
 
 import sys
@@ -422,24 +423,58 @@ class Fun(object):
         return self.from_chebcoeff((2./(b_-a_))**n*ak,domain=self.domain())
         
     # ----------------------------------------------------------------
-    # Roots
+    # Roots 
     # ----------------------------------------------------------------
-
     def roots(self):
         """
-        Return the roots if the Fun is scalar.
-        The computation is done via trigonometric polynomials.
-        To do here: implement recursive subdivision.
+        Utilises Boyd's O(n^2) recursive subdivision algorithm. The chebfun
+        is recursively subsampled until it is successfully represented to 
+        machine precision by a sequence of piecewise interpolants of degree
+        100 or less. A colleague matrix eigenvalue solve is then applied to 
+        each of these pieces and the results are concatenated.
+        
+        See: 
+        J. P. Boyd, Computing zeros on a real interval through Chebyshev 
+        expansion and polynomial rootfinding, SIAM J. Numer. Anal., 40 (2002), 
+        pp. 1666–1682.
         """
-        ak = self.chebyshev_coefficients()
-        N = len(ak)
-        coeffs = np.hstack([ak[-1::-1], ak[1:]])
-        coeffs[N-1] *= 2
-        complex_roots = poly.polynomial.polyroots(coeffs)
-        real_roots = np.array([np.real(r) for r in complex_roots if np.allclose(abs(r), 1.)])
-        roots = np.unique(real_roots)
-        return self._ui_to_ab(roots)
+        if self.size() <= 100:  
+            ak = self.chebyshev_coefficients()
+            v = np.zeros_like(ak[:-1])
+            v[1] = 0.5
+            C1 = linalg.toeplitz(v) 
+            C2 = np.zeros_like(C1)
+            C1[0,1] = 1.
+            C2[-1,:] = ak[:-1]
+            C = C1 - .5/ak[-1] * C2
+            eigenvalues = linalg.eigvals(C) 
+            return np.sort(self._ui_to_ab(np.array([
+                root.real for root in eigenvalues
+                    if np.allclose(root.imag,0,atol=1e-10) 
+                        and np.abs(root.real) <=1])))     
+        else:
+            # divide at a close-to-zero split-point
+            split_point = self._ui_to_ab(0.0123456789)     
+            return np.concatenate(
+                (self.restrict([self._domain[0],split_point]).roots(),
+                 self.restrict([split_point,self._domain[1]]).roots())
+            )
 
+    # ----------------------------------------------------------------
+    # Miscellaneous operations
+    # ----------------------------------------------------------------
+    def restrict(self,subinterval):
+        """
+        Return a chebfun that matches self on subinterval.
+        """
+        if ( len(subinterval) != 2 ) or ( subinterval[0] >= subinterval[1] ):
+            raise ValueError(subinterval)
+        if subinterval[0] < self._domain[0]:
+            raise ValueError(subinterval[0],self._domain[0])
+        if subinterval[1] > self._domain[1]:
+            raise ValueError(subinterval[1],self._domain[1]) 
+        return Chebfun.from_function(self, subinterval)
+		
     # ----------------------------------------------------------------
     # Class method aliases
     # ----------------------------------------------------------------
