@@ -606,7 +606,7 @@ def same_domain(fun1,fun2):
     """
     Returns True if the domains of two Fun objects are the same.
     """
-    return ( fun1.domain() == fun2.domain() ).all()
+    return np.allclose(fun1.domain(),fun2.domain(),rtol=1e-14,atol=1e-14)
             
 # ----------------------------------------------------------------
 # Add overloaded operators
