@@ -474,7 +474,7 @@ class Fun(object):
         if subinterval[1] > self._domain[1]:
             raise ValueError(subinterval[1],self._domain[1]) 
         return Chebfun.from_function(self, subinterval)
-		
+
     # ----------------------------------------------------------------
     # Class method aliases
     # ----------------------------------------------------------------
