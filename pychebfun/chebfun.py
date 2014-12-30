@@ -193,29 +193,6 @@ class Fun(object):
         self._ab_to_ui = lambda x: (2.0*x-a-b)/(b-a)
         self._ui_to_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b) 
  
-    # ----------------------------------------------------------------
-    # Standard construction class methods.
-    # ----------------------------------------------------------------
-
-    @classmethod
-    def identity(self, domain=[-1., 1.]):
-        """
-        The Fun for the identity function x -> x.
-        """
-        return self.from_data([domain[1],domain[0]], domain)
-
-    # (M.R) shouldn't this be a separate class/function? It's not 
-    # specific to any particular instance of Fun.
-    @classmethod
-    def basis(self, n):
-        """
-        Chebyshev basis functions T_n.
-        """
-        if n == 0:
-            return self(np.array([1.]))
-        vals = np.ones(n+1)
-        vals[1::2] = -1
-        return self(vals)
 
     # ----------------------------------------------------------------
     # String representations
@@ -342,19 +319,11 @@ class Fun(object):
     # Integration and differentiation
     # ----------------------------------------------------------------
 
-    def sum(self):
-        """
-        Evaluate the integral of the Fun over the given interval using
-        Clenshaw-Curtis quadrature.
-        """
-        ak = self.chebyshev_coefficients()
-        ak2 = ak[::2]
-        n = len(ak2)
-        Tints = 2/(1-(2*np.arange(n))**2)
-        val = np.sum((Tints*ak2.T).T, axis=0)
-        a_, b_ = self.domain()
-        return 0.5*(b_-a_)*val
+    def integrate(self):
+        raise NotImplementedError()
 
+    def differentiate(self):
+        raise NotImplementedError()
 
     def dot(self, other):
         """
@@ -370,64 +339,6 @@ class Fun(object):
         norm = np.sqrt(self.dot(self))
         return norm
 
-    def integrate(self):
-        """
-        Return the Fun representing the primitive of self over the domain. The 
-        output starts at zero on the left-hand side of the domain.
-        """
-        coeffs = self.chebyshev_coefficients()
-        a,b = self.domain()
-        int_coeffs = 0.5*(b-a)*poly.chebyshev.chebint(coeffs)
-        antiderivative = self.from_chebcoeff(int_coeffs,domain=self.domain()) 
-        return antiderivative - antiderivative(a)
-
-    def differentiate(self, n=1):
-        """
-        n-th derivative, default 1.      
-        """
-        ak = self.chebyshev_coefficients()
-        a_, b_ = self.domain()
-        for _ in range(n):
-            ak = self.differentiator(ak)
-        return self.from_chebcoeff((2./(b_-a_))**n*ak,domain=self.domain())
-        
-    # ----------------------------------------------------------------
-    # Roots 
-    # ----------------------------------------------------------------
-    def roots(self):
-        """
-        Utilises Boyd's O(n^2) recursive subdivision algorithm. The chebfun
-        is recursively subsampled until it is successfully represented to 
-        machine precision by a sequence of piecewise interpolants of degree
-        100 or less. A colleague matrix eigenvalue solve is then applied to 
-        each of these pieces and the results are concatenated.
-        
-        See: 
-        J. P. Boyd, Computing zeros on a real interval through Chebyshev 
-        expansion and polynomial rootfinding, SIAM J. Numer. Anal., 40 (2002), 
-        pp. 1666–1682.
-        """
-        if self.size() <= 100:  
-            ak = self.chebyshev_coefficients()
-            v = np.zeros_like(ak[:-1])
-            v[1] = 0.5
-            C1 = linalg.toeplitz(v) 
-            C2 = np.zeros_like(C1)
-            C1[0,1] = 1.
-            C2[-1,:] = ak[:-1]
-            C = C1 - .5/ak[-1] * C2
-            eigenvalues = linalg.eigvals(C) 
-            return np.sort(self._ui_to_ab(np.array([
-                root.real for root in eigenvalues
-                    if np.allclose(root.imag,0,atol=1e-10) 
-                        and np.abs(root.real) <=1])))     
-        else:
-            # divide at a close-to-zero split-point
-            split_point = self._ui_to_ab(0.0123456789)     
-            return np.concatenate(
-                (self.restrict([self._domain[0],split_point]).roots(),
-                 self.restrict([split_point,self._domain[1]]).roots())
-            )
 
     # ----------------------------------------------------------------
     # Miscellaneous operations
@@ -562,6 +473,112 @@ class Fun(object):
         return ax
 
 
+
+class Chebfun(Fun):
+    """
+    Eventually set this up so that a Chebfun is a collection of Funs. This 
+    will enable piecewise smooth representations al la Matlab Chebfun v2.0.  
+    """
+    # ----------------------------------------------------------------
+    # Standard construction class methods.
+    # ----------------------------------------------------------------
+
+    @classmethod
+    def identity(self, domain=[-1., 1.]):
+        """
+        The Fun for the identity function x -> x.
+        """
+        return self.from_data([domain[1],domain[0]], domain)
+
+    # (M.R) shouldn't this be a separate class/function? It's not 
+    # specific to any particular instance of Fun.
+    @classmethod
+    def basis(self, n):
+        """
+        Chebyshev basis functions T_n.
+        """
+        if n == 0:
+            return self(np.array([1.]))
+        vals = np.ones(n+1)
+        vals[1::2] = -1
+        return self(vals)
+
+    # ----------------------------------------------------------------
+    # Integration and differentiation
+    # ----------------------------------------------------------------
+
+    def sum(self):
+        """
+        Evaluate the integral of the Fun over the given interval using
+        Clenshaw-Curtis quadrature.
+        """
+        ak = self.chebyshev_coefficients()
+        ak2 = ak[::2]
+        n = len(ak2)
+        Tints = 2/(1-(2*np.arange(n))**2)
+        val = np.sum((Tints*ak2.T).T, axis=0)
+        a_, b_ = self.domain()
+        return 0.5*(b_-a_)*val
+
+    def integrate(self):
+        """
+        Return the Fun representing the primitive of self over the domain. The 
+        output starts at zero on the left-hand side of the domain.
+        """
+        coeffs = self.chebyshev_coefficients()
+        a,b = self.domain()
+        int_coeffs = 0.5*(b-a)*poly.chebyshev.chebint(coeffs)
+        antiderivative = self.from_chebcoeff(int_coeffs,domain=self.domain()) 
+        return antiderivative - antiderivative(a)
+
+    def differentiate(self, n=1):
+        """
+        n-th derivative, default 1.      
+        """
+        ak = self.chebyshev_coefficients()
+        a_, b_ = self.domain()
+        for _ in range(n):
+            ak = self.differentiator(ak)
+        return self.from_chebcoeff((2./(b_-a_))**n*ak,domain=self.domain())
+        
+    # ----------------------------------------------------------------
+    # Roots 
+    # ----------------------------------------------------------------
+    def roots(self):
+        """
+        Utilises Boyd's O(n^2) recursive subdivision algorithm. The chebfun
+        is recursively subsampled until it is successfully represented to 
+        machine precision by a sequence of piecewise interpolants of degree
+        100 or less. A colleague matrix eigenvalue solve is then applied to 
+        each of these pieces and the results are concatenated.
+        
+        See: 
+        J. P. Boyd, Computing zeros on a real interval through Chebyshev 
+        expansion and polynomial rootfinding, SIAM J. Numer. Anal., 40 (2002), 
+        pp. 1666–1682.
+        """
+        if self.size() <= 100:  
+            ak = self.chebyshev_coefficients()
+            v = np.zeros_like(ak[:-1])
+            v[1] = 0.5
+            C1 = linalg.toeplitz(v) 
+            C2 = np.zeros_like(C1)
+            C1[0,1] = 1.
+            C2[-1,:] = ak[:-1]
+            C = C1 - .5/ak[-1] * C2
+            eigenvalues = linalg.eigvals(C) 
+            return np.sort(self._ui_to_ab(np.array([
+                root.real for root in eigenvalues
+                    if np.allclose(root.imag,0,atol=1e-10) 
+                        and np.abs(root.real) <=1])))     
+        else:
+            # divide at a close-to-zero split-point
+            split_point = self._ui_to_ab(0.0123456789)     
+            return np.concatenate(
+                (self.restrict([self._domain[0],split_point]).roots(),
+                 self.restrict([split_point,self._domain[1]]).roots())
+            )
+
     # ----------------------------------------------------------------
     # Interpolation and evaluation (go from values to coefficients)
     # ----------------------------------------------------------------
@@ -662,13 +679,6 @@ class Fun(object):
         DA[0] = (SA[1] + DA[2])*0.5
         return DA
 
-class Chebfun(Fun):
-    """
-    Eventually set this up so that a Chebfun is a collection of Funs. This 
-    will enable piecewise smooth representations al la Matlab Chebfun v2.0.  
-    """
-    pass
-
 # ----------------------------------------------------------------
 # General utilities
 # ----------------------------------------------------------------
@@ -678,10 +688,6 @@ def same_domain(fun1,fun2):
     """
     return np.allclose(fun1.domain(),fun2.domain(),rtol=1e-14,atol=1e-14)
             
-# ----------------------------------------------------------------
-# Add overloaded operators
-# ----------------------------------------------------------------
-
 def even_data(data):
     """
     Construct Extended Data Vector (equivalent to creating an

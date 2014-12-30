@@ -604,7 +604,7 @@ def _add_first_deriv_test_method(fun_ind,dom_ind):
         this_chebfun_name = 'chebfun_fun{}_dom{}'.format(fun_ind,dom_ind)    
         this_chebfun = getattr(TestArbIntervals, this_chebfun_name)    
         xx = map_ui_ab(xs,domains[dom_ind][0],domains[dom_ind][1])
-        assert_close(this_chebfun.diff(),first_derivs[fun_ind],xx)        
+        assert_close(this_chebfun.differentiate(),first_derivs[fun_ind],xx)        
     test_name = 'test_first_deriv_fun{}_dom{}'.format(fun_ind,dom_ind)
     test_func.__name__ = test_name
     setattr(TestArbIntervals, test_name, test_func)  
