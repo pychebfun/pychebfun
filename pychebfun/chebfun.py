@@ -345,7 +345,7 @@ class Fun(object):
     # ----------------------------------------------------------------
     def restrict(self,subinterval):
         """
-        Return a chebfun that matches self on subinterval.
+        Return a Polyfun that matches self on subinterval.
         """
         if ( len(subinterval) != 2 ) or ( subinterval[0] >= subinterval[1] ):
             raise ValueError(subinterval)
@@ -353,7 +353,7 @@ class Fun(object):
             raise ValueError(subinterval[0],self._domain[0])
         if subinterval[1] > self._domain[1]:
             raise ValueError(subinterval[1],self._domain[1]) 
-        return Chebfun.from_function(self, subinterval)
+        return self.from_function(self, subinterval)
 
 
     # ----------------------------------------------------------------
