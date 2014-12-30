@@ -250,7 +250,7 @@ class Fun(object):
         """
         Components s of the fun.
         """
-        return Fun.from_data(self.values().T[s].T)
+        return self.from_data(self.values().T[s].T)
 
     def __nonzero__(self):
         """
@@ -743,7 +743,7 @@ for _op in [operator.__mul__, operator.__div__, operator.__pow__, __rdiv__]:
 def _add_delegate(ufunc, nonlinear=True):
     if nonlinear:
         def method(self):
-            return self.from_function(lambda x: ufunc(self(x)))
+            return self.from_function(lambda x: ufunc(self(x)), domain=self.domain())
     else:
         def method(self):
             return self.from_data(ufunc(self.values()))
@@ -763,7 +763,7 @@ for func in [np.real, np.imag]:
 # ----------------------------------------------------------------
 # General Aliases
 # ----------------------------------------------------------------
-chebpts = interpolation_points
+## chebpts = interpolation_points
 
 # ----------------------------------------------------------------
 # Constructor inspired by the Matlab version
