@@ -682,17 +682,6 @@ def same_domain(fun1,fun2):
 # Add overloaded operators
 # ----------------------------------------------------------------
 
-def _add_operator(op):
-    def method(self, other):
-        if not same_domain(self,other):
-            raise self.DomainMismatch(self.domain(),other.domain())
-        return self.from_function(
-            lambda x: op(self(x).T, other(x).T).T, domain=self.domain(),)
-    cast_method = cast_scalar(method)
-    name = op.__name__
-    cast_method.__name__ = name
-    cast_method.__doc__ = "operator {}".format(name)
-    setattr(Fun, name, cast_method)
 def even_data(data):
     """
     Construct Extended Data Vector (equivalent to creating an
@@ -723,12 +712,15 @@ def dct(data):
 
 def _add_operator(op):
     def method(self, other):
-        return self.from_function(lambda x: op(self(x).T, other(x).T).T,)
+        if not same_domain(self,other):
+            raise self.DomainMismatch(self.domain(),other.domain())
+        return self.from_function(
+            lambda x: op(self(x).T, other(x).T).T, domain=self.domain(),)
     cast_method = cast_scalar(method)
     name = op.__name__
     cast_method.__name__ = name
     cast_method.__doc__ = "operator {}".format(name)
-    setattr(Chebfun, name, cast_method)
+    setattr(Fun, name, cast_method)
 
 def __rdiv__(a, b):
     return b/a
