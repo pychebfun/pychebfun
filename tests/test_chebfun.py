@@ -69,7 +69,7 @@ class Test_chebfuninit(unittest.TestCase):
     def test_from_chebcoeffs(self):
         coeffs = np.random.randn(10)
         cr = chebfun(chebcoeff=coeffs)
-        ce = Chebfun.from_chebcoeff(coeffs)
+        ce = Chebfun.from_coeff(coeffs)
         assert_close(cr, ce)
 
     def test_from_chebfun(self):
@@ -108,7 +108,7 @@ class Test_sinsinexp(unittest.TestCase):
         """
         Length of chebfun is equal to the number of Cheb coefficients (i.e., degree)
         """
-        self.assertEqual(self.p.size(), len(self.p.chebyshev_coefficients()))
+        self.assertEqual(self.p.size(), len(self.p.coefficients()))
 
     def test_error(self):
         """
@@ -131,7 +131,7 @@ class Test_sinsinexp(unittest.TestCase):
         self.assertEqual(len(roots),22)
 
     def test_chebcoeff(self):
-        new = Chebfun.from_chebcoeff(self.p.chebyshev_coefficients())
+        new = Chebfun.from_coeff(self.p.coefficients())
         assert_close(self.p, new)
 
     def test_prod(self):
@@ -162,10 +162,10 @@ class Test_sinsinexp(unittest.TestCase):
         """
         N = self.p.size() - 1
         pN = Chebfun.from_function(f, N=N)
-        self.assertEqual(len(pN.chebyshev_coefficients()), N+1)
-        self.assertEqual(len(pN.chebyshev_coefficients()),pN.size())
+        self.assertEqual(len(pN.coefficients()), N+1)
+        self.assertEqual(len(pN.coefficients()),pN.size())
         assert_close(pN, self.p)
-        npt.assert_allclose(pN.chebyshev_coefficients(),self.p.chebyshev_coefficients())
+        npt.assert_allclose(pN.coefficients(),self.p.coefficients())
 
     def test_nonzero(self):
         """
@@ -192,7 +192,7 @@ class Test_sinsinexp(unittest.TestCase):
         Instanciate Chebfun from interpolation values.
         """
         p2 = Chebfun(self.p.values())
-        npt.assert_almost_equal(self.p.chebyshev_coefficients(), p2.chebyshev_coefficients())
+        npt.assert_almost_equal(self.p.coefficients(), p2.coefficients())
         assert_close(self.p, p2)
 
     def test_equal(self):
@@ -321,19 +321,19 @@ class TestSimple(unittest.TestCase):
 class TestPolyfitShape(unittest.TestCase):
     def test_scalar(self):
         for datalen in [1,3]:
-            coeffs = Chebfun.chebpolyfit(np.ones([datalen]))
+            coeffs = Chebfun.polyfit(np.ones([datalen]))
             self.assertEqual(len(coeffs.shape), 1)
 
     def test_vector(self):
         for datalen in [1,3]:
-            coeffs = Chebfun.chebpolyfit(np.ones([datalen, 2]))
+            coeffs = Chebfun.polyfit(np.ones([datalen, 2]))
             self.assertEqual(len(coeffs.shape), 2)
 
     def test_list(self):
         data = [[1.,2], [3,4]]
         adata = np.array(data)
-        result = Chebfun.chebpolyfit(data)
-        expected = Chebfun.chebpolyfit(adata)
+        result = Chebfun.polyfit(data)
+        expected = Chebfun.polyfit(adata)
         npt.assert_array_almost_equal(result, expected)
 
 class TestEven(unittest.TestCase):
@@ -368,7 +368,7 @@ class TestInitialise(unittest.TestCase):
         """
         Initialise with a chebcoeff list
         """
-        c = Chebfun.from_chebcoeff([1.,2.])
+        c = Chebfun.from_coeff([1.,2.])
 
     def test_prune(self):
         """
@@ -419,7 +419,7 @@ class Test_Misc(unittest.TestCase):
         npt.assert_allclose(c(xs), 0.)
 
     def test_chebcoeff_one(self):
-        c = Chebfun.from_chebcoeff(np.array([[1.],]))
+        c = Chebfun.from_coeff(np.array([[1.],]))
         npt.assert_allclose(c(xs), 1.)
 
     def test_init_from_segment(self):
@@ -449,11 +449,11 @@ class Test_Misc(unittest.TestCase):
     def test_basis(self, ns=[0,5]):
         for n in ns:
             c = Chebfun.basis(n)
-            npt.assert_array_almost_equal(c.chebyshev_coefficients(), np.array([0]*n+[1.]))
+            npt.assert_array_almost_equal(c.coefficients(), np.array([0]*n+[1.]))
 
     def test_list_init(self):
         c = Chebfun([1.])
-        npt.assert_array_almost_equal(c.chebyshev_coefficients(),np.array([1.]))
+        npt.assert_array_almost_equal(c.coefficients(),np.array([1.]))
 
     def test_scalar_init(self):
         one = Chebfun(1.)
@@ -474,7 +474,7 @@ class Test_Misc(unittest.TestCase):
 
     def test_chebpolyfitval(self, N=64):
         data = np.random.rand(N-1, 2)
-        computed = Chebfun.chebpolyval(Chebfun.chebpolyfit(data))
+        computed = Chebfun.polyval(Chebfun.polyfit(data))
         npt.assert_allclose(computed, data)
 
     def test_even_data(self):
@@ -489,8 +489,8 @@ class Test_Misc(unittest.TestCase):
     def test_chebpolyfit(self):
         N = 32
         data = np.random.rand(N-1, 2)
-        coeffs = Chebfun.chebpolyfit(data)
-        result = Chebfun.chebpolyval(coeffs)
+        coeffs = Chebfun.polyfit(data)
+        result = Chebfun.polyval(coeffs)
         npt.assert_allclose(data, result)
 
     def test_underflow(self):

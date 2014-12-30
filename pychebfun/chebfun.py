@@ -83,9 +83,9 @@ class Fun(object):
         return self(other.values(),other.domain())
 
     @classmethod
-    def from_chebcoeff(self, chebcoeff, domain=[-1., 1.], prune=True, vscale=1.):
+    def from_coeff(self, chebcoeff, domain=[-1., 1.], prune=True, vscale=1.):
         """
-        Initialise from provided Chebyshev coefficients
+        Initialise from provided coefficients
         prune: Whether to prune the negligible coefficients
         vscale: the scale to use when pruning
         """
@@ -95,7 +95,7 @@ class Fun(object):
             pruned_coeffs = coeffs[:N]
         else:
             pruned_coeffs = coeffs
-        values = self.chebpolyval(pruned_coeffs)
+        values = self.polyval(pruned_coeffs)
         return self(values, domain, vscale)
 
     @classmethod
@@ -110,7 +110,7 @@ class Fun(object):
             N = pow(2, k)
 
             sampled = self.sample_function(f, N)
-            coeffs = self.chebpolyfit(sampled)
+            coeffs = self.polyfit(sampled)
 
             # 3) Check for negligible coefficients
             #    If within bound: get negligible coeffs and bread
@@ -145,12 +145,12 @@ class Fun(object):
         # Find out the right number of coefficients to keep
         coeffs = self.dichotomy(**args)
 
-        return self.from_chebcoeff(coeffs, domain)
+        return self.from_coeff(coeffs, domain)
 
     @classmethod
     def _threshold(self, vscale):
         """
-        Compute the threshold at which Chebyshev coefficients are trimmed.
+        Compute the threshold at which coefficients are trimmed.
         """
         bnd = 128*emach*vscale
         return bnd
@@ -171,7 +171,7 @@ class Fun(object):
  
     def __init__(self, values=0., domain=[-1., 1.], vscale=None):
         """
-        Init a Fun object from values at Chebyshev points.
+        Init a Fun object from values at interpolation points.
         values: Interpolation values
         vscale: The actual vscale; computed automatically if not given
         """
@@ -255,15 +255,15 @@ class Fun(object):
         # determine which of self/other is the smaller/bigger
         big = diff > 0
         small = not big
-        # pad the chebyshev coefficients of the small one with zeros
-        small_coeffs = ps[small].chebyshev_coefficients()
-        big_coeffs = ps[big].chebyshev_coefficients()
+        # pad the coefficients of the small one with zeros
+        small_coeffs = ps[small].coefficients()
+        big_coeffs = ps[big].coefficients()
         padded = np.zeros_like(big_coeffs)
         padded[:len(small_coeffs)] = small_coeffs
         # add the values and create a new Fun with them
         chebsum = big_coeffs + padded
         new_vscale = np.max([self._vscale, other._vscale])
-        return self.from_chebcoeff(
+        return self.from_coeff(
             chebsum, domain=self.domain(), vscale=new_vscale
         )
 
@@ -306,8 +306,8 @@ class Fun(object):
     def size(self):
         return self.p.n
 
-    def chebyshev_coefficients(self):
-        return self.chebpolyfit(self.values())
+    def coefficients(self):
+        return self.polyfit(self.values())
 
     def values(self):
         return self._values
@@ -439,7 +439,7 @@ class Fun(object):
         fig = plt.figure()
         ax  = fig.add_subplot(111)
 
-        coeffs = self.chebyshev_coefficients()
+        coeffs = self.coefficients()
         data = np.log10(np.abs(coeffs))
         ax.plot(data, 'r' , *args, **kwds)
         ax.plot(data, 'r.', *args, **kwds)
@@ -512,7 +512,7 @@ class Chebfun(Fun):
         Evaluate the integral of the Fun over the given interval using
         Clenshaw-Curtis quadrature.
         """
-        ak = self.chebyshev_coefficients()
+        ak = self.coefficients()
         ak2 = ak[::2]
         n = len(ak2)
         Tints = 2/(1-(2*np.arange(n))**2)
@@ -525,21 +525,21 @@ class Chebfun(Fun):
         Return the Fun representing the primitive of self over the domain. The 
         output starts at zero on the left-hand side of the domain.
         """
-        coeffs = self.chebyshev_coefficients()
+        coeffs = self.coefficients()
         a,b = self.domain()
         int_coeffs = 0.5*(b-a)*poly.chebyshev.chebint(coeffs)
-        antiderivative = self.from_chebcoeff(int_coeffs,domain=self.domain()) 
+        antiderivative = self.from_coeff(int_coeffs,domain=self.domain()) 
         return antiderivative - antiderivative(a)
 
     def differentiate(self, n=1):
         """
         n-th derivative, default 1.      
         """
-        ak = self.chebyshev_coefficients()
+        ak = self.coefficients()
         a_, b_ = self.domain()
         for _ in range(n):
             ak = self.differentiator(ak)
-        return self.from_chebcoeff((2./(b_-a_))**n*ak,domain=self.domain())
+        return self.from_coeff((2./(b_-a_))**n*ak,domain=self.domain())
         
     # ----------------------------------------------------------------
     # Roots 
@@ -558,7 +558,7 @@ class Chebfun(Fun):
         pp. 1666–1682.
         """
         if self.size() <= 100:  
-            ak = self.chebyshev_coefficients()
+            ak = self.coefficients()
             v = np.zeros_like(ak[:-1])
             v[1] = 0.5
             C1 = linalg.toeplitz(v) 
@@ -601,7 +601,7 @@ class Chebfun(Fun):
         return f(x)
 
     @classmethod
-    def chebpolyfit(self, sampled):
+    def polyfit(self, sampled):
         """
         Compute Chebyshev coefficients for values located on Chebyshev points.
         sampled: array; first dimension is number of Chebyshev points
@@ -614,7 +614,7 @@ class Chebfun(Fun):
         return coeffs
 
     @classmethod
-    def chebpolyval(self, chebcoeff):
+    def polyval(self, chebcoeff):
         """
         Compute the interpolation values at Chebyshev points.
         chebcoeff: Chebyshev coefficients
@@ -778,7 +778,7 @@ def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
 
     # Chebyshev coefficients
     if chebcoeff is not None:
-        return Chebfun.from_chebcoeff(chebcoeff,domain)
+        return Chebfun.from_coeff(chebcoeff,domain)
 
     # another Fun instance
     if isinstance(f, Fun):
