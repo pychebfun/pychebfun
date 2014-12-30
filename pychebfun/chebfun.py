@@ -233,7 +233,7 @@ class Fun(object):
         """
         Test for difference from zero (up to tolerance)
         """
-        return not np.allclose(self.chebyshev_coefficients(), 0)
+        return not np.allclose(self.values(), 0)
 
     def __eq__(self, other):
         return not(self - other)
