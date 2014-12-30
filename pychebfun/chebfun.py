@@ -67,9 +67,9 @@ class Fun(object):
         """
         Raised when there is an interval mismatch between 
         """ 
-        
+    
     @classmethod
-    def from_data(self, data, domain=[-1., 1.]):
+    def from_data(self, data, domain=None):
         """
         Initialise from interpolation values.
         """
@@ -83,7 +83,7 @@ class Fun(object):
         return self(other.values(),other.domain())
 
     @classmethod
-    def from_coeff(self, chebcoeff, domain=[-1., 1.], prune=True, vscale=1.):
+    def from_coeff(self, chebcoeff, domain=None, prune=True, vscale=1.):
         """
         Initialise from provided coefficients
         prune: Whether to prune the negligible coefficients
@@ -125,12 +125,13 @@ class Fun(object):
         return coeffs
 
     @classmethod
-    def from_function(self, f, domain=[-1., 1.], N=None):
+    def from_function(self, f, domain=None, N=None):
         """
         Initialise from a function to sample.
         N: optional parameter which indicates the range of the dichotomy
         """
         # rescale f to the unit domain 
+        domain = self.get_default_domain(domain)
         a,b = domain[0], domain[-1]
         map_ui_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b) 
         args = {'f': lambda t: f(map_ui_ab(t))}
@@ -169,7 +170,7 @@ class Fun(object):
         return N+1
  
  
-    def __init__(self, values=0., domain=[-1., 1.], vscale=None):
+    def __init__(self, values=0., domain=None, vscale=None):
         """
         Init a Fun object from values at interpolation points.
         values: Interpolation values
@@ -186,6 +187,7 @@ class Fun(object):
             self._vscale = np.max(np.abs(self._values))
         self.p = self.interpolator(points, avalues1)
 
+        domain = self.get_default_domain(domain)
         self._domain = np.array(domain)
         a,b = domain[0], domain[-1]
         
@@ -487,6 +489,13 @@ class Chebfun(Fun):
     # ----------------------------------------------------------------
     # Standard construction class methods.
     # ----------------------------------------------------------------
+
+    @classmethod
+    def get_default_domain(self, domain=None):
+        if domain is None:
+            return [-1., 1.]
+        else:
+            return domain
 
     @classmethod
     def identity(self, domain=[-1., 1.]):
