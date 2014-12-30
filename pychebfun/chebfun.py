@@ -27,7 +27,7 @@ import scipy.fftpack as fftpack
 
 def cast_scalar(method):
     """
-    Used to cast scalar to Funs
+    Cast scalars to constant interpolating objects
     """
     @wraps(method)
     def new_method(self, other):
@@ -40,10 +40,10 @@ emach     = sys.float_info.epsilon                        # machine epsilon
 
 
 
-class Fun(object):
+class Polyfun(object):
     """
     Construct a Lagrange interpolating polynomial over arbitrary points.
-    Fun objects consist in essence of two components:
+    Polyfun objects consist in essence of two components:
     
         1) An interpolant on [-1,1],
         2) A domain attribute [a,b].
@@ -78,7 +78,7 @@ class Fun(object):
     @classmethod
     def from_fun(self, other):
         """
-        Initialise from another instance of Fun
+        Initialise from another instance
         """
         return self(other.values(),other.domain())
 
@@ -172,7 +172,7 @@ class Fun(object):
  
     def __init__(self, values=0., domain=None, vscale=None):
         """
-        Init a Fun object from values at interpolation points.
+        Init an object from values at interpolation points.
         values: Interpolation values
         vscale: The actual vscale; computed automatically if not given
         """
@@ -197,7 +197,7 @@ class Fun(object):
  
     def same_domain(self, fun2):
         """
-        Returns True if the domains of two Fun objects are the same.
+        Returns True if the domains of two objects are the same.
         """
         return np.allclose(self.domain(), fun2.domain(), rtol=1e-14, atol=1e-14)
 
@@ -267,7 +267,7 @@ class Fun(object):
         big_coeffs = ps[big].coefficients()
         padded = np.zeros_like(big_coeffs)
         padded[:len(small_coeffs)] = small_coeffs
-        # add the values and create a new Fun with them
+        # add the values and create a new object with them
         chebsum = big_coeffs + padded
         new_vscale = np.max([self._vscale, other._vscale])
         return self.from_coeff(
@@ -280,7 +280,7 @@ class Fun(object):
     @cast_scalar
     def __sub__(self, other):
         """
-        Fun subtraction.
+        Subtraction.
         """
         return self + (-other)
 
@@ -298,7 +298,7 @@ class Fun(object):
 
     def __neg__(self):
         """
-        Fun negation.
+        Negation.
         """
         return self.from_data(-self.values(),domain=self.domain())
 
@@ -470,7 +470,7 @@ class Fun(object):
         ax = fig.add_subplot(211)
         
         ax.plot(x, f(x), '#dddddd', linewidth=10, label='Actual', *args, **kwds)
-        label = 'Fun Interpolant (d={0})'.format(self.size())
+        label = 'Interpolant (d={0})'.format(self.size())
         self.plot(color='red', label=label, *args, **kwds)
         ax.legend(loc='best')
 
@@ -481,9 +481,9 @@ class Fun(object):
 
 
 
-class Chebfun(Fun):
+class Chebfun(Polyfun):
     """
-    Eventually set this up so that a Chebfun is a collection of Funs. This 
+    Eventually set this up so that a Chebfun is a collection of Chebfuns. This 
     will enable piecewise smooth representations al la Matlab Chebfun v2.0.  
     """
     # ----------------------------------------------------------------
@@ -500,12 +500,10 @@ class Chebfun(Fun):
     @classmethod
     def identity(self, domain=[-1., 1.]):
         """
-        The Fun for the identity function x -> x.
+        The identity function x -> x.
         """
         return self.from_data([domain[1],domain[0]], domain)
 
-    # (M.R) shouldn't this be a separate class/function? It's not 
-    # specific to any particular instance of Fun.
     @classmethod
     def basis(self, n):
         """
@@ -523,7 +521,7 @@ class Chebfun(Fun):
 
     def sum(self):
         """
-        Evaluate the integral of the Fun over the given interval using
+        Evaluate the integral over the given interval using
         Clenshaw-Curtis quadrature.
         """
         ak = self.coefficients()
@@ -536,7 +534,7 @@ class Chebfun(Fun):
 
     def integrate(self):
         """
-        Return the Fun representing the primitive of self over the domain. The 
+        Return the object representing the primitive of self over the domain. The 
         output starts at zero on the left-hand side of the domain.
         """
         coeffs = self.coefficients()
@@ -741,7 +739,7 @@ def __rdiv__(a, b):
     return b/a
 
 for _op in [operator.__mul__, operator.__div__, operator.__pow__, __rdiv__]:
-    _add_operator(Fun, _op)
+    _add_operator(Polyfun, _op)
 
 # ----------------------------------------------------------------
 # Add numpy ufunc delegates
@@ -757,7 +755,7 @@ def _add_delegate(ufunc, nonlinear=True):
     name = ufunc.__name__
     method.__name__ = name
     method.__doc__ = "delegate for numpy's ufunc {}".format(name)
-    setattr(Fun, name, method)
+    setattr(Polyfun, name, method)
 
 # Following list generated from:
 # https://github.com/numpy/numpy/blob/master/numpy/core/code_generators/generate_umath.py
@@ -782,15 +780,15 @@ def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
     
     :param callable f: Python, Numpy, or Sage function
     :param int N: (default = None)  specify number of interpolating points
-    :param np.array chebcoeff: (default = np.array(0)) specify the coefficients of a Fun
+    :param np.array chebcoeff: (default = np.array(0)) specify the coefficients
     """
 
     # Chebyshev coefficients
     if chebcoeff is not None:
         return Chebfun.from_coeff(chebcoeff,domain)
 
-    # another Fun instance
-    if isinstance(f, Fun):
+    # another instance
+    if isinstance(f, Polyfun):
         return Chebfun.from_fun(f)
 
     # callable
@@ -808,7 +806,7 @@ def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
     else:
         return Chebfun(f,domain)
 
-    raise TypeError('Impossible to initialise the Fun object from an object of type {}'.format(type(f)))
+    raise TypeError('Impossible to initialise the object from an object of type {}'.format(type(f)))
 
 
 
