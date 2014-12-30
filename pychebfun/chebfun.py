@@ -193,6 +193,11 @@ class Fun(object):
         self._ab_to_ui = lambda x: (2.0*x-a-b)/(b-a)
         self._ui_to_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b) 
  
+    def same_domain(self, fun2):
+        """
+        Returns True if the domains of two Fun objects are the same.
+        """
+        return np.allclose(self.domain(), fun2.domain(), rtol=1e-14, atol=1e-14)
 
     # ----------------------------------------------------------------
     # String representations
@@ -246,7 +251,7 @@ class Fun(object):
         """
         Addition
         """
-        if not same_domain(self,other):
+        if not self.same_domain(other):
             raise self.DomainMismatch(self.domain(),other.domain())
             
         ps = [self, other]
@@ -682,11 +687,6 @@ class Chebfun(Fun):
 # ----------------------------------------------------------------
 # General utilities
 # ----------------------------------------------------------------
-def same_domain(fun1,fun2):
-    """
-    Returns True if the domains of two Fun objects are the same.
-    """
-    return np.allclose(fun1.domain(),fun2.domain(),rtol=1e-14,atol=1e-14)
             
 def even_data(data):
     """
@@ -718,7 +718,7 @@ def dct(data):
 
 def _add_operator(cls, op):
     def method(self, other):
-        if not same_domain(self,other):
+        if not self.same_domain(other):
             raise self.DomainMismatch(self.domain(),other.domain())
         return self.from_function(
             lambda x: op(self(x).T, other(x).T).T, domain=self.domain(),)
