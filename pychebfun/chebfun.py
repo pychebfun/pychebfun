@@ -710,7 +710,7 @@ def dct(data):
 # Add overloaded operators
 # ----------------------------------------------------------------
 
-def _add_operator(op):
+def _add_operator(cls, op):
     def method(self, other):
         if not same_domain(self,other):
             raise self.DomainMismatch(self.domain(),other.domain())
@@ -720,13 +720,13 @@ def _add_operator(op):
     name = op.__name__
     cast_method.__name__ = name
     cast_method.__doc__ = "operator {}".format(name)
-    setattr(Fun, name, cast_method)
+    setattr(cls, name, cast_method)
 
 def __rdiv__(a, b):
     return b/a
 
 for _op in [operator.__mul__, operator.__div__, operator.__pow__, __rdiv__]:
-    _add_operator(_op)
+    _add_operator(Fun, _op)
 
 # ----------------------------------------------------------------
 # Add numpy ufunc delegates
