@@ -618,6 +618,9 @@ for fdata in interval_test_data:
         global_dict[cls_name] = type(cls_name, (HarnessArbitraryIntervals, unittest.TestCase), {"setUp": _get_setup(fdata["function"], fdata["function_d"], dom_data)})
 
 
+class TestUfuncIntervals(unittest.TestCase):
+    pass
+
 def compare_ufunc_arb_interval(self, ufunc):
     xx = Chebfun.from_function(lambda x: x,[0.25,0.75])
     ff = ufunc(xx)
@@ -632,12 +635,12 @@ def _add_ufunc_test_arb_interval(ufunc):
         compare_ufunc_arb_interval(self, ufunc)
     test_name = 'test_non_ui_{}'.format(name)
     test_func.__name__ = test_name
-    setattr(TestArbIntervals, test_name, test_func)
+    setattr(TestUfuncIntervals, test_name, test_func)
 
 
     
-## for func in [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, np.abs]:
-    ## _add_ufunc_test_arb_interval(func)
+for func in [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, np.abs]:
+    _add_ufunc_test_arb_interval(func)
     
 #------------------------------------------------------------------------------    
 # Test the restrict operator
