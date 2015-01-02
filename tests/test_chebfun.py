@@ -643,12 +643,12 @@ def _add_ufunc_test_arb_interval(ufunc):
 # Test the restrict operator
 #------------------------------------------------------------------------------
 
-def _add_test_restrict_method(dom_ind):
+def _add_test_restrict_method(domain, index):
     def test_func(self):    
-        ff = self.ff.restrict(domains[dom_ind])      
-        xx = map_ui_ab(xs,domains[dom_ind][0],domains[dom_ind][1])
-        assert_close(f,ff,xx)    
-    test_name = 'test_restrict_method_dom{}'.format(dom_ind)
+        ff = self.ff.restrict(domain)      
+        xx = map_ui_ab(xs, domain[0],domain[1])
+        assert_close(f, ff, xx)    
+    test_name = 'test_restrict_method_dom{}'.format(index)
     test_func.__name__ = test_name
     setattr(TestRestrict, test_name, test_func)    
 
@@ -657,8 +657,8 @@ class TestRestrict(unittest.TestCase):
     def setUp(self):
         self.ff = Chebfun.from_function(f,[-3,4])
 
-## for dom_ind in dom_inds:
-## 	_add_test_restrict_method(dom_ind)
+for index, domain in enumerate(IntervalTestData.domains):
+    _add_test_restrict_method(domain, index)
 
 # class Test_2D(Test_Chebfun):
 # 	def setUp(self):

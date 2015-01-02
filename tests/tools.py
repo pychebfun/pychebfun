@@ -40,7 +40,7 @@ def fd(x):
     """
     return 6*np.cos(6*x) + np.cos(30*np.exp(x))*30*np.exp(x)
 
-class _TestData(object):
+class IntervalTestData(object):
     functions = [f]
     first_derivs = [fd]
 
@@ -120,4 +120,4 @@ class _TestData(object):
         ]
     ]
 
-interval_test_data = [{"function": func, "function_d": func_d, "domains":[{"domain": domain, "integral":integral, "roots":roots} for (domain,integral,roots) in zip(_TestData.domains, fints, froots)]} for (func, func_d, fints, froots) in zip(_TestData.functions, _TestData.first_derivs, _TestData.integrals, _TestData.roots)]
+interval_test_data = [{"function": func, "function_d": func_d, "domains":[{"domain": domain, "integral":integral, "roots":roots} for (domain,integral,roots) in zip(IntervalTestData.domains, fints, froots)]} for (func, func_d, fints, froots) in zip(IntervalTestData.functions, IntervalTestData.first_derivs, IntervalTestData.integrals, IntervalTestData.roots)]
