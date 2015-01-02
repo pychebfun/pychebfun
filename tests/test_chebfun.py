@@ -571,63 +571,52 @@ class TestVector(unittest.TestCase):
 # Unit test for arbtirary interval Chebfuns
 #------------------------------------------------------------------------------
 
-fun_inds = range(len(functions))
-dom_inds = range(len(domains))
     
-def _add_setUp_method(fun_ind,dom_ind):
-    this_chebfun_name = 'chebfun_fun{}_dom{}'.format(fun_ind,dom_ind)
-    this_chebfun = chebfun(functions[fun_ind],domains[dom_ind])
-    setattr(TestArbIntervals, this_chebfun_name, this_chebfun)
+def _get_chebfun(f, domain):
+    return Chebfun.from_function(f, domain)
 
-def _add_domain_test_method(fun_ind,dom_ind):
-    def test_func(self):
-        this_chebfun_name = 'chebfun_fun{}_dom{}'.format(fun_ind,dom_ind)    
-        this_chebfun = getattr(TestArbIntervals, this_chebfun_name)
-        self.assertEqual(this_chebfun._domain[0],domains[dom_ind][0])
-        self.assertEqual(this_chebfun._domain[1],domains[dom_ind][1])
-    test_name = 'test_domains_fun{}_dom{}'.format(fun_ind,dom_ind)
-    test_func.__name__ = test_name
-    setattr(TestArbIntervals, test_name, test_func)    
+def _get_class_name(template, f, domain_index):
+    return template.format(f.func_name, domain_index)
 
-def _add_evaluation_test_method(fun_ind,dom_ind):
-    def test_func(self):
-        this_chebfun_name = 'chebfun_fun{}_dom{}'.format(fun_ind,dom_ind)    
-        this_chebfun = getattr(TestArbIntervals, this_chebfun_name)    
-        xx = map_ui_ab(xs,domains[dom_ind][0],domains[dom_ind][1])
-        assert_close(this_chebfun,functions[fun_ind],xx)        
-    test_name = 'test_evaluation_fun{}_dom{}'.format(fun_ind,dom_ind)
-    test_func.__name__ = test_name
-    setattr(TestArbIntervals, test_name, test_func)  
+class HarnessArbitraryIntervals(object):
+    """Test the various operations for Chebfun on arbitrary intervals"""
 
-def _add_first_deriv_test_method(fun_ind,dom_ind):
-    def test_func(self):
-        this_chebfun_name = 'chebfun_fun{}_dom{}'.format(fun_ind,dom_ind)    
-        this_chebfun = getattr(TestArbIntervals, this_chebfun_name)    
-        xx = map_ui_ab(xs,domains[dom_ind][0],domains[dom_ind][1])
-        assert_close(this_chebfun.differentiate(),first_derivs[fun_ind],xx)        
-    test_name = 'test_first_deriv_fun{}_dom{}'.format(fun_ind,dom_ind)
-    test_func.__name__ = test_name
-    setattr(TestArbIntervals, test_name, test_func)  
+    def test_domain(self):
+        self.assertEqual(self.chebfun._domain[0],self.domain[0])
+        self.assertEqual(self.chebfun._domain[1],self.domain[1])
 
-def _add_definite_integral_test_method(fun_ind,dom_ind):
-    def test_func(self):
-        this_chebfun_name = 'chebfun_fun{}_dom{}'.format(fun_ind,dom_ind)    
-        this_chebfun = getattr(TestArbIntervals, this_chebfun_name)
-        actual = integrals[fun_ind][dom_ind]
-        self.assertAlmostEqual(this_chebfun.sum(),actual,places=14)
-    test_name = 'test_definite_integral_fun{}_dom{}'.format(fun_ind,dom_ind)
-    test_func.__name__ = test_name
-    setattr(TestArbIntervals, test_name, test_func)  
+    def test_evaluation(self):
+        xx = map_ui_ab(xs, self.domain[0], self.domain[1])
+        assert_close(self.chebfun, self.function, xx)        
 
-def _add_roots_test_method(fun_ind,dom_ind):
-    def test_func(self):
-        this_chebfun_name = 'chebfun_fun{}_dom{}'.format(fun_ind,dom_ind)    
-        this_chebfun = getattr(TestArbIntervals, this_chebfun_name)
-        actual = roots[fun_ind][dom_ind]
-        self.assertAlmostEqual(norm(this_chebfun.roots()-actual),0.,places=12)
-    test_name = 'test_roots_fun{}_dom{}'.format(fun_ind,dom_ind)
-    test_func.__name__ = test_name
-    setattr(TestArbIntervals, test_name, test_func)  
+    def test_first_deriv(self):
+        xx = map_ui_ab(xs, self.domain[0], self.domain[1])
+        assert_close(self.chebfun.differentiate(), self.function_d, xx)        
+
+    def test_definite_integral(self):
+        actual = self.integral
+        self.assertAlmostEqual(self.chebfun.sum(), actual, places=14)
+
+    def test_roots(self):
+        actual = self.roots
+        self.assertAlmostEqual(norm(self.chebfun.roots() - actual), 0., places=12)
+
+def _get_setup(func, func_d, dom_data):
+    def setUp(self):
+        self.function = func
+        self.function_d = func_d
+        self.domain = dom_data["domain"]
+        self.roots = dom_data["roots"]
+        self.integral = dom_data["integral"]
+        self.chebfun = _get_chebfun(self.function, self.domain)
+    return setUp
+
+global_dict = globals()
+for fdata in interval_test_data:
+    for index, dom_data in enumerate(fdata["domains"]):
+        cls_name = _get_class_name("TestArbitraryInterval_{}_{}", fdata["function"], index)
+        global_dict[cls_name] = type(cls_name, (HarnessArbitraryIntervals, unittest.TestCase), {"setUp": _get_setup(fdata["function"], fdata["function_d"], dom_data)})
+
 
 def compare_ufunc_arb_interval(self, ufunc):
     xx = Chebfun.from_function(lambda x: x,[0.25,0.75])
@@ -645,19 +634,10 @@ def _add_ufunc_test_arb_interval(ufunc):
     test_func.__name__ = test_name
     setattr(TestArbIntervals, test_name, test_func)
 
-class TestArbIntervals(unittest.TestCase):
-    """Test the various operations for Chebfun on arbitrary intervals"""
 
-for fun_ind,dom_ind in itertools.product(fun_inds,dom_inds):
-    _add_setUp_method(fun_ind,dom_ind)
-    _add_domain_test_method(fun_ind,dom_ind)
-    _add_evaluation_test_method(fun_ind,dom_ind)
-    _add_first_deriv_test_method(fun_ind,dom_ind)
-    _add_definite_integral_test_method(fun_ind,dom_ind)
-    _add_roots_test_method(fun_ind,dom_ind)
     
-for func in [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, np.abs]:
-    _add_ufunc_test_arb_interval(func)
+## for func in [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, np.abs]:
+    ## _add_ufunc_test_arb_interval(func)
     
 #------------------------------------------------------------------------------    
 # Test the restrict operator
@@ -677,8 +657,8 @@ class TestRestrict(unittest.TestCase):
     def setUp(self):
         self.ff = Chebfun.from_function(f,[-3,4])
 
-for dom_ind in dom_inds:
-    _add_test_restrict_method(dom_ind)
+## for dom_ind in dom_inds:
+## 	_add_test_restrict_method(dom_ind)
 
 # class Test_2D(Test_Chebfun):
 # 	def setUp(self):
