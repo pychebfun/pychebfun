@@ -46,7 +46,7 @@ class TestPlot(unittest.TestCase):
 
     def test_plot_interpolation_points(self):
         plt.clf()
-        self.p.plot()
+        self.p.plot(with_interpolation_points=True)
         a = plt.gca()
         self.assertEqual(len(a.lines),2)
         plt.clf()
