@@ -5,7 +5,6 @@ from __future__ import division
 import os
 import sys
 
-import itertools
 import unittest
 import numpy as np
 import numpy.testing as npt
@@ -17,13 +16,6 @@ np.seterr(all='raise')
 testdir = os.path.dirname(__file__)
 moduledir = os.path.join(testdir, os.path.pardir)
 sys.path.insert(0, moduledir)
-
-def assert_close(c1, c2, xx=xs, *args, **kwargs):
-    """
-    Check that two callable objects are close approximations of one another 
-    by evaluating at a number of points on an interval (default [-1,1]).
-    """
-    npt.assert_allclose(c1(xx), c2(xx), *args, **kwargs)
 
 def segment(x):
     y = np.expand_dims(x, axis=-1)
@@ -567,101 +559,6 @@ class TestVector(unittest.TestCase):
         assert_close(s[1], Chebfun(0.))
         assert_close(s[:], s)
 
-#------------------------------------------------------------------------------    
-# Unit test for arbtirary interval Chebfuns
-#------------------------------------------------------------------------------
-
-    
-def _get_chebfun(f, domain):
-    return Chebfun.from_function(f, domain)
-
-def _get_class_name(template, f, domain_index):
-    return template.format(f.func_name, domain_index)
-
-class HarnessArbitraryIntervals(object):
-    """Test the various operations for Chebfun on arbitrary intervals"""
-
-    def test_domain(self):
-        self.assertEqual(self.chebfun._domain[0],self.domain[0])
-        self.assertEqual(self.chebfun._domain[1],self.domain[1])
-
-    def test_evaluation(self):
-        xx = map_ui_ab(xs, self.domain[0], self.domain[1])
-        assert_close(self.chebfun, self.function, xx)        
-
-    def test_first_deriv(self):
-        xx = map_ui_ab(xs, self.domain[0], self.domain[1])
-        assert_close(self.chebfun.differentiate(), self.function_d, xx)        
-
-    def test_definite_integral(self):
-        actual = self.integral
-        self.assertAlmostEqual(self.chebfun.sum(), actual, places=14)
-
-    def test_roots(self):
-        actual = self.roots
-        self.assertAlmostEqual(norm(self.chebfun.roots() - actual), 0., places=12)
-
-def _get_setup(func, func_d, dom_data):
-    def setUp(self):
-        self.function = func
-        self.function_d = func_d
-        self.domain = dom_data["domain"]
-        self.roots = dom_data["roots"]
-        self.integral = dom_data["integral"]
-        self.chebfun = _get_chebfun(self.function, self.domain)
-    return setUp
-
-global_dict = globals()
-for fdata in interval_test_data:
-    for index, dom_data in enumerate(fdata["domains"]):
-        cls_name = _get_class_name("TestArbitraryInterval_{}_{}", fdata["function"], index)
-        global_dict[cls_name] = type(cls_name, (HarnessArbitraryIntervals, unittest.TestCase), {"setUp": _get_setup(fdata["function"], fdata["function_d"], dom_data)})
-
-
-class TestUfuncIntervals(unittest.TestCase):
-    pass
-
-def compare_ufunc_arb_interval(self, ufunc):
-    xx = Chebfun.from_function(lambda x: x,[0.25,0.75])
-    ff = ufunc(xx)
-    self.assertIsInstance(ff, Chebfun)
-    result = ff.values()
-    expected = ufunc(ff._ui_to_ab(ff.p.xi))
-    npt.assert_allclose(result, expected)
-
-def _add_ufunc_test_arb_interval(ufunc):
-    name = ufunc.__name__
-    def test_func(self):
-        compare_ufunc_arb_interval(self, ufunc)
-    test_name = 'test_non_ui_{}'.format(name)
-    test_func.__name__ = test_name
-    setattr(TestUfuncIntervals, test_name, test_func)
-
-
-    
-for func in [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, np.abs]:
-    _add_ufunc_test_arb_interval(func)
-    
-#------------------------------------------------------------------------------    
-# Test the restrict operator
-#------------------------------------------------------------------------------
-
-def _add_test_restrict_method(domain, index):
-    def test_func(self):    
-        ff = self.ff.restrict(domain)      
-        xx = map_ui_ab(xs, domain[0],domain[1])
-        assert_close(f, ff, xx)    
-    test_name = 'test_restrict_method_dom{}'.format(index)
-    test_func.__name__ = test_name
-    setattr(TestRestrict, test_name, test_func)    
-
-class TestRestrict(unittest.TestCase):
-    """Test the restrict operator"""
-    def setUp(self):
-        self.ff = Chebfun.from_function(f,[-3,4])
-
-for index, domain in enumerate(IntervalTestData.domains):
-    _add_test_restrict_method(domain, index)
 
 # class Test_2D(Test_Chebfun):
 # 	def setUp(self):
