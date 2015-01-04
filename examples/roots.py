@@ -18,5 +18,4 @@ plot(x,f(x), linewidth=3,label="$f(x)$")
 plot(r,f(r),'k.', markersize=10, label="Roots of $f$")
 
 legend()
-show()
 

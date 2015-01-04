@@ -19,5 +19,4 @@ for p in ps:
     p.plot(linewidth=3, label=label)
 
 legend()
-show()
 
