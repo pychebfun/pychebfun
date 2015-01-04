@@ -272,14 +272,15 @@ class TestSimple(unittest.TestCase):
         p = Chebfun.from_function(Zero)
         self.assertEqual(p.size(),1) # should be equal to the minimum length, 1
 
-#    def test_repr(self):
-#        """
-#        Repr shows the interpolation values.
-#        """
-#        p = Chebfun.basis(1)
-#        s = repr(p)
-#        expected = '<Chebfun(array([ 1., -1.]))>'
-#        self.assertEqual(s, expected)
+    def test_repr(self):
+        """
+        Repr shows the interpolation values.
+        """
+        self.skipTest('Representation changed to include domain information')
+        p = Chebfun.basis(1)
+        s = repr(p)
+        expected = '<Chebfun(array([ 1., -1.]))>'
+        self.assertEqual(s, expected)
 
     def test_root(self):
         r = np.random.rand()
