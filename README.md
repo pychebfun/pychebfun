@@ -1,5 +1,7 @@
 # pychebfun - Python Chebyshev Functions
 
+[![Build Status](https://travis-ci.org/olivierverdier/pychebfun.svg?branch=master)](https://travis-ci.org/olivierverdier/pychebfun)
+
 ## About
 
 The Chebfun system is designed to perform fast and accurate functional computations. The system incorporates the use of Chebyshev polynomial expansions, Lagrange interpolation with the barycentric formula, and Clenshaw-Curtis quadrature to perform fast functional evaluation, integration, root-finding, and other operations.
