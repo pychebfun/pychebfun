@@ -77,10 +77,10 @@ c.plot()
 If you are interested in experimenting with the innards of chebfun, you should be aware of the following functions:
 ```python
 Chebfun.basis(10) # Chebyshev polynomial of degree 10
-Chebfun.from_chebcoeff([0.,1,2]) # Chebfun with prescribed chebcoeffs
-interpolation_points(10) # 10 Chebyshev interpolation points in [-1, 1]
-chebpolyfit([1.,2]) # compute Chebyshev coefficients given values at Chebyshev points
-chebpolyval([1., 2.]) # compute values at Chebyshev points given Chebyshev coefficients
+Chebfun.from_coeff([0.,1,2]) # Chebfun with prescribed chebcoeffs
+Chebfun.interpolation_points(10) # 10 Chebyshev interpolation points in [-1, 1]
+Chebfun.polyfit([1.,2]) # compute Chebyshev coefficients given values at Chebyshev points
+Chebfun.polyval([1., 2.]) # compute values at Chebyshev points given Chebyshev coefficients
 ```
 
 You should also take a look at the [examples][4] bundled with this project.
