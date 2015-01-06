@@ -394,12 +394,11 @@ class Polyfun(object):
             dim = shape[1]
         return dim, dof
 
-    def plot_data(self):
+    def plot_data(self, resolution):
         """
         Plot data depending on the dimension of the fun.
         """
-        a, b = self.domain()
-        ts = np.linspace(a, b, self.plot_res)
+        ts = get_linspace(self.domain(), resolution)
         values = self(ts)
         dim, dof = self.dimension_info()
         if 1 == dim and 1 == dof: # 1D real
@@ -409,26 +408,26 @@ class Polyfun(object):
             yi = self.values()
             d = 1
         elif 2 == dim and 1 == dof: # 2D real
-            xs = values[:, 0]
-            ys = values[:, 1]
-            xi = self.values()[:, 0]
-            yi = self.values()[:, 1]
+            xf = lambda v: v[:,0]
+            yf = lambda v: v[:,1]
             d = 2
         elif 1 == dim and 2 == dof: # 1D complex
-            xs = np.real(values)
-            ys = np.imag(values)
-            xi = np.real(self.values())
-            yi = np.imag(self.values())
+            xf = np.real
+            yf = np.imag
             d = 2
         else:
             raise ValueError("Too many dimensions to plot")
+        if 2 == d:
+            xs, ys = xf(values), yf(values)
+            xi, yi = xf(self.values()), yf(self.values())
         return xs, ys, xi, yi, d
+
 
     def plot(self, with_interpolation_points=False, *args, **kwargs):
         """
         Plot the fun with the additional arguments args, kwargs.
         """
-        xs, ys, xi, yi, d = self.plot_data()
+        xs, ys, xi, yi, d = self.plot_data(self.plot_res)
         axis = plt.gca()
         axis.plot(xs, ys, *args, **kwargs)
         if with_interpolation_points:
@@ -719,6 +718,13 @@ def dct(data):
     else:
         data = fftdata
     return data
+
+def get_linspace(domain, resolution):
+    """
+    Get a sample of points in the domain with the given resolution.
+    """
+    a, b = domain
+    return np.linspace(a, b, resolution)
 
 # ----------------------------------------------------------------
 # Add overloaded operators
