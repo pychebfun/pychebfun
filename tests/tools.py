@@ -37,8 +37,8 @@ def One(x):
 def Zero(x):
     return np.zeros_like(x, dtype=float)
 
-def circle(x):
-    return np.array([np.cos(np.pi*x), np.sin(np.pi*x)],).T
+def circle(x, period=2):
+    return np.array([np.cos(2*np.pi/period*x), np.sin(2*np.pi/period*x)],).T
 
 def f(x):
     return np.sin(6*x) + np.sin(30*np.exp(x))

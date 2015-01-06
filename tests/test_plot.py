@@ -40,19 +40,24 @@ class TestPlot(unittest.TestCase):
         self.p.chebcoeffplot()
 
     def test_plot_circle(self):
-        c = Chebfun.from_function(circle)
+        T = .5
+        def cirper(x):
+            return circle(x, period=T)
+        c = Chebfun.from_function(cirper, domain=[0,T])
         xs,ys,xi,yi,d = c.plot_data()
         self.assertEqual(d, 2,)
-        dist = np.square(xs) + np.square(ys)
-        npt.assert_allclose(dist, 1, err_msg="The plot should be a circle")
+        for X,Y in [(xs,ys), (xi,yi)]:
+            dist = np.square(X) + np.square(Y)
+            npt.assert_allclose(dist, 1, err_msg="The plot should be a circle")
         c.plot()
 
     def test_plot_complex(self):
-        c = np.exp(1j*np.pi*Chebfun.identity())
+        c = np.exp(1j*Chebfun.identity(domain=[-np.pi,np.pi]))
         xs,ys,xi,yi,d = c.plot_data()
         self.assertEqual(d, 2, "dimension is two for complex chebfun")
-        dist = np.square(xs) + np.square(ys)
-        npt.assert_allclose(dist, 1, err_msg="The plot should be a circle")
+        for X,Y in [(xs,ys), (xi,yi)]:
+            dist = np.square(X) + np.square(Y)
+            npt.assert_allclose(dist, 1, err_msg="The plot should be a circle")
         c.plot()
 
     def test_error(self):

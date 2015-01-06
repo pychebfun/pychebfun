@@ -411,13 +411,13 @@ class Polyfun(object):
         elif 2 == dim and 1 == dof: # 2D real
             xs = values[:, 0]
             ys = values[:, 1]
-            xi = self._ui_to_ab(self.values()[:, 0])
+            xi = self.values()[:, 0]
             yi = self.values()[:, 1]
             d = 2
         elif 1 == dim and 2 == dof: # 1D complex
             xs = np.real(values)
             ys = np.imag(values)
-            xi = self._ui_to_ab(np.real(self.values()))
+            xi = np.real(self.values())
             yi = np.imag(self.values())
             d = 2
         else:
