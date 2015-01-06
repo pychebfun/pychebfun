@@ -40,7 +40,7 @@ class HarnessArbitraryIntervals(object):
 
     def test_roots(self):
         actual = self.roots
-        self.assertAlmostEqual(norm(self.chebfun.roots() - actual), 0., places=12)
+        self.assertAlmostEqual(norm(np.sort(self.chebfun.roots()) - actual), 0., places=12)
 
 def _get_setup(func, func_d, dom_data):
     def setUp(self):

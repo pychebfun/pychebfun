@@ -579,10 +579,11 @@ class Chebfun(Polyfun):
             C2[-1,:] = ak[:-1]
             C = C1 - .5/ak[-1] * C2
             eigenvalues = linalg.eigvals(C) 
-            return np.sort(self._ui_to_ab(np.array([
-                root.real for root in eigenvalues
-                    if np.allclose(root.imag,0,atol=1e-10) 
-                        and np.abs(root.real) <=1])))     
+            roots = [eig.real for eig in eigenvalues
+                    if np.allclose(eig.imag,0,atol=1e-10) 
+                        and np.abs(eig.real) <=1]
+            scaled_roots = self._ui_to_ab(np.array(roots))
+            return scaled_roots
         else:
             # divide at a close-to-zero split-point
             split_point = self._ui_to_ab(0.0123456789)     
