@@ -403,9 +403,13 @@ class Test_Misc(unittest.TestCase):
         data = np.array([-1, 1.])
         c = Chebfun(data)
 
-    def test_scalar_init(self):
+    def test_scalar_init_zero(self):
         c = Chebfun(0.)
         npt.assert_allclose(c(xs), 0.)
+
+    def test_scalar_init_one(self):
+        one = Chebfun(1.)
+        npt.assert_array_almost_equal(one(xs), 1.)
 
     def test_empty_init(self):
         c = Chebfun()
@@ -447,10 +451,6 @@ class Test_Misc(unittest.TestCase):
     def test_list_init(self):
         c = Chebfun([1.])
         npt.assert_array_almost_equal(c.coefficients(),np.array([1.]))
-
-    def test_scalar_init(self):
-        one = Chebfun(1.)
-        npt.assert_array_almost_equal(one(xs), 1.)
 
     def test_no_convergence(self):
         with self.assertRaises(Chebfun.NoConvergence):
