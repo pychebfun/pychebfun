@@ -427,9 +427,9 @@ class Test_Misc(unittest.TestCase):
 
     def test_has_p(self):
         c1 = Chebfun.from_function(f, N=10)
-        c1.p
+        self.assertTrue(hasattr(c1, 'p'))
         c2 = Chebfun.from_function(f, )
-        c2.p
+        self.assertTrue(hasattr(c2, 'p'))
 
     def test_truncate(self, N=17):
         """
@@ -535,7 +535,8 @@ class Test_Arithmetic(unittest.TestCase):
         def f(x):
             return np.sin(x)
         c = Chebfun.from_function(f)
-        c + f
+        result = c + f
+        self.assertIsInstance(result, Chebfun)
 
 class TestVector(unittest.TestCase):
     """
