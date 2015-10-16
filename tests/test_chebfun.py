@@ -10,7 +10,7 @@ import numpy as np
 import numpy.testing as npt
 
 from pychebfun import *
-from tools import *
+from .tools import *
 
 np.seterr(all='raise')
 testdir = os.path.dirname(__file__)
@@ -333,7 +333,7 @@ class TestEven(unittest.TestCase):
     def test_scalar(self):
         data = np.arange(5) # [0, 1, 2, 3, 4]
         result = even_data(data)
-        expected = np.array(range(5) + range(1,4)[::-1]) # [0, 1, 2, 3, 4, 3, 2, 1]
+        expected = np.array(list(range(5)) + list(range(1,4))[::-1]) # [0, 1, 2, 3, 4, 3, 2, 1]
         npt.assert_array_almost_equal(result, expected)
 
     def test_vector(self):

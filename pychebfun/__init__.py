@@ -9,5 +9,5 @@ See the webpage for more information and documentation:
 __version__ = "0.2"
 
 
-from plotting import *
-from chebfun import *
+from .plotting import *
+from .chebfun import *

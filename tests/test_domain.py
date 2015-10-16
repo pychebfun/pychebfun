@@ -4,7 +4,7 @@ from __future__ import division
 
 from pychebfun import *
 import unittest
-from tools import *
+from .tools import *
 import numpy as np
 import numpy.testing as npt
 
@@ -17,7 +17,7 @@ def _get_chebfun(f, domain):
     return Chebfun.from_function(f, domain)
 
 def _get_class_name(template, f, domain_index):
-    return template.format(f.func_name, domain_index)
+    return template.format(f.__name__, domain_index)
 
 class HarnessArbitraryIntervals(object):
     """Test the various operations for Chebfun on arbitrary intervals"""

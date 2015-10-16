@@ -17,7 +17,9 @@ def _get_test(file_name):
         """
         Check that the examples can be executed.
         """
-        execfile(file_name, {})
+        with open(file_name) as f:
+            code = compile(f.read(), file_name, 'exec')
+            exec(code, {})
     return test_run
 
 here = os.path.dirname(__file__)

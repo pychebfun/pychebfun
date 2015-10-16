@@ -29,5 +29,5 @@ for f in abses:
     else:
         cs.append(c)
 
-c,f = zip(cs,abses)[3]
+c,f = list(zip(cs,abses))[3]
 c.compare(f)

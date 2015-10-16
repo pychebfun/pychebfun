@@ -10,9 +10,9 @@ x = linspace(-1,1,5000)
 p = chebfun(f)
 r = p.roots()
 
-print "Roots (Chebfun):", r
-print "f(r) =", f(r)
-print "p(r) =", p(r)
+print("Roots (Chebfun):", r)
+print("f(r) =", f(r))
+print("p(r) =", p(r))
 
 plot(x,f(x), linewidth=3,label="$f(x)$")
 plot(r,f(r),'k.', markersize=10, label="Roots of $f$")

@@ -106,7 +106,7 @@ class Polyfun(object):
         raise_no_convergence: whether to raise an exception if the dichotomy does not converge
         """
 
-        for k in xrange(kmin, kmax):
+        for k in range(kmin, kmax):
             N = pow(2, k)
 
             sampled = self.sample_function(f, N)
@@ -236,11 +236,13 @@ class Polyfun(object):
         """
         return self.from_data(self.values().T[s].T)
 
-    def __nonzero__(self):
+    def __bool__(self):
         """
         Test for difference from zero (up to tolerance)
         """
         return not np.allclose(self.values(), 0)
+
+    __nonzero__ = __bool__
 
     def __eq__(self, other):
         return not(self - other)
@@ -737,15 +739,15 @@ def _add_operator(cls, op):
         return self.from_function(
             lambda x: op(self(x).T, other(x).T).T, domain=self.domain(),)
     cast_method = cast_scalar(method)
-    name = op.__name__
+    name = '__'+op.__name__+'__'
     cast_method.__name__ = name
     cast_method.__doc__ = "operator {}".format(name)
     setattr(cls, name, cast_method)
 
-def __rdiv__(a, b):
+def rdiv(a, b):
     return b/a
 
-for _op in [operator.__mul__, operator.__div__, operator.__pow__, __rdiv__]:
+for _op in [operator.mul, operator.truediv, operator.pow, rdiv]:
     _add_operator(Polyfun, _op)
 
 # ----------------------------------------------------------------

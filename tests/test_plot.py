@@ -10,7 +10,7 @@ import numpy.testing as npt
 
 import unittest
 
-from tools import *
+from .tools import *
 
 plot_res = 200
 
