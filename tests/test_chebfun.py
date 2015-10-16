@@ -567,18 +567,3 @@ class TestVector(unittest.TestCase):
 # 		Chebfun.record = True
 # 		self.p = Chebfun(segment,)
 
-if __name__ == "__main__":
-
-    import nose
-    from cStringIO import StringIO    
-    
-    module_name = sys.modules[__name__].__file__
-
-    old_stdout = sys.stdout
-    sys.stdout = mystdout = StringIO()
-    result = nose.run(argv=[sys.argv[0],
-                            module_name,
-                            '--verbosity=2'])
-    sys.stdout = old_stdout
-#    print mystdout.getvalue()
-    
