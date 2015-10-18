@@ -1,6 +1,7 @@
 # pychebfun - Python Chebyshev Functions
 
-[![Build Status](https://img.shields.io/travis/olivierverdier/pychebfun/master.svg)](https://travis-ci.org/olivierverdier/pychebfun) [![Coverage Status](https://img.shields.io/coveralls/olivierverdier/pychebfun/master.svg)](https://coveralls.io/r/olivierverdier/pychebfun?branch=master)
+[![Build Status](https://img.shields.io/travis/olivierverdier/pychebfun/master.svg?style=flat-square)](https://travis-ci.org/olivierverdier/pychebfun)
+[![Coverage Status](https://img.shields.io/coveralls/olivierverdier/pychebfun/master.svg?style=flat-square)](https://coveralls.io/r/olivierverdier/pychebfun?branch=master)
 
 ## About
 
