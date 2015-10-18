@@ -2,6 +2,7 @@
 
 [![Build Status](https://img.shields.io/travis/olivierverdier/pychebfun/master.svg?style=flat-square)](https://travis-ci.org/olivierverdier/pychebfun)
 [![Coverage Status](https://img.shields.io/coveralls/olivierverdier/pychebfun/master.svg?style=flat-square)](https://coveralls.io/r/olivierverdier/pychebfun?branch=master)
+![Python version](https://img.shields.io/badge/python-2.7, 3.4-blue.svg?style=flat-square)
 
 ## About
 
