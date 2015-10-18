@@ -6,7 +6,7 @@
 
 ## About
 
-The Chebfun system is designed to perform fast and accurate functional computations. The system incorporates the use of Chebyshev polynomial expansions, Lagrange interpolation with the barycentric formula, and Clenshaw-Curtis quadrature to perform fast functional evaluation, integration, root-finding, and other operations.
+The Chebfun system is designed to perform fast and accurate functional computations. The system incorporates the use of Chebyshev polynomial expansions, Lagrange interpolation with the barycentric formula, and Clenshaw–Curtis quadrature to perform fast functional evaluation, integration, root-finding, and other operations.
 
 To learn about pychebfun you may read on, or have a look at the [IPython notebook illustrating the original paper by Battles and Trefethen](BattlesTrefethen.ipynb).
 
