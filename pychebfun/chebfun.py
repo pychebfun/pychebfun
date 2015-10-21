@@ -82,7 +82,7 @@ class Chebfun(Polyfun):
         coeffs = self.coefficients()
         a,b = self.domain()
         int_coeffs = 0.5*(b-a)*poly.chebyshev.chebint(coeffs)
-        antiderivative = self.from_coeff(int_coeffs,domain=self.domain())
+        antiderivative = self.from_coeff(int_coeffs, domain=self.domain())
         return antiderivative - antiderivative(a)
 
     def differentiate(self, n=1):
@@ -93,7 +93,7 @@ class Chebfun(Polyfun):
         a_, b_ = self.domain()
         for _ in range(n):
             ak = self.differentiator(ak)
-        return self.from_coeff((2./(b_-a_))**n*ak,domain=self.domain())
+        return self.from_coeff((2./(b_-a_))**n*ak, domain=self.domain())
 
     # ----------------------------------------------------------------
     # Roots
@@ -269,9 +269,9 @@ def dct(data):
 def _add_operator(cls, op):
     def method(self, other):
         if not self.same_domain(other):
-            raise self.DomainMismatch(self.domain(),other.domain())
+            raise self.DomainMismatch(self.domain(), other.domain())
         return self.from_function(
-            lambda x: op(self(x).T, other(x).T).T, domain=self.domain(),)
+            lambda x: op(self(x).T, other(x).T).T, domain=self.domain(), )
     cast_method = cast_scalar(method)
     name = '__'+op.__name__+'__'
     cast_method.__name__ = name
@@ -322,7 +322,7 @@ def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
 
     # Chebyshev coefficients
     if chebcoeff is not None:
-        return Chebfun.from_coeff(chebcoeff,domain)
+        return Chebfun.from_coeff(chebcoeff, domain)
 
     # another instance
     if isinstance(f, Polyfun):
@@ -341,6 +341,6 @@ def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
     except TypeError:
         pass
     else:
-        return Chebfun(f,domain)
+        return Chebfun(f, domain)
 
     raise TypeError('Impossible to initialise the object from an object of type {}'.format(type(f)))
