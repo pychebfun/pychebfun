@@ -117,12 +117,15 @@ def plot_data(poly, resolution):
     return xs, ys, xi, yi, d
 
 
-def plot(poly, with_interpolation_points=False, *args, **kwargs):
+def plot(poly, ax=None, with_interpolation_points=False, *args, **kwargs):
     """
     Plot the fun with the additional arguments args, kwargs.
     """
     xs, ys, xi, yi, d = plot_data(poly, plot_res)
-    axis = plt.gca()
+    if ax is None:
+        axis = plt.gca()
+    else:
+        axis = ax
     axis.plot(xs, ys, *args, **kwargs)
     if with_interpolation_points:
         current_color = axis.lines[-1].get_color() # figure out current colour

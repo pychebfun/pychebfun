@@ -70,4 +70,12 @@ class TestPlot(unittest.TestCase):
     def test_error(self):
         chebpolyplot(self.p)
 
-
+    def test_ax_arg(self):
+        plt.clf()
+        lw = 2
+        ff = self.p
+        gg = self.p + 1
+        hh = self.p - 1
+        ax = plot(ff, color="k", linestyle="-", linewidth=lw)
+        plot(gg, ax=ax, color="r", linestyle="--", linewidth=lw)
+        plot(hh, ax=ax, color="r", linestyle="--", linewidth=lw)
