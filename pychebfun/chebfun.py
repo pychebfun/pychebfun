@@ -108,10 +108,13 @@ class Chebfun(Polyfun):
 
         See:
         J. P. Boyd, Computing zeros on a real interval through Chebyshev
-        expansion and polynomial rootfinding, SIAM J. Numer. Anal., 40 (2002),
-        pp. 1666–1682.
+        expansion and polynomial rootfinding, SIAM J. Numer. Anal., 40
+        (2002), pp. 1666–1682.
         """
-        if self.size() <= 100:
+        if self.size() == 1:
+            return np.array([])
+
+        elif self.size() <= 100:
             ak = self.coefficients()
             v = np.zeros_like(ak[:-1])
             v[1] = 0.5

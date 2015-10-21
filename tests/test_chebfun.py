@@ -583,6 +583,20 @@ class TestVector(unittest.TestCase):
         tools.assert_close(s[1], Chebfun(0.))
         tools.assert_close(s[:], s)
 
+from .data import flat_chebfun_vals
+
+class TestRoots(unittest.TestCase):
+    """
+    General root-finding tests.
+    """
+
+    def test_roots_of_flat_function(self):
+        """
+        Check roots() does not fail for extremely flat Chebfuns such
+        as those representing cumulative distribution funcitons.
+        """
+        cdf = Chebfun.from_data(flat_chebfun_vals, domain=[-0.7, 0.7])
+        npt.assert_allclose((cdf-0.05).roots(), 0.1751682246791747)
 
 # class Test_2D(Test_Chebfun):
 # 	def setUp(self):
