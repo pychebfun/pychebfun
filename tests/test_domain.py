@@ -19,6 +19,14 @@ def _get_chebfun(f, domain):
 def _get_class_name(template, f, domain_index):
     return template.format(f.__name__, domain_index)
 
+class TestDomain(unittest.TestCase):
+    def test_mismatch(self):
+        c1 = Chebfun.identity()
+        c2 = Chebfun.from_function(lambda x:x, domain=[2,3])
+        for op in [operator.add, operator.sub, operator.mul, operator.truediv]:
+            with self.assertRaises(Chebfun.DomainMismatch):
+                op(c1, c2)
+
 class HarnessArbitraryIntervals(object):
     """Test the various operations for Chebfun on arbitrary intervals"""
 
