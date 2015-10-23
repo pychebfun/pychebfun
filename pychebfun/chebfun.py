@@ -247,7 +247,7 @@ class Polyfun(object):
     def __eq__(self, other):
         return not(self - other)
 
-    def __neq__(self, other):
+    def __ne__(self, other):
         return not (self == other)
 
     @cast_scalar
@@ -291,9 +291,6 @@ class Polyfun(object):
 
     def __rmul__(self, other):
         return self.__mul__(other)
-
-    def __truediv__(self, other):
-        return self.__div__(other)
 
     def __rtruediv__(self, other):
         return self.__rdiv__(other)

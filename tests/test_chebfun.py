@@ -567,6 +567,10 @@ class Test_Arithmetic(unittest.TestCase):
         result = c + f
         self.assertIsInstance(result, Chebfun)
 
+    def test_equal(self):
+        self.assertEqual(self.p1, self.p1)
+        self.assertNotEqual(self.p1, self.p2)
+
 class TestVector(unittest.TestCase):
     """
     Tests for the vector chebfuns.
