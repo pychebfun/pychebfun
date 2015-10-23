@@ -369,12 +369,20 @@ class TestInitialise(unittest.TestCase):
         """
         c = Chebfun.from_coeff([1.,2.])
 
-    def test_prune(self):
+    def test_cutoff(self):
         """
         Prune works even if the coefficient is zero
         """
         N = Chebfun._cutoff(np.array([0.]), vscale=1)
         self.assertEqual(N, 1)
+
+    def test_prune(self):
+        N = 10
+        coeffs = np.array([1.]+N*[0])
+        c0 = Chebfun.from_coeff(coeffs)
+        npt.assert_allclose(c0.coefficients(), [1.])
+        c1 = Chebfun.from_coeff(coeffs, prune=False)
+        npt.assert_allclose(c1.coefficients(), coeffs)
 
 def compare_ufunc(self, ufunc):
     # transformation from [-1, 1] to [1/4, 3/4]
