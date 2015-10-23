@@ -75,6 +75,12 @@ class Test_chebfuninit(unittest.TestCase):
         ce = Chebfun.from_data(values)
         assert_close(cr, ce)
 
+    def test_from_scalar(self):
+        val = np.random.rand()
+        cr = chebfun(val)
+        ce = Chebfun.from_data([val])
+        assert_close(cr, ce)
+
     def test_error(self):
         """
         Error if chebfun is called with another type.
