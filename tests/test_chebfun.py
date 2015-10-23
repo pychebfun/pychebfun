@@ -534,6 +534,10 @@ class Test_Arithmetic(unittest.TestCase):
         self.assertEqual(self.p1*1, self.p1)
         self.assertEqual(0*self.p1, Chebfun.from_function(Zero))
 
+    def test_scalar(self):
+        self.assertEqual(-self.p1, 0 - self.p1)
+        self.assertEqual((1 - self.p1) - 1, -self.p1)
+
     def test_commutativity(self):
         self.assertEqual(self.p1*self.p2, self.p2*self.p1)
         self.assertEqual(self.p1+self.p2, self.p2+self.p1)
