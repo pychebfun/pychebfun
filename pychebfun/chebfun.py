@@ -755,12 +755,8 @@ for _op in [operator.mul, operator.truediv, operator.pow, rdiv]:
 # ----------------------------------------------------------------
 
 def _add_delegate(ufunc, nonlinear=True):
-    if nonlinear:
-        def method(self):
-            return self.from_function(lambda x: ufunc(self(x)), domain=self.domain())
-    else:
-        def method(self):
-            return self.from_data(ufunc(self.values()))
+    def method(self):
+        return self.from_function(lambda x: ufunc(self(x)), domain=self.domain())
     name = ufunc.__name__
     method.__name__ = name
     method.__doc__ = "delegate for numpy's ufunc {}".format(name)
@@ -770,8 +766,6 @@ def _add_delegate(ufunc, nonlinear=True):
 # https://github.com/numpy/numpy/blob/master/numpy/core/code_generators/generate_umath.py
 for func in [np.arccos, np.arccosh, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, ]:
     _add_delegate(func)
-for func in [np.real, np.imag]:
-    _add_delegate(func, nonlinear=False)
 
 
 # ----------------------------------------------------------------

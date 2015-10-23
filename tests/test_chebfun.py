@@ -393,6 +393,17 @@ class TestUfunc(unittest.TestCase):
     arccosh is not tested
     """
 
+    @unittest.skip("real and imag do not work on chebfuns yet")
+    def test_real_imag(self):
+        datar = np.random.rand(10)
+        datai = np.random.rand(10)
+        cc = Chebfun.from_data(datar + 1j*datai)
+        cr = Chebfun.from_data(datar)
+        ci = Chebfun.from_data(datai)
+        assert_close(np.real(cc), cr)
+        assert_close(np.imag(cc), ci)
+
+
 def _add_ufunc_test(ufunc):
     name = ufunc.__name__
     def test_func(self):
