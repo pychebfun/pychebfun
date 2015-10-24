@@ -353,12 +353,8 @@ class Polyfun(object):
         """
         Return a Polyfun that matches self on subinterval.
         """
-        if ( len(subinterval) != 2 ) or ( subinterval[0] >= subinterval[1] ):
-            raise ValueError(subinterval)
-        if subinterval[0] < self._domain[0]:
-            raise ValueError(subinterval[0],self._domain[0])
-        if subinterval[1] > self._domain[1]:
-            raise ValueError(subinterval[1],self._domain[1]) 
+        if (subinterval[0] < self._domain[0]) or (subinterval[1] > self._domain[1]):
+            raise ValueError("Can only restrict to subinterval") 
         return self.from_function(self, subinterval)
 
 

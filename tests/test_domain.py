@@ -27,6 +27,13 @@ class TestDomain(unittest.TestCase):
             with self.assertRaises(Chebfun.DomainMismatch):
                 op(c1, c2)
 
+    def test_restrict(self):
+        x = Chebfun.identity()
+        with self.assertRaises(ValueError):
+            x.restrict([-2,0])
+        with self.assertRaises(ValueError):
+            x.restrict([0,2])
+
 class HarnessArbitraryIntervals(object):
     """Test the various operations for Chebfun on arbitrary intervals"""
 
