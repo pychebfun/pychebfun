@@ -146,9 +146,6 @@ def chebcoeffplot(self, *args, **kwds):
 
     return ax
 
-def plot_interpolation_points(self, *args, **kwargs):
-    plt.plot(self._ui_to_ab(self.p.xi), self.values(), *args, **kwargs)
-
 def compare(self, f, *args, **kwds):
     """
     Plots the original function against its fun interpolant.
