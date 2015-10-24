@@ -6,6 +6,7 @@ omit =
 exclude_lines =
     pragma: no cover
     def __repr__
+    def __str__
     raise NotImplementedError
     if __name__ == .__main__.:
     def parse_args
