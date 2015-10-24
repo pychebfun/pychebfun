@@ -262,13 +262,6 @@ def dct(data):
         data = fftdata
     return data
 
-def get_linspace(domain, resolution):
-    """
-    Get a sample of points in the domain with the given resolution.
-    """
-    a, b = domain
-    return np.linspace(a, b, resolution)
-
 # ----------------------------------------------------------------
 # Add overloaded operators
 # ----------------------------------------------------------------

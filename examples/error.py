@@ -10,4 +10,4 @@ x = linspace(-1,1,1000)
 # Constuct the O(dx^-16) "spectrally accurate" chebfun p and compute the error
 # between p and f at each point in the domain
 p   = chebfun(f)
-p.compare(f)
+compare(p, f)

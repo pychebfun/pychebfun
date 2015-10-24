@@ -15,7 +15,7 @@ e = fd.roots()
 ma = e[fdd(e) <= 0]
 mi = e[fdd(e) > 0]
 def plot_all():
-    f.plot(with_interpolation_points=False)
+    plot(f, with_interpolation_points=False)
     plt.plot(r, np.zeros_like(r), linestyle='', marker='o', color='white', markersize=8)
     plt.plot(ma, f(ma), linestyle='', marker='o', color='green', markersize=8)
     plt.plot(mi, f(mi), linestyle='', marker='o', color='red', markersize=8)

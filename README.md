@@ -23,7 +23,7 @@ f = Chebfun.from_function(lambda x:np.tan(x+1/4) + np.cos(10*x**2 + np.exp(np.ex
 f(.5)
 f(np.linspace(-.5, .5, 200))
 # plot it:
-f.plot()
+plot(f)
 ```
 ![Example](https://github.com/pychebfun/pychebfun/raw/master/images/ex1.png)
 
@@ -72,7 +72,7 @@ One can also have vector coefficients:
 def circle(x):
 	return np.array([np.cos(np.pi*x), np.sin(np.pi*x)],).T
 c = Chebfun.from_function(circle)
-c.plot()
+plot(c)
 ```
 ![Example](https://github.com/pychebfun/pychebfun/raw/master/images/circle.png)
 

@@ -30,4 +30,4 @@ for f in abses:
         cs.append(c)
 
 c,f = list(zip(cs,abses))[3]
-c.compare(f)
+compare(c, f)
