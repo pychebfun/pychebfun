@@ -69,11 +69,11 @@ def chebpolyplot(f, Nmax=100, normpts=1000, ord=2, points_only=False):
 
 plot_res = 1000
 
-def dimension_info(self):
+def dimension_info(poly):
     """
     Dimension information of the fun.
     """
-    vals = self.values()
+    vals = poly.values()
     # "local" degree of freedom; whether it is a complex or real fun
     t = vals.dtype.kind
     if t == 'c':
@@ -88,18 +88,18 @@ def dimension_info(self):
         dim = shape[1]
     return dim, dof
 
-def plot_data(self, resolution):
+def plot_data(poly, resolution):
     """
     Plot data depending on the dimension of the fun.
     """
-    ts = get_linspace(self.domain(), resolution)
-    values = self(ts)
-    dim, dof = dimension_info(self)
+    ts = get_linspace(poly.domain(), resolution)
+    values = poly(ts)
+    dim, dof = dimension_info(poly)
     if 1 == dim and 1 == dof: # 1D real
         xs = ts
         ys = values
-        xi = self._ui_to_ab(self.p.xi)
-        yi = self.values()
+        xi = poly._ui_to_ab(poly.p.xi)
+        yi = poly.values()
         d = 1
     elif 2 == dim and 1 == dof: # 2D real
         xf = lambda v: v[:,0]
@@ -113,15 +113,15 @@ def plot_data(self, resolution):
         raise ValueError("Too many dimensions to plot")
     if 2 == d:
         xs, ys = xf(values), yf(values)
-        xi, yi = xf(self.values()), yf(self.values())
+        xi, yi = xf(poly.values()), yf(poly.values())
     return xs, ys, xi, yi, d
 
 
-def plot(self, with_interpolation_points=False, *args, **kwargs):
+def plot(poly, with_interpolation_points=False, *args, **kwargs):
     """
     Plot the fun with the additional arguments args, kwargs.
     """
-    xs, ys, xi, yi, d = plot_data(self, plot_res)
+    xs, ys, xi, yi, d = plot_data(poly, plot_res)
     axis = plt.gca()
     axis.plot(xs, ys, *args, **kwargs)
     if with_interpolation_points:
@@ -132,21 +132,21 @@ def plot(self, with_interpolation_points=False, *args, **kwargs):
         axis.axis('equal')
     return axis
 
-def chebcoeffplot(self, *args, **kwds):
+def chebcoeffplot(poly, *args, **kwds):
     """
     Plot the coefficients.
     """
     fig = plt.figure()
     ax  = fig.add_subplot(111)
 
-    coeffs = self.coefficients()
+    coeffs = poly.coefficients()
     data = np.log10(np.abs(coeffs))
     ax.plot(data, 'r' , *args, **kwds)
     ax.plot(data, 'r.', *args, **kwds)
 
     return ax
 
-def compare(self, f, *args, **kwds):
+def compare(poly, f, *args, **kwds):
     """
     Plots the original function against its fun interpolant.
     
@@ -154,18 +154,18 @@ def compare(self, f, *args, **kwds):
 
         -- f: Python, Numpy, or Sage function
     """
-    a, b = self.domain()
+    a, b = poly.domain()
     x = np.linspace(a, b, 10000)
     fig = plt.figure()
     ax = fig.add_subplot(211)
     
     ax.plot(x, f(x), '#dddddd', linewidth=10, label='Actual', *args, **kwds)
-    label = 'Interpolant (d={0})'.format(self.size())
-    plot(self, color='red', label=label, *args, **kwds)
+    label = 'Interpolant (d={0})'.format(poly.size())
+    plot(poly, color='red', label=label, *args, **kwds)
     ax.legend(loc='best')
 
     ax  = fig.add_subplot(212)
-    ax.plot(x, abs(f(x)-self(x)), 'k')
+    ax.plot(x, abs(f(x)-poly(x)), 'k')
 
     return ax
 
