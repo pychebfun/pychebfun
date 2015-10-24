@@ -62,6 +62,11 @@ class TestPlot(unittest.TestCase):
             npt.assert_allclose(dist, 1, err_msg="The plot should be a circle")
         plot(c)
 
+    def test_too_many_dimensions(self):
+        c = Chebfun.from_data(np.random.random_sample([3,4]))
+        with self.assertRaises(ValueError):
+            plot(c)
+
     def test_error(self):
         chebpolyplot(self.p)
 
