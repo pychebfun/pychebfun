@@ -4,13 +4,11 @@ from __future__ import division
 
 
 import numpy as np
-from scipy import linalg  
-import matplotlib.pyplot as plt
 
 import sys
+emach = sys.float_info.epsilon                        # machine epsilon
+
 from functools import wraps
-
-
 
 def cast_scalar(method):
     """
@@ -23,7 +21,6 @@ def cast_scalar(method):
         return method(self, other)
     return new_method
 
-emach     = sys.float_info.epsilon                        # machine epsilon
 
 
 

@@ -15,7 +15,7 @@ from __future__ import division
 import operator
 
 import numpy as np
-from scipy import linalg  
+from scipy import linalg
 
 from scipy.interpolate import BarycentricInterpolator as Bary
 import numpy.polynomial as poly
