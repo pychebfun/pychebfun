@@ -55,7 +55,7 @@ f.roots() # all the roots of f on [-1, 1]
 One can compute the integral of f:
 ```python
 f.sum() # integral of f from -1 to 1
-dot(f,g) # integral of f.g from -1 to 1
+f.dot(g) # integral of f.g from -1 to 1
 ```
 
 An arbitrary function can be differentiated and integrated:
