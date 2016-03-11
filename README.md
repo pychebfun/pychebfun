@@ -118,7 +118,7 @@ pychebfun is hosted at http://github.com/pychebfun/pychebfun.
 
 [1]: https://github.com/olivierverdier
 [2]: http://www2.maths.ox.ac.uk/chebfun/
-[3]: mailto:cswiercz@amath.washington.edu
+[3]: https://github.com/cswiercz
 [4]: https://github.com/pychebfun/pychebfun/tree/master/examples
 [5]: https://github.com/pychebfun/pychebfun/tree/master/examples/extrema.py
 
