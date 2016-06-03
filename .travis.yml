@@ -27,12 +27,12 @@ install:
   - pip install .
 
 before_script:
-  - pip install -r test_requirements.txt
+  - pip install coveralls
 
 # Run test
 script:
-  - py.test --cov --cov-report=term-missing --cov-config=.coveragerc
+  - py.test --cov=pychebfun --cov-report=term-missing --cov-config=.coveragerc
 
 # Calculate coverage
 after_success:
-  - coveralls --config_file .coveragerc
+  - coveralls
