@@ -18,8 +18,8 @@ Test the Installation
 
 Go to the `pychebfun` directory and then run::
 
-    $ nosetests tests
+    $ py.test tests
 
-(Make sure that `nose_` is installed, by running `pip install nose` first.)
+(Make sure that `py.test_` is installed, by running `pip install pytest` first.)
 
-.. _nose: http://readthedocs.org/docs/nose/en/latest/
+.. _py.test: http://pytest.org/latest
