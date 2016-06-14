@@ -9,7 +9,7 @@ xs = np.linspace(-1, 1, 1000)
 
 def assert_close(c1, c2, xx=xs, *args, **kwargs):
     """
-    Check that two callable objects are close approximations of one another 
+    Check that two callable objects are close approximations of one another
     by evaluating at a number of points on an interval (default [-1,1]).
     """
     npt.assert_allclose(c1(xx), c2(xx), *args, **kwargs)
@@ -22,11 +22,11 @@ def assert_close(c1, c2, xx=xs, *args, **kwargs):
 norm = np.linalg.norm
 
 
-def map_ab_ui(x, a, b): 
+def map_ab_ui(x, a, b):
     return (2.0*x-a-b)/(b-a)
-    
-def map_ui_ab(t, a, b): 
-    return 0.5*(b-a)*t + 0.5*(a+b) 
+
+def map_ui_ab(t, a, b):
+    return 0.5*(b-a)*t + 0.5*(a+b)
 
 def Identity(x):
     return x
@@ -48,4 +48,3 @@ def fd(x):
     Derivative of f
     """
     return 6*np.cos(6*x) + np.cos(30*np.exp(x))*30*np.exp(x)
-

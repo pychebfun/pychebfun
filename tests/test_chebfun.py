@@ -233,14 +233,14 @@ class TestDifferentiate(unittest.TestCase):
         e = Chebfun.from_function(lambda x:np.exp(x))
         e4 = e.differentiate(4)
         assert_close(e4, e)
-    
+
     def test_integrate(self):
         """
         Integrate exp
         """
         e = Chebfun.from_function(lambda x:np.exp(x))
         antideriv = e.integrate()
-        result = antideriv - antideriv(antideriv._domain[0])    
+        result = antideriv - antideriv(antideriv._domain[0])
         assert_close(result, e - e(antideriv._domain[0]))
 
 
@@ -558,7 +558,7 @@ class Test_Arithmetic(unittest.TestCase):
 
     def test_add_mistype(self):
         """
-        Possible to add a Chebfun and a function 
+        Possible to add a Chebfun and a function
         """
         self.skipTest('not possible to add function and chebfun yet')
         def f(x):
@@ -599,4 +599,3 @@ class TestVector(unittest.TestCase):
 # 	def setUp(self):
 # 		Chebfun.record = True
 # 		self.p = Chebfun(segment,)
-

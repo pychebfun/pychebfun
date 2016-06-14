@@ -8,11 +8,11 @@ from .tools import *
 import numpy as np
 import numpy.testing as npt
 
-#------------------------------------------------------------------------------    
+#------------------------------------------------------------------------------
 # Unit test for arbtirary interval Chebfuns
 #------------------------------------------------------------------------------
 
-    
+
 def _get_chebfun(f, domain):
     return Chebfun.from_function(f, domain)
 
@@ -43,11 +43,11 @@ class HarnessArbitraryIntervals(object):
 
     def test_evaluation(self):
         xx = map_ui_ab(xs, self.domain[0], self.domain[1])
-        assert_close(self.chebfun, self.function, xx)        
+        assert_close(self.chebfun, self.function, xx)
 
     def test_first_deriv(self):
         xx = map_ui_ab(xs, self.domain[0], self.domain[1])
-        assert_close(self.chebfun.differentiate(), self.function_d, xx)        
+        assert_close(self.chebfun.differentiate(), self.function_d, xx)
 
     def test_definite_integral(self):
         actual = self.integral
@@ -89,29 +89,29 @@ def _add_ufunc_test_arb_interval(ufunc):
     setattr(TestUfuncIntervals, test_name, test_func)
 
 
-    
+
 for func in [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, np.abs]:
     _add_ufunc_test_arb_interval(func)
-    
-#------------------------------------------------------------------------------    
+
+#------------------------------------------------------------------------------
 # Test the restrict operator
 #------------------------------------------------------------------------------
 
 def _add_test_restrict_method(domain, index):
-    def test_func(self):    
-        ff = self.ff.restrict(domain)      
+    def test_func(self):
+        ff = self.ff.restrict(domain)
         xx = map_ui_ab(xs, domain[0],domain[1])
-        assert_close(f, ff, xx)    
+        assert_close(f, ff, xx)
     test_name = 'test_restrict_method_dom{}'.format(index)
     test_func.__name__ = test_name
-    setattr(TestRestrict, test_name, test_func)    
+    setattr(TestRestrict, test_name, test_func)
 
 class TestRestrict(unittest.TestCase):
     """Test the restrict operator"""
     def setUp(self):
         self.ff = Chebfun.from_function(f,[-3,4])
 
-#------------------------------------------------------------------------------    
+#------------------------------------------------------------------------------
 # Test data
 #------------------------------------------------------------------------------
 
@@ -145,7 +145,7 @@ class IntervalTestData(object):
                 1.912562771369236, 1.937711007329229, 1.943926743585850,
                 1.966622430081970, 1.974309611716701, 1.994742937003962,
             ]),
-        
+
             np.array([
                 0.038699154393837, 0.170621357069026, 0.196642349303247,
                 0.335710810755860, 0.360022217617733, 0.459687243605995,
@@ -169,22 +169,22 @@ class IntervalTestData(object):
                 1.912562771369236, 1.937711007329229, 1.943926743585850,
                 1.966622430081970, 1.974309611716701, 1.994742937003962,
             ]),
-        
+
             np.array([
                 -0.928510879374692, -0.613329324979852, -0.437747415493617,
-                -0.357059979912156, -0.143371301774133, -0.075365172766102,       
+                -0.357059979912156, -0.143371301774133, -0.075365172766102,
             ]),
-            
+
             np.array([
                 -0.613329324979852, -0.437747415493618, -0.357059979912156,
                 -0.143371301774133, -0.075365172766103,  0.038699154393837,
                  0.170621357069026,  0.196642349303248,  0.335710810755860,
                  0.360022217617734,  0.459687243605995,  0.515107092342894,
             ]),
-            
+
             np.array([
                 -0.928510879374692, -0.613329324979852, -0.437747415493617,
-                -0.357059979912156, -0.143371301774133, -0.075365172766102,       
+                -0.357059979912156, -0.143371301774133, -0.075365172766102,
                  0.038699154393837,  0.170621357069026,  0.196642349303247,
                  0.335710810755860,  0.360022217617733,  0.459687243605995,
                  0.515107092342894,  0.571365105600701,  0.646902333813374,
@@ -197,7 +197,7 @@ class IntervalTestData(object):
 
 interval_test_data = [{"function": func, "function_d": func_d, "domains":[{"domain": domain, "integral":integral, "roots":roots} for (domain,integral,roots) in zip(IntervalTestData.domains, fints, froots)]} for (func, func_d, fints, froots) in zip(IntervalTestData.functions, IntervalTestData.first_derivs, IntervalTestData.integrals, IntervalTestData.roots)]
 
-#------------------------------------------------------------------------------    
+#------------------------------------------------------------------------------
 # Add the arbitrary interval tests
 #------------------------------------------------------------------------------
 
@@ -206,7 +206,7 @@ for fdata in interval_test_data:
     for index, dom_data in enumerate(fdata["domains"]):
         cls_name = _get_class_name("TestArbitraryInterval_{}_{}", fdata["function"], index)
         global_dict[cls_name] = type(cls_name, (HarnessArbitraryIntervals, unittest.TestCase), {"setUp": _get_setup(fdata["function"], fdata["function_d"], dom_data)})
-#------------------------------------------------------------------------------    
+#------------------------------------------------------------------------------
 # Test the restrict operator
 #------------------------------------------------------------------------------
 

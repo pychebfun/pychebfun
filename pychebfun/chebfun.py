@@ -25,8 +25,8 @@ from .polyfun import Polyfun, cast_scalar
 
 class Chebfun(Polyfun):
     """
-    Eventually set this up so that a Chebfun is a collection of Chebfuns. This 
-    will enable piecewise smooth representations al la Matlab Chebfun v2.0.  
+    Eventually set this up so that a Chebfun is a collection of Chebfuns. This
+    will enable piecewise smooth representations al la Matlab Chebfun v2.0.
     """
     # ----------------------------------------------------------------
     # Standard construction class methods.
@@ -76,59 +76,59 @@ class Chebfun(Polyfun):
 
     def integrate(self):
         """
-        Return the object representing the primitive of self over the domain. The 
+        Return the object representing the primitive of self over the domain. The
         output starts at zero on the left-hand side of the domain.
         """
         coeffs = self.coefficients()
         a,b = self.domain()
         int_coeffs = 0.5*(b-a)*poly.chebyshev.chebint(coeffs)
-        antiderivative = self.from_coeff(int_coeffs,domain=self.domain()) 
+        antiderivative = self.from_coeff(int_coeffs,domain=self.domain())
         return antiderivative - antiderivative(a)
 
     def differentiate(self, n=1):
         """
-        n-th derivative, default 1.      
+        n-th derivative, default 1.
         """
         ak = self.coefficients()
         a_, b_ = self.domain()
         for _ in range(n):
             ak = self.differentiator(ak)
         return self.from_coeff((2./(b_-a_))**n*ak,domain=self.domain())
-        
+
     # ----------------------------------------------------------------
-    # Roots 
+    # Roots
     # ----------------------------------------------------------------
     def roots(self):
         """
         Utilises Boyd's O(n^2) recursive subdivision algorithm. The chebfun
-        is recursively subsampled until it is successfully represented to 
+        is recursively subsampled until it is successfully represented to
         machine precision by a sequence of piecewise interpolants of degree
-        100 or less. A colleague matrix eigenvalue solve is then applied to 
+        100 or less. A colleague matrix eigenvalue solve is then applied to
         each of these pieces and the results are concatenated.
-        
-        See: 
-        J. P. Boyd, Computing zeros on a real interval through Chebyshev 
-        expansion and polynomial rootfinding, SIAM J. Numer. Anal., 40 (2002), 
+
+        See:
+        J. P. Boyd, Computing zeros on a real interval through Chebyshev
+        expansion and polynomial rootfinding, SIAM J. Numer. Anal., 40 (2002),
         pp. 1666–1682.
         """
-        if self.size() <= 100:  
+        if self.size() <= 100:
             ak = self.coefficients()
             v = np.zeros_like(ak[:-1])
             v[1] = 0.5
-            C1 = linalg.toeplitz(v) 
+            C1 = linalg.toeplitz(v)
             C2 = np.zeros_like(C1)
             C1[0,1] = 1.
             C2[-1,:] = ak[:-1]
             C = C1 - .5/ak[-1] * C2
-            eigenvalues = linalg.eigvals(C) 
+            eigenvalues = linalg.eigvals(C)
             roots = [eig.real for eig in eigenvalues
-                    if np.allclose(eig.imag,0,atol=1e-10) 
+                    if np.allclose(eig.imag,0,atol=1e-10)
                         and np.abs(eig.real) <=1]
             scaled_roots = self._ui_to_ab(np.array(roots))
             return scaled_roots
         else:
             # divide at a close-to-zero split-point
-            split_point = self._ui_to_ab(0.0123456789)     
+            split_point = self._ui_to_ab(0.0123456789)
             return np.concatenate(
                 (self.restrict([self._domain[0],split_point]).roots(),
                  self.restrict([split_point,self._domain[1]]).roots())
@@ -214,7 +214,7 @@ class Chebfun(Polyfun):
 
     @classmethod
     def differentiator(self, A):
-        """Differentiate a set of Chebyshev polynomial expansion 
+        """Differentiate a set of Chebyshev polynomial expansion
            coefficients
            Originally from http://www.scientificpython.net/1/post/2012/04/chebyshev-differentiation.html
             + (lots of) bug fixing + pythonisation
@@ -237,7 +237,7 @@ class Chebfun(Polyfun):
 # ----------------------------------------------------------------
 # General utilities
 # ----------------------------------------------------------------
-            
+
 def even_data(data):
     """
     Construct Extended Data Vector (equivalent to creating an
@@ -314,7 +314,7 @@ for func in [np.arccos, np.arccosh, np.arcsin, np.arcsinh, np.arctan, np.arctanh
 def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
     """
     Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1, 1]`.
-    
+
     :param callable f: Python, Numpy, or Sage function
     :param int N: (default = None)  specify number of interpolating points
     :param np.array chebcoeff: (default = np.array(0)) specify the coefficients
@@ -344,8 +344,3 @@ def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
         return Chebfun(f,domain)
 
     raise TypeError('Impossible to initialise the object from an object of type {}'.format(type(f)))
-
-
-
-
-

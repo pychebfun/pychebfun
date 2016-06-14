@@ -28,16 +28,16 @@ class Polyfun(object):
     """
     Construct a Lagrange interpolating polynomial over arbitrary points.
     Polyfun objects consist in essence of two components:
-    
+
         1) An interpolant on [-1,1],
         2) A domain attribute [a,b].
-        
-    These two pieces of information are used to define and subsequently 
-    keep track of operations upon Chebyshev interpolants defined on an 
+
+    These two pieces of information are used to define and subsequently
+    keep track of operations upon Chebyshev interpolants defined on an
     arbitrary real interval [a,b].
 
     """
-    
+
     # ----------------------------------------------------------------
     # Initialisation methods
     # ----------------------------------------------------------------
@@ -46,12 +46,12 @@ class Polyfun(object):
         """
         Raised when dichotomy does not converge.
         """
-        
+
     class DomainMismatch(Exception):
         """
-        Raised when there is an interval mismatch between 
-        """ 
-    
+        Raised when there is an interval mismatch between
+        """
+
     @classmethod
     def from_data(self, data, domain=None):
         """
@@ -114,10 +114,10 @@ class Polyfun(object):
         Initialise from a function to sample.
         N: optional parameter which indicates the range of the dichotomy
         """
-        # rescale f to the unit domain 
+        # rescale f to the unit domain
         domain = self.get_default_domain(domain)
         a,b = domain[0], domain[-1]
-        map_ui_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b) 
+        map_ui_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b)
         args = {'f': lambda t: f(map_ui_ab(t))}
         if N is not None: # N is provided
             nextpow2 = int(np.log2(N))+1
@@ -152,8 +152,8 @@ class Polyfun(object):
         else:
             N = 0
         return N+1
- 
- 
+
+
     def __init__(self, values=0., domain=None, vscale=None):
         """
         Init an object from values at interpolation points.
@@ -174,11 +174,11 @@ class Polyfun(object):
         domain = self.get_default_domain(domain)
         self._domain = np.array(domain)
         a,b = domain[0], domain[-1]
-        
+
         # maps from [-1,1] <-> [a,b]
         self._ab_to_ui = lambda x: (2.0*x-a-b)/(b-a)
-        self._ui_to_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b) 
- 
+        self._ui_to_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b)
+
     def same_domain(self, fun2):
         """
         Returns True if the domains of two objects are the same.
@@ -196,12 +196,12 @@ class Polyfun(object):
         a, b = self.domain()
         vals = self.values()
         return (
-            '%s \n ' 
+            '%s \n '
             '    domain        length     endpoint values\n '
             ' [%5.1f, %5.1f]     %5d       %5.2f   %5.2f\n '
             'vscale = %1.2e') % (
                 str(type(self)).split('.')[-1].split('>')[0][:-1],
-                a,b,self.size(),vals[-1],vals[0],self._vscale,)    
+                a,b,self.size(),vals[-1],vals[0],self._vscale,)
 
     def __str__(self):
         return "<{0}({1})>".format(
@@ -241,7 +241,7 @@ class Polyfun(object):
         """
         if not self.same_domain(other):
             raise self.DomainMismatch(self.domain(),other.domain())
-            
+
         ps = [self, other]
         # length difference
         diff = other.size() - self.size()
@@ -301,9 +301,9 @@ class Polyfun(object):
 
     def values(self):
         return self._values
-        
+
     def domain(self):
-        return self._domain        
+        return self._domain
 
     # ----------------------------------------------------------------
     # Integration and differentiation
@@ -338,7 +338,7 @@ class Polyfun(object):
         Return a Polyfun that matches self on subinterval.
         """
         if (subinterval[0] < self._domain[0]) or (subinterval[1] > self._domain[1]):
-            raise ValueError("Can only restrict to subinterval") 
+            raise ValueError("Can only restrict to subinterval")
         return self.from_function(self, subinterval)
 
 
@@ -347,5 +347,3 @@ class Polyfun(object):
     # ----------------------------------------------------------------
     diff = differentiate
     cumsum = integrate
-    
-

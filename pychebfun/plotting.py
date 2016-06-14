@@ -22,9 +22,9 @@ def chebpolyplot(f, Nmax=100, normpts=1000, ord=2, points_only=False):
     INPUTS:
 
         -- f: Python, Numpy, or Sage function
-        
+
         -- Nmax: (default = 100) maximum number of interpolating points
-        
+
         -- normpts: (default = 1000) number of sample points to take
                     when computing the norm
 
@@ -44,12 +44,12 @@ def chebpolyplot(f, Nmax=100, normpts=1000, ord=2, points_only=False):
         -- normvalsequi: array of norm values from equidistant interpolation
     """
 
-    x            = np.linspace(-1,1,normpts)    
+    x            = np.linspace(-1,1,normpts)
     Nvals        = range(10,Nmax,10)
     normvalscheb = [la.norm(f(x)-Chebfun.from_function(f,N=n)(x), ord=ord) for n in Nvals]
 
 
-    # plot this 
+    # plot this
     if not points_only:
         fig = plt.figure()
         ax  = fig.add_subplot(111)
@@ -149,7 +149,7 @@ def chebcoeffplot(poly, *args, **kwds):
 def compare(poly, f, *args, **kwds):
     """
     Plots the original function against its fun interpolant.
-    
+
     INPUTS:
 
         -- f: Python, Numpy, or Sage function
@@ -158,7 +158,7 @@ def compare(poly, f, *args, **kwds):
     x = np.linspace(a, b, 10000)
     fig = plt.figure()
     ax = fig.add_subplot(211)
-    
+
     ax.plot(x, f(x), '#dddddd', linewidth=10, label='Actual', *args, **kwds)
     label = 'Interpolant (d={0})'.format(poly.size())
     plot(poly, color='red', label=label, *args, **kwds)
@@ -176,4 +176,3 @@ def get_linspace(domain, resolution):
     """
     a, b = domain
     return np.linspace(a, b, resolution)
-
