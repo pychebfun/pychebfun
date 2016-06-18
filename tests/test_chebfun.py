@@ -15,9 +15,6 @@ from . import tools
 import pytest
 
 np.seterr(all='raise')
-testdir = os.path.dirname(__file__)
-moduledir = os.path.join(testdir, os.path.pardir)
-sys.path.insert(0, moduledir)
 
 def segment(x):
     y = np.expand_dims(x, axis=-1)
