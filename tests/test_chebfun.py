@@ -317,6 +317,17 @@ class TestSimple(unittest.TestCase):
         c = Chebfun.identity()
         assert_close(c, lambda x:x)
 
+    @unittest.skip("real and imag do not work on chebfuns yet")
+    def test_real_imag(self):
+        datar = np.random.rand(10)
+        datai = np.random.rand(10)
+        cc = Chebfun.from_data(datar + 1j*datai)
+        cr = Chebfun.from_data(datar)
+        ci = Chebfun.from_data(datai)
+        assert_close(np.real(cc), cr)
+        assert_close(np.imag(cc), ci)
+
+
 class TestPolyfitShape(unittest.TestCase):
     def test_scalar(self):
         for datalen in [1,3]:
@@ -394,22 +405,6 @@ def compare_ufunc(self, ufunc):
     expected = ufunc(trans(cf.p.xi))
     npt.assert_allclose(result, expected)
 
-
-class TestUfunc(unittest.TestCase):
-    """
-    Check that ufuncs work and give the right result.
-    arccosh is not tested
-    """
-
-    @unittest.skip("real and imag do not work on chebfuns yet")
-    def test_real_imag(self):
-        datar = np.random.rand(10)
-        datai = np.random.rand(10)
-        cc = Chebfun.from_data(datar + 1j*datai)
-        cr = Chebfun.from_data(datar)
-        ci = Chebfun.from_data(datai)
-        assert_close(np.real(cc), cr)
-        assert_close(np.imag(cc), ci)
 
 
 def _add_ufunc_test(ufunc):
