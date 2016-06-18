@@ -9,7 +9,7 @@ import numpy as np
 import numpy.testing as npt
 
 #------------------------------------------------------------------------------
-# Unit test for arbtirary interval Chebfuns
+# Unit test for arbitrary interval Chebfuns
 #------------------------------------------------------------------------------
 
 
