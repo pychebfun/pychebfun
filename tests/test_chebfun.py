@@ -12,6 +12,8 @@ import numpy.testing as npt
 from pychebfun import *
 from .tools import *
 
+import pytest
+
 np.seterr(all='raise')
 testdir = os.path.dirname(__file__)
 moduledir = os.path.join(testdir, os.path.pardir)
@@ -395,28 +397,24 @@ class TestInitialise(unittest.TestCase):
         c1 = Chebfun.from_coeff(coeffs, prune=False)
         npt.assert_allclose(c1.coefficients(), coeffs)
 
-def compare_ufunc(self, ufunc):
+
+ufunc_list = [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, np.abs]
+
+@pytest.mark.parametrize("ufunc", ufunc_list)
+def test_func(ufunc):
+    """
+    Check that ufuncs work and give the right result.
+    arccosh is not tested
+    """
     # transformation from [-1, 1] to [1/4, 3/4]
     trans = lambda x: (x+2)/4
     x2 = Chebfun.from_function(trans)
     cf = ufunc(x2)
-    self.assertIsInstance(cf, Chebfun)
+    assert isinstance(cf, Chebfun)
     result = cf.values()
     expected = ufunc(trans(cf.p.xi))
     npt.assert_allclose(result, expected)
 
-
-
-def _add_ufunc_test(ufunc):
-    name = ufunc.__name__
-    def test_func(self):
-        compare_ufunc(self, ufunc)
-    test_name = 'test_{}'.format(name)
-    test_func.__name__ = test_name
-    setattr(TestUfunc, test_name, test_func)
-
-for func in [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, np.abs]:
-    _add_ufunc_test(func)
 
 class Test_Misc(unittest.TestCase):
     def test_init_from_data(self):
