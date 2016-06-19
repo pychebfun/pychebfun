@@ -4,6 +4,7 @@ from __future__ import division
 
 from pychebfun import *
 import unittest
+import pytest
 from . import tools
 import numpy as np
 import numpy.testing as npt
@@ -68,30 +69,15 @@ def _get_setup(func, func_d, dom_data):
     return setUp
 
 
-
-class TestUfuncIntervals(unittest.TestCase):
-    pass
-
-def compare_ufunc_arb_interval(self, ufunc):
+@pytest.mark.parametrize("ufunc", tools.ufunc_list)
+def test_func(ufunc):
     xx = Chebfun.from_function(lambda x: x,[0.25,0.75])
     ff = ufunc(xx)
-    self.assertIsInstance(ff, Chebfun)
+    assert isinstance(ff, Chebfun)
     result = ff.values()
     expected = ufunc(ff._ui_to_ab(ff.p.xi))
     npt.assert_allclose(result, expected)
 
-def _add_ufunc_test_arb_interval(ufunc):
-    name = ufunc.__name__
-    def test_func(self):
-        compare_ufunc_arb_interval(self, ufunc)
-    test_name = 'test_non_ui_{}'.format(name)
-    test_func.__name__ = test_name
-    setattr(TestUfuncIntervals, test_name, test_func)
-
-
-
-for func in tools.ufunc_list:
-    _add_ufunc_test_arb_interval(func)
 
 #------------------------------------------------------------------------------
 # Test the restrict operator
