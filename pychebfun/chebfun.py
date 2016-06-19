@@ -219,7 +219,7 @@ class Chebfun(Polyfun):
     def differentiator(self, A):
         """Differentiate a set of Chebyshev polynomial expansion
            coefficients
-           Originally from http://www.scientificpython.net/1/post/2012/04/chebyshev-differentiation.html
+           Originally from http://www.scientificpython.net/pyblog/chebyshev-differentiation
             + (lots of) bug fixing + pythonisation
            """
         m = len(A)
