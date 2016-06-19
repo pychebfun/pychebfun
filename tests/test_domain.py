@@ -14,11 +14,6 @@ import numpy.testing as npt
 #------------------------------------------------------------------------------
 
 
-def _get_chebfun(f, domain):
-    return Chebfun.from_function(f, domain)
-
-def _get_class_name(template, f, domain_index):
-    return template.format(f.__name__, domain_index)
 
 class TestDomain(unittest.TestCase):
     def test_mismatch(self):
@@ -35,6 +30,45 @@ class TestDomain(unittest.TestCase):
         with self.assertRaises(ValueError):
             x.restrict([0,2])
 
+
+
+
+@pytest.mark.parametrize("ufunc", tools.ufunc_list)
+def test_func(ufunc):
+    xx = Chebfun.from_function(lambda x: x,[0.25,0.75])
+    ff = ufunc(xx)
+    assert isinstance(ff, Chebfun)
+    result = ff.values()
+    expected = ufunc(ff._ui_to_ab(ff.p.xi))
+    npt.assert_allclose(result, expected)
+
+
+#------------------------------------------------------------------------------
+# Test the restrict operator
+#------------------------------------------------------------------------------
+
+from . import data
+
+def _add_test_restrict_method(domain, index):
+    def test_func(self):
+        ff = self.ff.restrict(domain)
+        xx = tools.map_ui_ab(tools.xs, domain[0],domain[1])
+        tools.assert_close(tools.f, ff, xx)
+    test_name = 'test_restrict_method_dom{}'.format(index)
+    test_func.__name__ = test_name
+    setattr(TestRestrict, test_name, test_func)
+
+class TestRestrict(unittest.TestCase):
+    """Test the restrict operator"""
+    def setUp(self):
+        self.ff = Chebfun.from_function(tools.f,[-3,4])
+
+for index, domain in enumerate(data.IntervalTestData.domains):
+    _add_test_restrict_method(domain, index)
+
+#------------------------------------------------------------------------------
+# Add the arbitrary interval tests
+#------------------------------------------------------------------------------
 class HarnessArbitraryIntervals(object):
     """Test the various operations for Chebfun on arbitrary intervals"""
 
@@ -58,6 +92,12 @@ class HarnessArbitraryIntervals(object):
         actual = self.roots
         self.assertAlmostEqual(np.linalg.norm(np.sort(self.chebfun.roots()) - actual), 0., places=12)
 
+def _get_chebfun(f, domain):
+    return Chebfun.from_function(f, domain)
+
+def _get_class_name(template, f, domain_index):
+    return template.format(f.__name__, domain_index)
+
 def _get_setup(func, func_d, dom_data):
     def setUp(self):
         self.function = func
@@ -68,53 +108,9 @@ def _get_setup(func, func_d, dom_data):
         self.chebfun = _get_chebfun(self.function, self.domain)
     return setUp
 
-
-@pytest.mark.parametrize("ufunc", tools.ufunc_list)
-def test_func(ufunc):
-    xx = Chebfun.from_function(lambda x: x,[0.25,0.75])
-    ff = ufunc(xx)
-    assert isinstance(ff, Chebfun)
-    result = ff.values()
-    expected = ufunc(ff._ui_to_ab(ff.p.xi))
-    npt.assert_allclose(result, expected)
-
-
-#------------------------------------------------------------------------------
-# Test the restrict operator
-#------------------------------------------------------------------------------
-
-def _add_test_restrict_method(domain, index):
-    def test_func(self):
-        ff = self.ff.restrict(domain)
-        xx = tools.map_ui_ab(tools.xs, domain[0],domain[1])
-        tools.assert_close(tools.f, ff, xx)
-    test_name = 'test_restrict_method_dom{}'.format(index)
-    test_func.__name__ = test_name
-    setattr(TestRestrict, test_name, test_func)
-
-class TestRestrict(unittest.TestCase):
-    """Test the restrict operator"""
-    def setUp(self):
-        self.ff = Chebfun.from_function(tools.f,[-3,4])
-
-#------------------------------------------------------------------------------
-# Test data
-#------------------------------------------------------------------------------
-
-from . import data
-
-#------------------------------------------------------------------------------
-# Add the arbitrary interval tests
-#------------------------------------------------------------------------------
-
 global_dict = globals()
 for fdata in data.interval_test_data:
     for index, dom_data in enumerate(fdata["domains"]):
         cls_name = _get_class_name("TestArbitraryInterval_{}_{}", fdata["function"], index)
         global_dict[cls_name] = type(cls_name, (HarnessArbitraryIntervals, unittest.TestCase), {"setUp": _get_setup(fdata["function"], fdata["function_d"], dom_data)})
-#------------------------------------------------------------------------------
-# Test the restrict operator
-#------------------------------------------------------------------------------
 
-for index, domain in enumerate(data.IntervalTestData.domains):
-    _add_test_restrict_method(domain, index)
