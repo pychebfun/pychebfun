@@ -82,8 +82,6 @@ class HarnessArbitraryIntervals(object):
         actual = self.roots
         self.assertAlmostEqual(np.linalg.norm(np.sort(self.chebfun.roots()) - actual), 0., places=12)
 
-def _get_chebfun(f, domain):
-    return Chebfun.from_function(f, domain)
 
 def _get_class_name(template, f, domain_index):
     return template.format(f.__name__, domain_index)
@@ -95,7 +93,7 @@ def _get_setup(func, func_d, dom_data):
         self.domain = dom_data["domain"]
         self.roots = dom_data["roots"]
         self.integral = dom_data["integral"]
-        self.chebfun = _get_chebfun(self.function, self.domain)
+        self.chebfun = Chebfun.from_function(self.function, self.domain)
     return setUp
 
 global_dict = globals()
