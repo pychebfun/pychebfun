@@ -34,8 +34,8 @@ class TestDomain(unittest.TestCase):
 
 
 
-def test_func(ufunc):
 @pytest.mark.parametrize("ufunc", tools.ufunc_list, ids=tools.name_func)
+def test_init(ufunc):
     xx = Chebfun.from_function(lambda x: x,[0.25,0.75])
     ff = ufunc(xx)
     assert isinstance(ff, Chebfun)
@@ -52,7 +52,7 @@ from . import data
 
 @pytest.mark.parametrize('ff', [Chebfun.from_function(tools.f,[-3,4])])
 @pytest.mark.parametrize('domain', data.IntervalTestData.domains)
-def test_func(ff, domain):
+def test_restrict(ff, domain):
     ff_ = ff.restrict(domain)
     xx = tools.map_ui_ab(tools.xs, domain[0],domain[1])
     tools.assert_close(tools.f, ff_, xx)
