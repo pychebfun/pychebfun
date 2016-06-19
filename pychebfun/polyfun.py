@@ -49,7 +49,7 @@ class Polyfun(object):
 
     class DomainMismatch(Exception):
         """
-        Raised when there is an interval mismatch between
+        Raised when there is an interval mismatch.
         """
 
     @classmethod
