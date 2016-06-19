@@ -9,7 +9,8 @@ import unittest
 import numpy as np
 import numpy.testing as npt
 
-from pychebfun import *
+import pychebfun
+from pychebfun import Chebfun, chebfun
 from . import tools
 
 import pytest
@@ -348,13 +349,13 @@ class TestPolyfitShape(unittest.TestCase):
 class TestEven(unittest.TestCase):
     def test_scalar(self):
         data = np.arange(5) # [0, 1, 2, 3, 4]
-        result = even_data(data)
+        result = pychebfun.even_data(data)
         expected = np.array(list(range(5)) + list(range(1,4))[::-1]) # [0, 1, 2, 3, 4, 3, 2, 1]
         npt.assert_array_almost_equal(result, expected)
 
     def test_vector(self):
         data = np.array([[1.,2],[3.,4],[5,6]])
-        result = even_data(data)
+        result = pychebfun.even_data(data)
         expected = np.array([[1.,2],[3.,4],[5,6],[3.,4]])
         npt.assert_array_almost_equal(result, expected)
 
@@ -490,7 +491,7 @@ class Test_Misc(unittest.TestCase):
         """
         N = 32
         data = np.random.rand(N+1).reshape(-1,1)
-        even = even_data(data)
+        even = pychebfun.even_data(data)
         self.assertEqual(len(even), 2*N)
 
     def test_chebpolyfit(self):
