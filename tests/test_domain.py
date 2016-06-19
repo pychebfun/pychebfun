@@ -49,22 +49,12 @@ def test_func(ufunc):
 
 from . import data
 
-def _add_test_restrict_method(domain, index):
-    def test_func(self):
-        ff = self.ff.restrict(domain)
-        xx = tools.map_ui_ab(tools.xs, domain[0],domain[1])
-        tools.assert_close(tools.f, ff, xx)
-    test_name = 'test_restrict_method_dom{}'.format(index)
-    test_func.__name__ = test_name
-    setattr(TestRestrict, test_name, test_func)
-
-class TestRestrict(unittest.TestCase):
-    """Test the restrict operator"""
-    def setUp(self):
-        self.ff = Chebfun.from_function(tools.f,[-3,4])
-
-for index, domain in enumerate(data.IntervalTestData.domains):
-    _add_test_restrict_method(domain, index)
+@pytest.mark.parametrize('ff', [Chebfun.from_function(tools.f,[-3,4])])
+@pytest.mark.parametrize('domain', data.IntervalTestData.domains)
+def test_func(ff, domain):
+    ff_ = ff.restrict(domain)
+    xx = tools.map_ui_ab(tools.xs, domain[0],domain[1])
+    tools.assert_close(tools.f, ff_, xx)
 
 #------------------------------------------------------------------------------
 # Add the arbitrary interval tests
