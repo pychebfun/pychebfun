@@ -59,46 +59,41 @@ def test_func(ff, domain):
 #------------------------------------------------------------------------------
 # Add the arbitrary interval tests
 #------------------------------------------------------------------------------
-class HarnessArbitraryIntervals(object):
+
+@pytest.fixture(params=list(range(5)))
+def tdata(request):
+    index = request.param
+    class TData(): pass
+    tdata = TData()
+    tdata.function = data.IntervalTestData.functions[0]
+    tdata.function_d = data.IntervalTestData.first_derivs[0]
+    tdata.domain = data.IntervalTestData.domains[index]
+    tdata.roots = data.IntervalTestData.roots[0][index]
+    tdata.integral = data.IntervalTestData.integrals[0][index]
+    tdata.chebfun = Chebfun.from_function(tdata.function, tdata.domain)
+    return tdata
+
+
+class TestArbitraryIntervals(object):
     """Test the various operations for Chebfun on arbitrary intervals"""
 
-    def test_domain(self):
-        self.assertEqual(self.chebfun._domain[0],self.domain[0])
-        self.assertEqual(self.chebfun._domain[1],self.domain[1])
+    def test_evaluation(self, tdata):
+        xx = tools.map_ui_ab(tools.xs, tdata.domain[0], tdata.domain[1])
+        tools.assert_close(tdata.chebfun, tdata.function, xx)
 
-    def test_evaluation(self):
-        xx = tools.map_ui_ab(tools.xs, self.domain[0], self.domain[1])
-        tools.assert_close(self.chebfun, self.function, xx)
+    def test_domain(self, tdata):
+        assert tdata.chebfun._domain[0] == tdata.domain[0]
+        assert tdata.chebfun._domain[1] == tdata.domain[1]
 
-    def test_first_deriv(self):
-        xx = tools.map_ui_ab(tools.xs, self.domain[0], self.domain[1])
-        tools.assert_close(self.chebfun.differentiate(), self.function_d, xx)
+    def test_first_deriv(self, tdata):
+        xx = tools.map_ui_ab(tools.xs, tdata.domain[0], tdata.domain[1])
+        tools.assert_close(tdata.chebfun.differentiate(), tdata.function_d, xx)
 
-    def test_definite_integral(self):
-        actual = self.integral
-        self.assertAlmostEqual(self.chebfun.sum(), actual, places=14)
+    def test_definite_integral(self, tdata):
+        actual = tdata.integral
+        npt.assert_allclose(tdata.chebfun.sum(), actual, rtol=1e-12)
 
-    def test_roots(self):
-        actual = self.roots
-        self.assertAlmostEqual(np.linalg.norm(np.sort(self.chebfun.roots()) - actual), 0., places=12)
-
-
-def _get_class_name(template, f, domain_index):
-    return template.format(f.__name__, domain_index)
-
-def _get_setup(func, func_d, dom_data):
-    def setUp(self):
-        self.function = func
-        self.function_d = func_d
-        self.domain = dom_data["domain"]
-        self.roots = dom_data["roots"]
-        self.integral = dom_data["integral"]
-        self.chebfun = Chebfun.from_function(self.function, self.domain)
-    return setUp
-
-global_dict = globals()
-for fdata in data.interval_test_data:
-    for index, dom_data in enumerate(fdata["domains"]):
-        cls_name = _get_class_name("TestArbitraryInterval_{}_{}", fdata["function"], index)
-        global_dict[cls_name] = type(cls_name, (HarnessArbitraryIntervals, unittest.TestCase), {"setUp": _get_setup(fdata["function"], fdata["function_d"], dom_data)})
+    def test_roots(self, tdata):
+        actual = tdata.roots
+        npt.assert_allclose(np.sort(tdata.chebfun.roots()), actual, rtol=1e-12)
 
