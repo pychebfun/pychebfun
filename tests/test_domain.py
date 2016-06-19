@@ -4,7 +4,7 @@ from __future__ import division
 
 from pychebfun import *
 import unittest
-from .tools import *
+from . import tools
 import numpy as np
 import numpy.testing as npt
 
@@ -42,12 +42,12 @@ class HarnessArbitraryIntervals(object):
         self.assertEqual(self.chebfun._domain[1],self.domain[1])
 
     def test_evaluation(self):
-        xx = map_ui_ab(xs, self.domain[0], self.domain[1])
-        assert_close(self.chebfun, self.function, xx)
+        xx = tools.map_ui_ab(tools.xs, self.domain[0], self.domain[1])
+        tools.assert_close(self.chebfun, self.function, xx)
 
     def test_first_deriv(self):
-        xx = map_ui_ab(xs, self.domain[0], self.domain[1])
-        assert_close(self.chebfun.differentiate(), self.function_d, xx)
+        xx = tools.map_ui_ab(tools.xs, self.domain[0], self.domain[1])
+        tools.assert_close(self.chebfun.differentiate(), self.function_d, xx)
 
     def test_definite_integral(self):
         actual = self.integral
@@ -55,7 +55,7 @@ class HarnessArbitraryIntervals(object):
 
     def test_roots(self):
         actual = self.roots
-        self.assertAlmostEqual(norm(np.sort(self.chebfun.roots()) - actual), 0., places=12)
+        self.assertAlmostEqual(np.linalg.norm(np.sort(self.chebfun.roots()) - actual), 0., places=12)
 
 def _get_setup(func, func_d, dom_data):
     def setUp(self):
@@ -90,7 +90,7 @@ def _add_ufunc_test_arb_interval(ufunc):
 
 
 
-for func in [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, np.abs]:
+for func in tools.ufunc_list:
     _add_ufunc_test_arb_interval(func)
 
 #------------------------------------------------------------------------------
@@ -100,8 +100,8 @@ for func in [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np
 def _add_test_restrict_method(domain, index):
     def test_func(self):
         ff = self.ff.restrict(domain)
-        xx = map_ui_ab(xs, domain[0],domain[1])
-        assert_close(f, ff, xx)
+        xx = tools.map_ui_ab(tools.xs, domain[0],domain[1])
+        tools.assert_close(tools.f, ff, xx)
     test_name = 'test_restrict_method_dom{}'.format(index)
     test_func.__name__ = test_name
     setattr(TestRestrict, test_name, test_func)
@@ -109,15 +109,15 @@ def _add_test_restrict_method(domain, index):
 class TestRestrict(unittest.TestCase):
     """Test the restrict operator"""
     def setUp(self):
-        self.ff = Chebfun.from_function(f,[-3,4])
+        self.ff = Chebfun.from_function(tools.f,[-3,4])
 
 #------------------------------------------------------------------------------
 # Test data
 #------------------------------------------------------------------------------
 
 class IntervalTestData(object):
-    functions = [f]
-    first_derivs = [fd]
+    functions = [tools.f]
+    first_derivs = [tools.fd]
 
     domains = [(1,2),(0,2),(-1,0),(-.2*np.pi,.2*np.e),(-1,1)]
 
