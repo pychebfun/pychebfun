@@ -395,9 +395,8 @@ class TestInitialise(unittest.TestCase):
         npt.assert_allclose(c1.coefficients(), coeffs)
 
 
-ufunc_list = [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, np.abs]
 
-@pytest.mark.parametrize("ufunc", ufunc_list)
+@pytest.mark.parametrize("ufunc", tools.ufunc_list)
 def test_func(ufunc):
     """
     Check that ufuncs work and give the right result.
