@@ -10,19 +10,19 @@ import numpy.testing as npt
 
 import unittest
 
-from .tools import *
+from . import tools
 
 plot_res = 200
 
 class TestPlot(unittest.TestCase):
     def setUp(self):
         # Constuct the O(dx^-16) "spectrally accurate" chebfun p
-        self.p = Chebfun.from_function(f)
+        self.p = Chebfun.from_function(tools.f)
 
     def test_plot(self):
         xs,ys,xi,yi,d = plot_data(self.p, plot_res)
         self.assertEqual(d, 1)
-        npt.assert_allclose(ys, f(xs))
+        npt.assert_allclose(ys, tools.f(xs))
         plot(self.p)
 
     def test_plot_interpolation_points(self):
@@ -36,7 +36,7 @@ class TestPlot(unittest.TestCase):
         self.assertEqual(len(a.lines),1)
 
     def test_cheb_plot(self):
-        compare(self.p, f)
+        compare(self.p, tools.f)
 
     def test_chebcoeffplot(self):
         chebcoeffplot(self.p)
@@ -44,7 +44,7 @@ class TestPlot(unittest.TestCase):
     def test_plot_circle(self):
         T = .5
         def cirper(x):
-            return circle(x, period=T)
+            return tools.circle(x, period=T)
         c = Chebfun.from_function(cirper, domain=[0,T])
         xs,ys,xi,yi,d = plot_data(c, plot_res)
         self.assertEqual(d, 2,)
