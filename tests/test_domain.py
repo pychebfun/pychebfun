@@ -2,7 +2,8 @@
 # coding: UTF-8
 from __future__ import division
 
-from pychebfun import *
+from pychebfun import Chebfun
+import operator
 import unittest
 import pytest
 from . import tools

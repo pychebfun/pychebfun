@@ -2,7 +2,10 @@
 # coding: UTF-8
 from __future__ import division
 
-from pychebfun import *
+from pychebfun.chebfun import Chebfun
+from pychebfun.plotting import plot, compare, chebcoeffplot, chebpolyplot, plot_data
+
+import matplotlib.pyplot as plt
 
 import numpy as np
 np.seterr(all='raise')
