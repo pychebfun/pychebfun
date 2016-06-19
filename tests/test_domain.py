@@ -34,8 +34,8 @@ class TestDomain(unittest.TestCase):
 
 
 
-@pytest.mark.parametrize("ufunc", tools.ufunc_list)
 def test_func(ufunc):
+@pytest.mark.parametrize("ufunc", tools.ufunc_list, ids=tools.name_func)
     xx = Chebfun.from_function(lambda x: x,[0.25,0.75])
     ff = ufunc(xx)
     assert isinstance(ff, Chebfun)

@@ -397,8 +397,9 @@ class TestInitialise(unittest.TestCase):
 
 
 
-@pytest.mark.parametrize("ufunc", tools.ufunc_list)
-def test_func(ufunc):
+
+@pytest.mark.parametrize("ufunc", tools.ufunc_list, ids=tools.name_func)
+def test_ufunc(ufunc):
     """
     Check that ufuncs work and give the right result.
     arccosh is not tested
