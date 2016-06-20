@@ -81,7 +81,6 @@ class IntervalTestData(object):
         ]
     ]
 
-interval_test_data = [{"function": func, "function_d": func_d, "domains":[{"domain": domain, "integral":integral, "roots":roots} for (domain,integral,roots) in zip(IntervalTestData.domains, fints, froots)]} for (func, func_d, fints, froots) in zip(IntervalTestData.functions, IntervalTestData.first_derivs, IntervalTestData.integrals, IntervalTestData.roots)]
 
 #------------------------------------------------------------------------------
 # Variables utilised in the unit-tests
