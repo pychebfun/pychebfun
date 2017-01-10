@@ -14,7 +14,7 @@ setup(
     author = 'Olivier Verdier',
     author_email = 'olivier.verdier@gmail.com',
     url = "https://github.com/pychebfun/pychebfun",
-    license      = 'GPL v.3',
+    license      = 'BSD',
     keywords = ['Math', 'Chebyshev', 'chebfun',],
     packages=['pychebfun',],
     classifiers = [
