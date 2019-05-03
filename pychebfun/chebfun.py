@@ -156,7 +156,10 @@ class Chebfun(Polyfun):
         Sample a function on N+1 Chebyshev points.
         """
         x = self.interpolation_points(N+1)
-        return f(x)
+        try:
+            return f(x)
+        except:  # needed when trying to sample functions which can't take a vector argument
+            return np.vectorize(f)(x)
 
     @classmethod
     def polyfit(self, sampled):
@@ -318,7 +321,7 @@ def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
     """
     Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1, 1]`.
 
-    :param callable f: Python, Numpy, or Sage function
+    :param callable f: any univariate real numerical function
     :param int N: (default = None)  specify number of interpolating points
     :param np.array chebcoeff: (default = np.array(0)) specify the coefficients
     """
