@@ -604,3 +604,20 @@ class TestRoots(unittest.TestCase):
 # 	def setUp(self):
 # 		Chebfun.record = True
 # 		self.p = Chebfun(segment,)
+
+def test_vectorize():
+    def not_vectorized(x):
+        if x > 0:
+            return 1
+        else:
+            return 0
+    Chebfun.sample_function(not_vectorized, 10)
+
+def test_sample_leaves_errors():
+    """
+    Chebfun.sample does not catch errors from the sampling function
+    """
+    def silly(x):
+        return 1/0
+    with pytest.raises(ZeroDivisionError):
+        Chebfun.sample_function(silly, 10)
