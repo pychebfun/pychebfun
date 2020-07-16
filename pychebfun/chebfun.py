@@ -143,7 +143,20 @@ class Chebfun(Polyfun):
 		its location for the chebfun
 		"""
 		# Finding the roots for f'(x):
-		r = self.differentiate().roots()
+		try:
+			r = self.differentiate().roots()
+		except:
+			# Check if it's a linear function:
+			if(np.product((self.differentiate())(self.domain())) < 0):
+				x1, x2 = self.domain()
+				y1, y2 = ((self.differentiate())(self.domain()))
+				# Finding slope:
+				m = (y2 - y1) / (x2 - x1)
+				r = np.array([x1 - y1 / m])		
+			else:
+				# Initializing an empty array:
+				r = np.array([])
+
 		# Checking in the interior of the function:
 		# Initializing with an arbitrary high enough value
 		miny_int = 1e300
@@ -171,7 +184,20 @@ class Chebfun(Polyfun):
 		its location for the chebfun
 		"""
 		# Finding the roots for f'(x):
-		r = self.differentiate().roots()
+		try:
+			r = self.differentiate().roots()
+		except:
+			# Check if it's a linear function:
+			if(np.product((self.differentiate())(self.domain())) < 0):
+				x1, x2 = self.domain()
+				y1, y2 = ((self.differentiate())(self.domain()))
+				# Finding slope:
+				m = (y2 - y1) / (x2 - x1)
+				r = np.array([x1 - y1 / m])		
+			else:
+				# Initializing an empty array:
+				r = np.array([])
+
 		# Checking in the interior of the function:
 		# Initializing with an arbitrary low enough value
 		maxy_int = 1e300
