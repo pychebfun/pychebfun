@@ -240,8 +240,9 @@ class TestDifferentiate(unittest.TestCase):
         """
         e = Chebfun.from_function(lambda x:np.exp(x))
         antideriv = e.integrate()
-        result = antideriv - antideriv(antideriv._domain[0])
-        tools.assert_close(result, e - e(antideriv._domain[0]))
+        computed = antideriv - antideriv(antideriv.domain()[0])
+        expected = e - e(antideriv.domain()[0])
+        tools.assert_close(computed, expected, atol=1e-15)
 
 
 class TestSimple(unittest.TestCase):
