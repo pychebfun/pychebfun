@@ -317,7 +317,7 @@ class Polyfun(object):
 
     def dot(self, other):
         """
-        Return the Hilbert scalar product $\int f.g$.
+        Return the Hilbert scalar product $∫f.g$.
         """
         prod = self * other
         return prod.sum()
