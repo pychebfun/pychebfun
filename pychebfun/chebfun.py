@@ -304,7 +304,7 @@ def _add_delegate(ufunc, nonlinear=True):
 
 # Following list generated from:
 # https://github.com/numpy/numpy/blob/master/numpy/core/code_generators/generate_umath.py
-for func in [np.arccos, np.arccosh, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, ]:
+for func in [np.arccos, np.arccosh, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.fabs, ]:
     _add_delegate(func)
 
 
