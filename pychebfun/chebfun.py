@@ -203,7 +203,7 @@ class Chebfun(Polyfun):
         Returns a polynomial with vector coefficients which interpolates the values at the Chebyshev points x
         """
         # hacking the barycentric interpolator by computing the weights in advance
-        p = Bary([0.])
+        p = Bary([0.,1.])
         N = len(values)
         weights = np.ones(N)
         weights[0] = .5
