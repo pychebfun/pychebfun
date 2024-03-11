@@ -19,7 +19,7 @@ def assert_close(c1, c2, xx=xs, *args, **kwargs):
 # Functions utilised in the unit-tests
 #------------------------------------------------------------------------------
 
-ufunc_list = [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, np.abs]
+ufunc_list = [np.arccos, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.fabs, np.abs]
 
 def name_func(ufunc):
     return ufunc.__name__

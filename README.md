@@ -1,12 +1,13 @@
 # pychebfun - Python Chebyshev Functions
 
-[![Build Status](https://img.shields.io/travis/pychebfun/pychebfun/master.svg?style=flat-square)](https://travis-ci.org/pychebfun/pychebfun)
+<!-- [![Build Status](https://img.shields.io/travis/pychebfun/pychebfun/master.svg?style=flat-square)](https://travis-ci.org/pychebfun/pychebfun) -->
 [![Coverage Status](https://img.shields.io/coveralls/pychebfun/pychebfun/master.svg?style=flat-square)](https://coveralls.io/r/pychebfun/pychebfun?branch=master)
 ![Python version](https://img.shields.io/badge/python-2.7,_3.4,_3.5-blue.svg?style=flat-square)
 
 ## About
 
-The Chebfun system is designed to perform fast and accurate functional computations. The system incorporates the use of Chebyshev polynomial expansions, Lagrange interpolation with the barycentric formula, and Clenshaw–Curtis quadrature to perform fast functional evaluation, integration, root-finding, and other operations.
+
+
 
 To learn more about pychebfun, have a look at the [IPython notebook illustrating the original paper by Battles and Trefethen](http://nbviewer.ipython.org/github/pychebfun/pychebfun/blob/master/BattlesTrefethen.ipynb).
 

@@ -2,6 +2,7 @@
 # coding: UTF-8
 from __future__ import division
 
+import typing
 
 import numpy as np
 
@@ -109,14 +110,24 @@ class Polyfun(object):
         return coeffs
 
     @classmethod
-    def from_function(self, f, domain=None, N=None):
+    def get_default_domain(cls, domain:typing.Optional[tuple]=None) -> tuple:
+        if domain is None:
+            return (-1., 1.)
+        else:
+            return domain
+
+
+    @classmethod
+    def from_function(cls,
+                      f: typing.Callable[[float], float],
+                      domain:typing.Optional[tuple]=None,
+                      N:typing.Optional[int]=None):
         """
         Initialise from a function to sample.
         N: optional parameter which indicates the range of the dichotomy
         """
         # rescale f to the unit domain
-        domain = self.get_default_domain(domain)
-        a,b = domain[0], domain[-1]
+        a,b = cls.get_default_domain(domain)
         map_ui_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b)
         args = {'f': lambda t: f(map_ui_ab(t))}
         if N is not None: # N is provided
@@ -128,12 +139,12 @@ class Polyfun(object):
             args['raise_no_convergence'] = True
 
         # Find out the right number of coefficients to keep
-        coeffs = self.dichotomy(**args)
+        coeffs = cls.dichotomy(**args)
 
-        return self.from_coeff(coeffs, domain)
+        return cls.from_coeff(coeffs, domain)
 
     @classmethod
-    def _threshold(self, vscale):
+    def _threshold(cls, vscale: float):
         """
         Compute the threshold at which coefficients are trimmed.
         """
@@ -141,11 +152,11 @@ class Polyfun(object):
         return bnd
 
     @classmethod
-    def _cutoff(self, coeffs, vscale):
+    def _cutoff(cls, coeffs:list[float], vscale:float):
         """
         Compute cutoff index after which the coefficients are deemed negligible.
         """
-        bnd = self._threshold(vscale)
+        bnd = cls._threshold(vscale)
         inds  = np.nonzero(abs(coeffs) >= bnd)
         if len(inds[0]):
             N = inds[0][-1]
@@ -317,7 +328,7 @@ class Polyfun(object):
 
     def dot(self, other):
         """
-        Return the Hilbert scalar product $\int f.g$.
+        Return the Hilbert scalar product $∫f.g$.
         """
         prod = self * other
         return prod.sum()

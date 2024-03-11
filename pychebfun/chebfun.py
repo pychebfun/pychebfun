@@ -32,12 +32,6 @@ class Chebfun(Polyfun):
     # Standard construction class methods.
     # ----------------------------------------------------------------
 
-    @classmethod
-    def get_default_domain(self, domain=None):
-        if domain is None:
-            return [-1., 1.]
-        else:
-            return domain
 
     @classmethod
     def identity(self, domain=[-1., 1.]):
@@ -156,7 +150,10 @@ class Chebfun(Polyfun):
         Sample a function on N+1 Chebyshev points.
         """
         x = self.interpolation_points(N+1)
-        return f(x)
+        try:
+            return f(x)
+        except:  # needed when trying to sample functions which can't take a vector argument
+            return np.vectorize(f)(x)
 
     @classmethod
     def polyfit(self, sampled):
@@ -200,7 +197,7 @@ class Chebfun(Polyfun):
         Returns a polynomial with vector coefficients which interpolates the values at the Chebyshev points x
         """
         # hacking the barycentric interpolator by computing the weights in advance
-        p = Bary([0.])
+        p = Bary([0.,1.])
         N = len(values)
         weights = np.ones(N)
         weights[0] = .5
@@ -301,7 +298,7 @@ def _add_delegate(ufunc, nonlinear=True):
 
 # Following list generated from:
 # https://github.com/numpy/numpy/blob/master/numpy/core/code_generators/generate_umath.py
-for func in [np.arccos, np.arccosh, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.ceil, np.trunc, np.fabs, np.floor, ]:
+for func in [np.arccos, np.arccosh, np.arcsin, np.arcsinh, np.arctan, np.arctanh, np.cos, np.sin, np.tan, np.cosh, np.sinh, np.tanh, np.exp, np.exp2, np.expm1, np.log, np.log2, np.log1p, np.sqrt, np.fabs, ]:
     _add_delegate(func)
 
 
@@ -318,7 +315,7 @@ def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
     """
     Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1, 1]`.
 
-    :param callable f: Python, Numpy, or Sage function
+    :param callable f: any univariate real numerical function
     :param int N: (default = None)  specify number of interpolating points
     :param np.array chebcoeff: (default = np.array(0)) specify the coefficients
     """
