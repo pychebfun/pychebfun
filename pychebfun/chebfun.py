@@ -32,12 +32,6 @@ class Chebfun(Polyfun):
     # Standard construction class methods.
     # ----------------------------------------------------------------
 
-    @classmethod
-    def get_default_domain(self, domain=None):
-        if domain is None:
-            return [-1., 1.]
-        else:
-            return domain
 
     @classmethod
     def identity(self, domain=[-1., 1.]):

@@ -601,6 +601,21 @@ class TestRoots(unittest.TestCase):
         cdf = Chebfun.from_data(flat_chebfun_vals, domain=[-0.7, 0.7])
         npt.assert_allclose((cdf-0.05).roots(), 0.1751682246791747)
 
+def test_vectorize():
+    def not_vectorized(x):
+        if x > 0:
+            return 1
+        else:
+            return 0
+    Chebfun.sample_function(not_vectorized, 10)
+
+
+def test_catch_sample_errors():
+    def silly(x):
+        return 1/0
+    with pytest.raises(ZeroDivisionError):
+        Chebfun.sample_function(silly, 10)
+
 # class Test_2D(Test_Chebfun):
 # 	def setUp(self):
 # 		Chebfun.record = True

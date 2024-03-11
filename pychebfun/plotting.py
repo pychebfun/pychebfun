@@ -56,7 +56,7 @@ def chebpolyplot(f, Nmax=100, normpts=1000, ord=2, points_only=False):
         ax.plot(Nvals,np.log10(normvalscheb),'r', label='Chebyshev Interpolation')
         ax.plot(Nvals,np.log10(normvalscheb),'r.', markersize=10)
         ax.set_xlabel('Number of Interpolating Points')
-        ax.set_ylabel('%s-norm Error ($\log_{10}$-scale)' %(str(ord)))
+        ax.set_ylabel('%s-norm Error ($\\log_{10}$-scale)' %(str(ord)))
         ax.legend(loc='best')
 
     return ax
