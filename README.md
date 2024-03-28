@@ -9,7 +9,7 @@
 
 
 
-To learn more about pychebfun, have a look at the [IPython notebook illustrating the original paper by Battles and Trefethen](http://nbviewer.ipython.org/github/pychebfun/pychebfun/blob/master/BattlesTrefethen.ipynb).
+To learn more about pychebfun, have a look at the [IPython notebook illustrating the original paper by Battles and Trefethen](https://gist.github.com/olivierverdier/50b359fbddfada213fa75e596a97b7c7#file-pychebfun_demo-ipynb).
 
 ## Getting Started
 
