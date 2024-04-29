@@ -127,8 +127,8 @@ class Chebfun(Polyfun):
             # divide at a close-to-zero split-point
             split_point = self._ui_to_ab(0.0123456789)
             return np.concatenate(
-                (self.restrict((self._domain[0],split_point)).roots(),
-                 self.restrict((split_point,self._domain[1])).roots())
+                (self.restrict((self.domain[0],split_point)).roots(),
+                 self.restrict((split_point,self.domain[1])).roots())
             )
 
     # ----------------------------------------------------------------

@@ -83,8 +83,8 @@ class TestArbitraryIntervals(object):
         tools.assert_close(tdata.chebfun, tdata.function, xx)
 
     def test_domain(self, tdata):
-        assert tdata.chebfun._domain[0] == tdata.domain[0]
-        assert tdata.chebfun._domain[1] == tdata.domain[1]
+        assert tdata.chebfun.domain[0] == tdata.domain[0]
+        assert tdata.chebfun.domain[1] == tdata.domain[1]
 
     def test_first_deriv(self, tdata):
         xx = tools.map_ui_ab(tools.xs, tdata.domain[0], tdata.domain[1])

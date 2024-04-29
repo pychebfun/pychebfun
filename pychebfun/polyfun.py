@@ -2,6 +2,8 @@
 
 from typing import Self, Optional, Callable
 
+type Domain = tuple[float, float]
+
 import scipy.interpolate
 
 import numpy as np
@@ -54,11 +56,11 @@ class Polyfun:
         """
 
     @classmethod
-    def from_data(cls, data: npt.ArrayLike, domain:Optional[tuple]=None) -> Self:
+    def from_data(cls, data: npt.ArrayLike, domain:Optional[Domain]=None) -> Self:
         """
         Initialise from interpolation values.
         """
-        return cls(data,domain)
+        return cls(data, domain)
 
     @classmethod
     def from_fun(cls, other: Self) -> Self:
@@ -68,7 +70,7 @@ class Polyfun:
         return cls(other.values, other.domain)
 
     @classmethod
-    def from_coeff(cls, chebcoeff: npt.ArrayLike, domain:Optional[tuple]=None, prune: bool=True, vscale: float=1.):
+    def from_coeff(cls, chebcoeff: npt.ArrayLike, domain:Optional[Domain]=None, prune: bool=True, vscale: float=1.):
         """
         Initialise from provided coefficients
         prune: Whether to prune the negligible coefficients
@@ -112,7 +114,7 @@ class Polyfun:
         return coeffs
 
     @classmethod
-    def get_default_domain(cls, domain:Optional[tuple]=None) -> tuple:
+    def get_default_domain(cls, domain:Optional[Domain]=None) -> tuple:
         if domain is None:
             return (-1., 1.)
         else:
@@ -122,7 +124,7 @@ class Polyfun:
     @classmethod
     def from_function(cls,
                       f: Callable[[npt.ArrayLike], npt.ArrayLike],
-                      domain:Optional[tuple]=None,
+                      domain:Optional[Domain]=None,
                       N:Optional[int]=None) -> Self:
         """
         Initialise from a function to sample.
@@ -168,7 +170,7 @@ class Polyfun:
         return N+1
 
 
-    def __init__(self, values:npt.ArrayLike=0., domain:Optional[tuple]=None, vscale:Optional[float]=None):
+    def __init__(self, values:npt.ArrayLike=0., domain:Optional[Domain]=None, vscale:Optional[float]=None):
         """
         Init an object from values at interpolation points.
         values: Interpolation values
@@ -177,19 +179,21 @@ class Polyfun:
         avalues = np.asarray(values,)
         avalues1 = np.atleast_1d(avalues)
         N = len(avalues1)
-        points = self.interpolation_points(N)
-        self._values = avalues1
+        self.values = avalues1
+
         if vscale is not None:
             self._vscale = vscale
         else:
-            self._vscale = np.max(np.abs(self._values))
+            self._vscale = np.max(np.abs(self.values))
+
+        points = self.interpolation_points(N)
         self.p = self.interpolator(points, avalues1)
 
         domain = self.get_default_domain(domain)
-        self._domain = domain
-        a,b = domain[0], domain[-1]
+        self.domain = domain
 
         # maps from [-1,1] <-> [a,b]
+        a,b = domain
         self._ab_to_ui = lambda x: (2.0*x-a-b)/(b-a)
         self._ui_to_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b)
 
@@ -319,14 +323,6 @@ class Polyfun:
     def coefficients(self) -> np.ndarray:
         return self.polyfit(self.values)
 
-    @property
-    def values(self) -> np.ndarray:
-        return self._values
-
-    @property
-    def domain(self) -> tuple:
-        return self._domain
-
     # ----------------------------------------------------------------
     # Integration and differentiation
     # ----------------------------------------------------------------
@@ -358,11 +354,11 @@ class Polyfun:
     # ----------------------------------------------------------------
     # Miscellaneous operations
     # ----------------------------------------------------------------
-    def restrict(self, subinterval:tuple) -> Self:
+    def restrict(self, subinterval:Domain) -> Self:
         """
         Return a Polyfun that matches self on subinterval.
         """
-        if (subinterval[0] < self._domain[0]) or (subinterval[1] > self._domain[1]):
+        if (subinterval[0] < self.domain[0]) or (subinterval[1] > self.domain[1]):
             raise ValueError("Can only restrict to subinterval")
         return self.from_function(self, subinterval)
 
