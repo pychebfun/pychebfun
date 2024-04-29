@@ -152,7 +152,7 @@ class Chebfun(Polyfun):
         x = cls.interpolation_points(N+1)
         try:
             return f(x)
-        except:  # needed when trying to sample functions which can't take a vector argument
+        except ValueError:  # needed when trying to sample functions which can't take a vector argument
             return np.vectorize(f)(x)
 
     @classmethod

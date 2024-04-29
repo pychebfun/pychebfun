@@ -2,7 +2,7 @@
 # coding: UTF-8
 from __future__ import division
 
-from pychebfun import *
+from pychebfun import Chebfun, plot
 
 
 def plot_first_chebyshev(N, alpha_coeff=10):

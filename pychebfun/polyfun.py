@@ -2,7 +2,6 @@
 
 from typing import Self, Optional, Callable, overload
 
-type Domain = tuple[float, float]
 
 
 import scipy.interpolate
@@ -11,9 +10,11 @@ import numpy as np
 import numpy.typing as npt
 
 import sys
-emach = sys.float_info.epsilon                        # machine epsilon
 
 from functools import wraps
+
+type Domain = tuple[float, float]
+emach = sys.float_info.epsilon                        # machine epsilon
 
 def cast_scalar(method):
     """
@@ -133,7 +134,8 @@ class Polyfun:
         """
         # rescale f to the unit domain
         a,b = cls.get_default_domain(domain)
-        map_ui_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b)
+        def map_ui_ab(t):
+            return 0.5*(b-a)*t + 0.5*(a+b)
         args = {}
         args['f'] = lambda t: f(map_ui_ab(t))
         if N is not None: # N is provided

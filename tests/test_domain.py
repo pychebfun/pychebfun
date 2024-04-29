@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# coding: UTF-8
-from __future__ import division
 
 from pychebfun import Chebfun
 import operator
@@ -9,6 +7,8 @@ import pytest
 from . import tools
 import numpy as np
 import numpy.testing as npt
+
+from . import data
 
 #------------------------------------------------------------------------------
 # Unit test for arbitrary interval Chebfuns
@@ -48,7 +48,6 @@ def test_init(ufunc):
 # Test the restrict operator
 #------------------------------------------------------------------------------
 
-from . import data
 
 @pytest.mark.parametrize('ff', [Chebfun.from_function(tools.f,(-3,4))])
 @pytest.mark.parametrize('domain', data.IntervalTestData.domains)
@@ -64,7 +63,8 @@ def test_restrict(ff, domain):
 @pytest.fixture(params=list(range(5)))
 def tdata(request):
     index = request.param
-    class TData(): pass
+    class TData():
+        pass
     tdata = TData()
     tdata.function = data.IntervalTestData.functions[0]
     tdata.function_d = data.IntervalTestData.first_derivs[0]

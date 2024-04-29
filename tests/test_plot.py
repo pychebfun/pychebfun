@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: UTF-8
 from __future__ import division
 
 from pychebfun.chebfun import Chebfun
@@ -8,12 +7,13 @@ from pychebfun.plotting import plot, compare, chebcoeffplot, chebpolyplot, plot_
 import matplotlib.pyplot as plt
 
 import numpy as np
-np.seterr(all='raise')
 import numpy.testing as npt
 
 import unittest
 
 from . import tools
+
+np.seterr(all='raise')
 
 plot_res = 200
 

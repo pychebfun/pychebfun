@@ -1,13 +1,13 @@
-from scipy import *
-from matplotlib.pyplot import figure, subplot, plot, show
-from pychebfun import *
+from pychebfun import Chebfun, compare
+import numpy as np
 
 # Construct a Python function f and the vector of points at which we want 
 # to plot it.
-f = lambda x: sin(6*x) + sin(30*exp(x))
-x = linspace(-1,1,1000)
+def f(x):
+    return np.sin(6*x) + np.sin(30*np.exp(x))
+x = np.linspace(-1,1,1000)
 
 # Constuct the O(dx^-16) "spectrally accurate" chebfun p and compute the error
 # between p and f at each point in the domain
-p   = chebfun(f)
+p = Chebfun.from_function(f)
 compare(p, f)

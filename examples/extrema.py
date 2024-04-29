@@ -1,8 +1,6 @@
 #!/usr/bin/env python
-# coding: UTF-8
-from __future__ import division
 
-from pychebfun import *
+from pychebfun import Chebfun, plot
 import numpy as np
 import matplotlib.pyplot as plt
 

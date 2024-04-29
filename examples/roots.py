@@ -1,14 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from pychebfun import *
-from scipy.optimize import *
+from pychebfun import Chebfun
+# from scipy.optimize import *
 
-f = lambda x: np.sin(6*x) + np.sin(30*np.exp(x))
+def f(x):
+    return np.sin(6*x) + np.sin(30*np.exp(x))
 x = np.linspace(-1,1,5000)
 
 # Computing the roots of the corresponding chebfun. Uses the specrally accurate
 # Chebyshev expansion.
-p = chebfun(f)
+p = Chebfun.from_function(f)
 r = p.roots()
 
 print("Roots (Chebfun):", r)

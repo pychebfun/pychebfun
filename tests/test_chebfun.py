@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import os
-import sys
 
 import unittest
 import numpy as np
@@ -10,6 +8,8 @@ import numpy.testing as npt
 import pychebfun
 from pychebfun import Chebfun
 from . import tools
+
+from .data import flat_chebfun_vals
 
 import pytest
 
@@ -135,7 +135,7 @@ class Test_sinsinexp(unittest.TestCase):
 
 
     def test_integrate(self):
-        q = self.p.integrate()
+        self.p.integrate()
 
     def test_differentiate(self):
         """
@@ -176,15 +176,16 @@ class TestDifferentiate(unittest.TestCase):
         one = self.p.differentiate()
         zero = one.differentiate()
         npt.assert_allclose(one(tools.xs), 1.)
-        npt.assert_allclose(tools.Zero(tools.xs), 0.)
+        npt.assert_allclose(zero(tools.xs), 0.)
 
     def test_diff_one(self):
         """
         Derivative of Chebfun(1) close to zero
+        (May be redundant with `test_diff_x`)
         """
         one = Chebfun(1.)
         zero = one.differentiate()
-        npt.assert_allclose(tools.Zero(tools.xs), 0.)
+        npt.assert_allclose(zero(tools.xs), 0.)
 
     def test_highdiff(self):
         """
@@ -315,13 +316,13 @@ class TestPolyfitShape(unittest.TestCase):
 class TestEven(unittest.TestCase):
     def test_scalar(self):
         data = np.arange(5) # [0, 1, 2, 3, 4]
-        result = pychebfun.even_data(data)
+        result = pychebfun.chebfun.even_data(data)
         expected = np.array(list(range(5)) + list(range(1,4))[::-1]) # [0, 1, 2, 3, 4, 3, 2, 1]
         npt.assert_array_almost_equal(result, expected)
 
     def test_vector(self):
         data = np.array([[1.,2],[3.,4],[5,6]])
-        result = pychebfun.even_data(data)
+        result = pychebfun.chebfun.even_data(data)
         expected = np.array([[1.,2],[3.,4],[5,6],[3.,4]])
         npt.assert_array_almost_equal(result, expected)
 
@@ -338,13 +339,13 @@ class TestInitialise(unittest.TestCase):
         """
         Initialise with a list of integers
         """
-        c = Chebfun([1,2,3])
+        Chebfun([1,2,3])
 
     def test_chebcoefflist(self):
         """
         Initialise with a chebcoeff list
         """
-        c = Chebfun.from_coeff([1.,2.])
+        Chebfun.from_coeff([1.,2.])
 
     def test_cutoff(self):
         """
@@ -371,7 +372,8 @@ def test_ufunc(ufunc):
     arccosh is not tested
     """
     # transformation from [-1, 1] to [1/4, 3/4]
-    trans = lambda x: (x+2)/4
+    def trans(x):
+        return (x+2)/4
     x2 = Chebfun.from_function(trans)
     cf = ufunc(x2)
     assert isinstance(cf, Chebfun)
@@ -383,7 +385,7 @@ def test_ufunc(ufunc):
 class Test_Misc(unittest.TestCase):
     def test_init_from_data(self):
         data = np.array([-1, 1.])
-        c = Chebfun(data)
+        Chebfun(data)
 
     def test_scalar_init_zero(self):
         c = Chebfun(0.)
@@ -402,10 +404,10 @@ class Test_Misc(unittest.TestCase):
         npt.assert_allclose(c(tools.xs), 1.)
 
     def test_init_from_segment(self):
-        c = Chebfun.from_function(segment)
+        Chebfun.from_function(segment)
 
     def test_init_from_circle(self):
-        c = Chebfun.from_function(tools.circle)
+        Chebfun.from_function(tools.circle)
 
     def test_has_p(self):
         c1 = Chebfun.from_function(tools.f, N=10)
@@ -423,7 +425,7 @@ class Test_Misc(unittest.TestCase):
 
     def test_vectorized(self):
         fv = np.vectorize(tools.f)
-        p = Chebfun.from_function(fv)
+        Chebfun.from_function(fv)
 
     def test_basis(self, ns=[0,5]):
         for n in ns:
@@ -458,7 +460,7 @@ class Test_Misc(unittest.TestCase):
         """
         N = 32
         data = np.random.rand(N+1).reshape(-1,1)
-        even = pychebfun.even_data(data)
+        even = pychebfun.chebfun.even_data(data)
         self.assertEqual(len(even), 2*N)
 
     def test_chebpolyfit(self):
@@ -470,7 +472,7 @@ class Test_Misc(unittest.TestCase):
 
     def test_underflow(self):
         self.skipTest('mysterious underflow error')
-        p = Chebfun.from_function(piecewise_continuous, N=pow(2,10)-1)
+        Chebfun.from_function(piecewise_continuous, N=pow(2,10)-1)
 
 class Test_Arithmetic(unittest.TestCase):
     def setUp(self):
@@ -551,7 +553,6 @@ class TestVector(unittest.TestCase):
         tools.assert_close(s[1], Chebfun(0.))
         tools.assert_close(s[:], s)
 
-from .data import flat_chebfun_vals
 
 class TestRoots(unittest.TestCase):
     """
@@ -565,14 +566,6 @@ class TestRoots(unittest.TestCase):
         """
         cdf = Chebfun.from_data(flat_chebfun_vals, domain=[-0.7, 0.7])
         npt.assert_allclose((cdf-0.05).roots(), 0.1751682246791747)
-
-def test_vectorize():
-    def not_vectorized(x):
-        if x > 0:
-            return 1
-        else:
-            return 0
-    Chebfun.sample_function(not_vectorized, 10)
 
 
 def test_catch_sample_errors():

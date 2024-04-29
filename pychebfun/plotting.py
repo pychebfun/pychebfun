@@ -102,8 +102,10 @@ def plot_data(poly, resolution):
         yi = poly.values
         d = 1
     elif 2 == dim and 1 == dof: # 2D real
-        xf = lambda v: v[:,0]
-        yf = lambda v: v[:,1]
+        def xf(v):
+            return v[:,0]
+        def yf(v):
+            return v[:,1]
         d = 2
     elif 1 == dim and 2 == dof: # 1D complex
         xf = np.real
