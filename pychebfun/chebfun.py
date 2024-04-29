@@ -65,7 +65,7 @@ class Chebfun(Polyfun):
         n = len(ak2)
         Tints = 2/(1-(2*np.arange(n))**2)
         val = np.sum((Tints*ak2.T).T, axis=0)
-        a_, b_ = self.domain()
+        a_, b_ = self.domain
         return 0.5*(b_-a_)*val
 
     def integrate(self) -> Self:
@@ -74,9 +74,9 @@ class Chebfun(Polyfun):
         output starts at zero on the left-hand side of the domain.
         """
         coeffs = self.coefficients()
-        a,b = self.domain()
+        a,b = self.domain
         int_coeffs = 0.5*(b-a)*poly.chebyshev.chebint(coeffs)
-        antiderivative = self.from_coeff(int_coeffs, domain=self.domain())
+        antiderivative = self.from_coeff(int_coeffs, domain=self.domain)
         return antiderivative.shift(-antiderivative(a))
 
     def differentiate(self, n: int=1) -> Self:
@@ -84,10 +84,10 @@ class Chebfun(Polyfun):
         n-th derivative, default 1.
         """
         ak = self.coefficients()
-        a_, b_ = self.domain()
+        a_, b_ = self.domain
         for _ in range(n):
             ak = self.differentiator(ak)
-        return self.from_coeff((2./(b_-a_))**n*ak, domain=self.domain())
+        return self.from_coeff((2./(b_-a_))**n*ak, domain=self.domain)
 
     # ----------------------------------------------------------------
     # Roots
@@ -269,9 +269,9 @@ def dct(data: np.ndarray) -> np.ndarray:
 def _add_operator(cls, op):
     def method(self, other):
         if not self.same_domain(other):
-            raise self.DomainMismatch(self.domain(), other.domain())
+            raise self.DomainMismatch(self.domain, other.domain)
         return self.from_function(
-            lambda x: op(self(x).T, other(x).T).T, domain=self.domain(), )
+            lambda x: op(self(x).T, other(x).T).T, domain=self.domain, )
     cast_method = cast_scalar(method)
     name = '__'+op.__name__+'__'
     cast_method.__name__ = name
@@ -290,7 +290,7 @@ for _op in [operator.mul, operator.truediv, operator.pow, rdiv]:
 
 def _add_delegate(ufunc):
     def method(self):
-        return self.from_function(lambda x: ufunc(self(x)), domain=self.domain())
+        return self.from_function(lambda x: ufunc(self(x)), domain=self.domain)
     name = ufunc.__name__
     method.__name__ = name
     method.__doc__ = "delegate for numpy's ufunc {}".format(name)

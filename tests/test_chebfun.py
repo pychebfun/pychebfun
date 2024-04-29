@@ -149,7 +149,7 @@ class Test_sinsinexp(unittest.TestCase):
         """
         Instanciate Chebfun from interpolation values.
         """
-        p2 = Chebfun(self.p.values())
+        p2 = Chebfun(self.p.values)
         npt.assert_almost_equal(self.p.coefficients(), p2.coefficients())
         tools.assert_close(self.p, p2)
 
@@ -200,8 +200,8 @@ class TestDifferentiate(unittest.TestCase):
         """
         e = Chebfun.from_function(lambda x:np.exp(x))
         antideriv = e.integrate()
-        computed = antideriv.shift(- antideriv(antideriv.domain()[0]))
-        expected = e.shift(-(e(e.domain()[0])))
+        computed = antideriv.shift(- antideriv(antideriv.domain[0]))
+        expected = e.shift(-(e(e.domain[0])))
         tools.assert_close(computed, expected, atol=1e-15)
 
 
@@ -375,7 +375,7 @@ def test_ufunc(ufunc):
     x2 = Chebfun.from_function(trans)
     cf = ufunc(x2)
     assert isinstance(cf, Chebfun)
-    result = cf.values()
+    result = cf.values
     expected = ufunc(trans(cf.p.xi))
     npt.assert_allclose(result, expected)
 

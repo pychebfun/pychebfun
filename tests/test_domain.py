@@ -19,7 +19,7 @@ import numpy.testing as npt
 class TestDomain(unittest.TestCase):
     def test_mismatch(self):
         c1 = Chebfun.identity()
-        c2 = Chebfun.from_function(lambda x:x, domain=[2,3])
+        c2 = Chebfun.from_function(lambda x:x, domain=(2,3))
         for op in [operator.add, operator.sub, operator.mul, operator.truediv]:
             with self.assertRaises(Chebfun.DomainMismatch):
                 op(c1, c2)
@@ -39,7 +39,7 @@ def test_init(ufunc):
     xx = Chebfun.from_function(lambda x: x,[0.25,0.75])
     ff = ufunc(xx)
     assert isinstance(ff, Chebfun)
-    result = ff.values()
+    result = ff.values
     expected = ufunc(ff._ui_to_ab(ff.p.xi))
     npt.assert_allclose(result, expected)
 
@@ -50,7 +50,7 @@ def test_init(ufunc):
 
 from . import data
 
-@pytest.mark.parametrize('ff', [Chebfun.from_function(tools.f,[-3,4])])
+@pytest.mark.parametrize('ff', [Chebfun.from_function(tools.f,(-3,4))])
 @pytest.mark.parametrize('domain', data.IntervalTestData.domains)
 def test_restrict(ff, domain):
     ff_ = ff.restrict(domain)

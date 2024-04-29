@@ -48,7 +48,7 @@ class TestPlot(unittest.TestCase):
         T = .5
         def cirper(x):
             return tools.circle(x, period=T)
-        c = Chebfun.from_function(cirper, domain=[0,T])
+        c = Chebfun.from_function(cirper, domain=(0,T))
         xs,ys,xi,yi,d = plot_data(c, plot_res)
         self.assertEqual(d, 2,)
         for X,Y in [(xs,ys), (xi,yi)]:
@@ -57,7 +57,7 @@ class TestPlot(unittest.TestCase):
         plot(c)
 
     def test_plot_complex(self):
-        c = np.exp(1j*Chebfun.identity(domain=[-np.pi,np.pi]))
+        c = np.exp(1j*Chebfun.identity(domain=(-np.pi,np.pi)))
         xs,ys,xi,yi,d = plot_data(c, plot_res)
         self.assertEqual(d, 2, "dimension is two for complex chebfun")
         for X,Y in [(xs,ys), (xi,yi)]:

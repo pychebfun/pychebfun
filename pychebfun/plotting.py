@@ -73,7 +73,7 @@ def dimension_info(poly):
     """
     Dimension information of the fun.
     """
-    vals = poly.values()
+    vals = poly.values
     # "local" degree of freedom; whether it is a complex or real fun
     t = vals.dtype.kind
     if t == 'c':
@@ -92,14 +92,14 @@ def plot_data(poly, resolution):
     """
     Plot data depending on the dimension of the fun.
     """
-    ts = get_linspace(poly.domain(), resolution)
+    ts = get_linspace(poly.domain, resolution)
     values = poly(ts)
     dim, dof = dimension_info(poly)
     if 1 == dim and 1 == dof: # 1D real
         xs = ts
         ys = values
         xi = poly._ui_to_ab(poly.p.xi)
-        yi = poly.values()
+        yi = poly.values
         d = 1
     elif 2 == dim and 1 == dof: # 2D real
         xf = lambda v: v[:,0]
@@ -113,7 +113,7 @@ def plot_data(poly, resolution):
         raise ValueError("Too many dimensions to plot")
     if 2 == d:
         xs, ys = xf(values), yf(values)
-        xi, yi = xf(poly.values()), yf(poly.values())
+        xi, yi = xf(poly.values), yf(poly.values)
     return xs, ys, xi, yi, d
 
 
@@ -157,7 +157,7 @@ def compare(poly, f, *args, **kwds):
 
         -- f: Python, Numpy, or Sage function
     """
-    a, b = poly.domain()
+    a, b = poly.domain
     x = np.linspace(a, b, 10000)
     fig = plt.figure()
     ax = fig.add_subplot(211)

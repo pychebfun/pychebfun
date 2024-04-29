@@ -17,9 +17,9 @@ def cast_scalar(method):
     Cast scalars to constant interpolating objects
     """
     @wraps(method)
-    def new_method(self, other):
+    def new_method(self, other: "Polyfun | complex"):
         if np.isscalar(other):
-            other = type(self)([other],self.domain())
+            other = type(self)([other],self.domain)
         return method(self, other)
     return new_method
 
@@ -31,7 +31,7 @@ class Polyfun:
     Polyfun objects consist in essence of two components:
 
         1) An interpolant on [-1,1],
-        2) A domain attribute [a,b].
+        2) A domain attribute (a,b).
 
     These two pieces of information are used to define and subsequently
     keep track of operations upon Chebyshev interpolants defined on an
@@ -65,7 +65,7 @@ class Polyfun:
         """
         Initialise from another instance
         """
-        return cls(other.values(),other.domain())
+        return cls(other.values, other.domain)
 
     @classmethod
     def from_coeff(cls, chebcoeff: npt.ArrayLike, domain:Optional[tuple]=None, prune: bool=True, vscale: float=1.):
@@ -197,7 +197,7 @@ class Polyfun:
         """
         Returns True if the domains of two objects are the same.
         """
-        return np.allclose(self.domain(), fun2.domain(), rtol=1e-14, atol=1e-14)
+        return np.allclose(self.domain, fun2.domain, rtol=1e-14, atol=1e-14)
 
     # ----------------------------------------------------------------
     # String representations
@@ -207,8 +207,8 @@ class Polyfun:
         """
         Display method
         """
-        a, b = self.domain()
-        vals = self.values()
+        a, b = self.domain
+        vals = self.values
         return (
             '%s \n '
             '    domain        length     endpoint values\n '
@@ -232,13 +232,13 @@ class Polyfun:
         """
         Components s of the fun.
         """
-        return self.from_data(self.values().T[s].T)
+        return self.from_data(self.values.T[s].T)
 
     def __bool__(self) -> bool:
         """
         Test for difference from zero (up to tolerance)
         """
-        return not np.allclose(self.values(), 0)
+        return not np.allclose(self.values, 0)
 
     __nonzero__ = __bool__
 
@@ -254,7 +254,7 @@ class Polyfun:
         Addition
         """
         if not self.same_domain(other):
-            raise self.DomainMismatch(self.domain(),other.domain())
+            raise self.DomainMismatch(self.domain, other.domain)
 
         ps = [self, other]
         # length difference
@@ -271,14 +271,14 @@ class Polyfun:
         chebsum = big_coeffs + padded
         new_vscale = np.max([self._vscale, other._vscale])
         return self.from_coeff(
-            chebsum, domain=self.domain(), vscale=new_vscale
+            chebsum, domain=self.domain, vscale=new_vscale
         )
 
     __radd__ = __add__
 
 
     def shift(self, x: complex) -> Self:
-        return type(self).from_data(self.values() + x)
+        return type(self).from_data(self.values + x)
 
 
     @cast_scalar
@@ -301,13 +301,13 @@ class Polyfun:
         """
         Negation.
         """
-        return self.from_data(-self.values(),domain=self.domain())
+        return self.from_data(-self.values, domain=self.domain)
 
 
     def __abs__(self):
         def abs_self(x: npt.ArrayLike) -> npt.ArrayLike:
             return np.abs(self(x))
-        return self.from_function(abs_self, domain=self.domain())
+        return self.from_function(abs_self, domain=self.domain)
 
     # ----------------------------------------------------------------
     # Attributes
@@ -317,11 +317,13 @@ class Polyfun:
         return self.p.n
 
     def coefficients(self) -> np.ndarray:
-        return self.polyfit(self.values())
+        return self.polyfit(self.values)
 
+    @property
     def values(self) -> np.ndarray:
         return self._values
 
+    @property
     def domain(self) -> tuple:
         return self._domain
 
