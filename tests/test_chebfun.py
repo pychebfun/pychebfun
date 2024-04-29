@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-# coding: UTF-8
 
-from __future__ import division
 import os
 import sys
 
@@ -98,6 +96,9 @@ class Test_sinsinexp(unittest.TestCase):
     def setUp(self):
         # Construct the O(dx^-16) "spectrally accurate" chebfun p
         self.p = Chebfun.from_function(tools.f)
+
+    def test_shift(self):
+        assert self.p.shift(2.) == self.p + 2.
 
     def test_biglen(self):
         self.assertGreaterEqual(self.p.size(), 4)
@@ -240,9 +241,10 @@ class TestDifferentiate(unittest.TestCase):
         """
         e = Chebfun.from_function(lambda x:np.exp(x))
         antideriv = e.integrate()
-        computed = antideriv - antideriv(antideriv.domain()[0])
-        expected = e - e(antideriv.domain()[0])
+        computed = antideriv.shift(- antideriv(antideriv.domain()[0]))
+        expected = e.shift(-(e(e.domain()[0])))
         tools.assert_close(computed, expected, atol=1e-15)
+
 
 
 class TestSimple(unittest.TestCase):
@@ -253,6 +255,10 @@ class TestSimple(unittest.TestCase):
         p = Chebfun.from_function(Quad)
         i = p.sum()
         npt.assert_array_almost_equal(i,2/3)
+
+    def test_shift_exp(self):
+        e = Chebfun.from_function(lambda x:np.exp(x))
+        tools.assert_close(e.shift(1.), e + 1.)
 
     def test_norm(self):
         """

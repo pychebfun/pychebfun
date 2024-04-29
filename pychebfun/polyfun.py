@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-# coding: UTF-8
-from __future__ import division
 
-import typing
+from typing import Self, Optional, Callable
+
+import scipy.interpolate
 
 import numpy as np
+import numpy.typing as npt
 
 import sys
 emach = sys.float_info.epsilon                        # machine epsilon
@@ -24,8 +25,7 @@ def cast_scalar(method):
 
 
 
-
-class Polyfun(object):
+class Polyfun:
     """
     Construct a Lagrange interpolating polynomial over arbitrary points.
     Polyfun objects consist in essence of two components:
@@ -54,21 +54,21 @@ class Polyfun(object):
         """
 
     @classmethod
-    def from_data(self, data, domain=None):
+    def from_data(cls, data: npt.ArrayLike, domain:Optional[tuple]=None) -> Self:
         """
         Initialise from interpolation values.
         """
-        return self(data,domain)
+        return cls(data,domain)
 
     @classmethod
-    def from_fun(self, other):
+    def from_fun(cls, other: Self) -> Self:
         """
         Initialise from another instance
         """
-        return self(other.values(),other.domain())
+        return cls(other.values(),other.domain())
 
     @classmethod
-    def from_coeff(self, chebcoeff, domain=None, prune=True, vscale=1.):
+    def from_coeff(cls, chebcoeff: npt.ArrayLike, domain:Optional[tuple]=None, prune: bool=True, vscale: float=1.):
         """
         Initialise from provided coefficients
         prune: Whether to prune the negligible coefficients
@@ -76,41 +76,43 @@ class Polyfun(object):
         """
         coeffs = np.asarray(chebcoeff)
         if prune:
-            N = self._cutoff(coeffs, vscale)
+            N = cls._cutoff(coeffs, vscale)
             pruned_coeffs = coeffs[:N]
         else:
             pruned_coeffs = coeffs
-        values = self.polyval(pruned_coeffs)
-        return self(values, domain, vscale)
+        values = cls.polyval(pruned_coeffs)
+        return cls(values, domain, vscale)
 
     @classmethod
-    def dichotomy(self, f, kmin=2, kmax=12, raise_no_convergence=True,):
+    def dichotomy(cls, f: Callable, kmin: int=2, kmax :int=12, raise_no_convergence:bool=True,) -> np.ndarray:
         """
         Compute the coefficients for a function f by dichotomy.
         kmin, kmax: log2 of number of interpolation points to try
         raise_no_convergence: whether to raise an exception if the dichotomy does not converge
         """
-
+        last = [0,0]
+        bnd = 0
+        coeffs = np.zeros(1)
         for k in range(kmin, kmax):
             N = pow(2, k)
 
-            sampled = self.sample_function(f, N)
-            coeffs = self.polyfit(sampled)
+            sampled = cls.sample_function(f, N)
+            coeffs = cls.polyfit(sampled)
 
             # 3) Check for negligible coefficients
             #    If within bound: get negligible coeffs and bread
-            bnd = self._threshold(np.max(np.abs(coeffs)))
+            bnd = cls._threshold(np.max(np.abs(coeffs)))
 
             last = abs(coeffs[-2:])
             if np.all(last <= bnd):
                 break
         else:
             if raise_no_convergence:
-                raise self.NoConvergence(last, bnd)
+                raise cls.NoConvergence(last, bnd)
         return coeffs
 
     @classmethod
-    def get_default_domain(cls, domain:typing.Optional[tuple]=None) -> tuple:
+    def get_default_domain(cls, domain:Optional[tuple]=None) -> tuple:
         if domain is None:
             return (-1., 1.)
         else:
@@ -119,9 +121,9 @@ class Polyfun(object):
 
     @classmethod
     def from_function(cls,
-                      f: typing.Callable[[float], float],
-                      domain:typing.Optional[tuple]=None,
-                      N:typing.Optional[int]=None):
+                      f: Callable[[npt.ArrayLike], npt.ArrayLike],
+                      domain:Optional[tuple]=None,
+                      N:Optional[int]=None) -> Self:
         """
         Initialise from a function to sample.
         N: optional parameter which indicates the range of the dichotomy
@@ -129,7 +131,8 @@ class Polyfun(object):
         # rescale f to the unit domain
         a,b = cls.get_default_domain(domain)
         map_ui_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b)
-        args = {'f': lambda t: f(map_ui_ab(t))}
+        args = {}
+        args['f'] = lambda t: f(map_ui_ab(t))
         if N is not None: # N is provided
             nextpow2 = int(np.log2(N))+1
             args['kmin'] = nextpow2
@@ -144,7 +147,7 @@ class Polyfun(object):
         return cls.from_coeff(coeffs, domain)
 
     @classmethod
-    def _threshold(cls, vscale: float):
+    def _threshold(cls, vscale: float) -> float:
         """
         Compute the threshold at which coefficients are trimmed.
         """
@@ -152,7 +155,7 @@ class Polyfun(object):
         return bnd
 
     @classmethod
-    def _cutoff(cls, coeffs:list[float], vscale:float):
+    def _cutoff(cls, coeffs:np.ndarray, vscale:float) -> int:
         """
         Compute cutoff index after which the coefficients are deemed negligible.
         """
@@ -165,7 +168,7 @@ class Polyfun(object):
         return N+1
 
 
-    def __init__(self, values=0., domain=None, vscale=None):
+    def __init__(self, values:npt.ArrayLike=0., domain:Optional[tuple]=None, vscale:Optional[float]=None):
         """
         Init an object from values at interpolation points.
         values: Interpolation values
@@ -183,14 +186,14 @@ class Polyfun(object):
         self.p = self.interpolator(points, avalues1)
 
         domain = self.get_default_domain(domain)
-        self._domain = np.array(domain)
+        self._domain = domain
         a,b = domain[0], domain[-1]
 
         # maps from [-1,1] <-> [a,b]
         self._ab_to_ui = lambda x: (2.0*x-a-b)/(b-a)
         self._ui_to_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b)
 
-    def same_domain(self, fun2):
+    def same_domain(self, fun2: Self) -> bool:
         """
         Returns True if the domains of two objects are the same.
         """
@@ -200,7 +203,7 @@ class Polyfun(object):
     # String representations
     # ----------------------------------------------------------------
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Display method
         """
@@ -214,7 +217,7 @@ class Polyfun(object):
                 str(type(self)).split('.')[-1].split('>')[0][:-1],
                 a,b,self.size(),vals[-1],vals[0],self._vscale,)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "<{0}({1})>".format(
             str(type(self)).split('.')[-1].split('>')[0][:-1],self.size(),)
 
@@ -222,16 +225,16 @@ class Polyfun(object):
     # Basic Operator Overloads
     # ----------------------------------------------------------------
 
-    def __call__(self, x):
+    def __call__(self, x: npt.ArrayLike) -> npt.ArrayLike:
         return self.p(self._ab_to_ui(x))
 
-    def __getitem__(self, s):
+    def __getitem__(self, s:int) -> Self:
         """
         Components s of the fun.
         """
         return self.from_data(self.values().T[s].T)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """
         Test for difference from zero (up to tolerance)
         """
@@ -239,14 +242,14 @@ class Polyfun(object):
 
     __nonzero__ = __bool__
 
-    def __eq__(self, other):
+    def __eq__(self, other:Self) -> bool:
         return not(self - other)
 
-    def __ne__(self, other):
+    def __ne__(self, other:Self) -> bool:
         return not (self == other)
 
     @cast_scalar
-    def __add__(self, other):
+    def __add__(self, other: Self) -> Self:
         """
         Addition
         """
@@ -274,23 +277,27 @@ class Polyfun(object):
     __radd__ = __add__
 
 
+    def shift(self, x: complex) -> Self:
+        return type(self).from_data(self.values() + x)
+
+
     @cast_scalar
-    def __sub__(self, other):
+    def __sub__(self, other: Self) -> Self:
         """
         Subtraction.
         """
         return self + (-other)
 
-    def __rsub__(self, other):
+    def __rsub__(self, other: Self) -> Self:
         return -(self - other)
 
-    def __rmul__(self, other):
+    def __rmul__(self, other: Self) -> Self:
         return self.__mul__(other)
 
-    def __rtruediv__(self, other):
+    def __rtruediv__(self, other: Self) -> Self:
         return self.__rdiv__(other)
 
-    def __neg__(self):
+    def __neg__(self) -> Self:
         """
         Negation.
         """
@@ -298,22 +305,24 @@ class Polyfun(object):
 
 
     def __abs__(self):
-        return self.from_function(lambda x: abs(self(x)),domain=self.domain())
+        def abs_self(x: npt.ArrayLike) -> npt.ArrayLike:
+            return np.abs(self(x))
+        return self.from_function(abs_self, domain=self.domain())
 
     # ----------------------------------------------------------------
     # Attributes
     # ----------------------------------------------------------------
 
-    def size(self):
+    def size(self) -> int:
         return self.p.n
 
-    def coefficients(self):
+    def coefficients(self) -> np.ndarray:
         return self.polyfit(self.values())
 
-    def values(self):
+    def values(self) -> np.ndarray:
         return self._values
 
-    def domain(self):
+    def domain(self) -> tuple:
         return self._domain
 
     # ----------------------------------------------------------------
@@ -326,14 +335,17 @@ class Polyfun(object):
     def differentiate(self):
         raise NotImplementedError()
 
-    def dot(self, other):
+    def dot(self, other: Self) -> complex:
         """
         Return the Hilbert scalar product $∫f.g$.
         """
         prod = self * other
         return prod.sum()
 
-    def norm(self):
+    def sum(self) -> complex:
+        raise NotImplementedError()
+
+    def norm(self: Self) -> float:
         """
         Return: square root of scalar product with itself.
         """
@@ -344,7 +356,7 @@ class Polyfun(object):
     # ----------------------------------------------------------------
     # Miscellaneous operations
     # ----------------------------------------------------------------
-    def restrict(self,subinterval):
+    def restrict(self, subinterval:tuple) -> Self:
         """
         Return a Polyfun that matches self on subinterval.
         """
@@ -358,3 +370,24 @@ class Polyfun(object):
     # ----------------------------------------------------------------
     diff = differentiate
     cumsum = integrate
+
+    @classmethod
+    def polyval(cls, chebcoeffs:np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
+
+    @classmethod
+    def sample_function(cls, f: Callable, N:int) -> np.ndarray:
+        raise NotImplementedError()
+
+    @classmethod
+    def polyfit(cls, sampled: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
+    @classmethod
+    def interpolation_points(cls, N:int) -> np.ndarray:
+        raise NotImplementedError()
+
+    @classmethod
+    def interpolator(cls, x, values: np.ndarray) -> scipy.interpolate.BarycentricInterpolator:
+        raise NotImplementedError()
