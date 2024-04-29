@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-from typing import Self, Optional, Callable
+from typing import Self, Optional, Callable, overload
 
 type Domain = tuple[float, float]
+
 
 import scipy.interpolate
 
@@ -86,7 +87,7 @@ class Polyfun:
         return cls(values, domain, vscale)
 
     @classmethod
-    def dichotomy(cls, f: Callable, kmin: int=2, kmax :int=12, raise_no_convergence:bool=True,) -> np.ndarray:
+    def dichotomy(cls, f: Callable, kmin: int=2, kmax: int=12, raise_no_convergence: bool=True,) -> np.ndarray:
         """
         Compute the coefficients for a function f by dichotomy.
         kmin, kmax: log2 of number of interpolation points to try
@@ -123,7 +124,7 @@ class Polyfun:
 
     @classmethod
     def from_function(cls,
-                      f: Callable[[npt.ArrayLike], npt.ArrayLike],
+                      f: Callable,
                       domain:Optional[Domain]=None,
                       N:Optional[int]=None) -> Self:
         """
@@ -228,8 +229,15 @@ class Polyfun:
     # ----------------------------------------------------------------
     # Basic Operator Overloads
     # ----------------------------------------------------------------
+    @overload
+    def __call__(self, x: float) -> float:
+        pass
 
-    def __call__(self, x: npt.ArrayLike) -> npt.ArrayLike:
+    @overload
+    def __call__(self, x: np.ndarray) -> np.ndarray:
+        pass
+
+    def __call__(self, x):
         return self.p(self._ab_to_ui(x))
 
     def __getitem__(self, s:int) -> Self:
@@ -298,8 +306,14 @@ class Polyfun:
     def __rmul__(self, other: Self) -> Self:
         return self.__mul__(other)
 
+    def __mul__(self, other: Self) -> Self:
+        raise NotImplementedError()
+
     def __rtruediv__(self, other: Self) -> Self:
         return self.__rdiv__(other)
+
+    def __rdiv__(self, other: Self) -> Self:
+        raise NotImplementedError()
 
     def __neg__(self) -> Self:
         """
@@ -309,7 +323,7 @@ class Polyfun:
 
 
     def __abs__(self):
-        def abs_self(x: npt.ArrayLike) -> npt.ArrayLike:
+        def abs_self(x: np.ndarray) -> np.ndarray:
             return np.abs(self(x))
         return self.from_function(abs_self, domain=self.domain)
 
