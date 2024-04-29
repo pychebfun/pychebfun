@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: UTF-8
 """
 Chebfun module
 ==============
@@ -9,7 +8,8 @@ Chebfun module
 .. moduleauthor :: Gregory Potter <ghpotter@gmail.com>
 
 """
-from __future__ import division
+
+from typing import Self, Callable
 
 
 import operator
@@ -17,7 +17,7 @@ import operator
 import numpy as np
 from scipy import linalg
 
-from scipy.interpolate import BarycentricInterpolator as Bary
+import scipy.interpolate
 import numpy.polynomial as poly
 import scipy.fftpack as fftpack
 
@@ -34,28 +34,28 @@ class Chebfun(Polyfun):
 
 
     @classmethod
-    def identity(self, domain=[-1., 1.]):
+    def identity(cls, domain=(-1., 1.)) -> Self:
         """
         The identity function x -> x.
         """
-        return self.from_data([domain[1],domain[0]], domain)
+        return cls.from_data([domain[1],domain[0]], domain)
 
     @classmethod
-    def basis(self, n):
+    def basis(cls, n:int) -> Self:
         """
         Chebyshev basis functions T_n.
         """
         if n == 0:
-            return self(np.array([1.]))
+            return cls(np.array([1.]))
         vals = np.ones(n+1)
         vals[1::2] = -1
-        return self(vals)
+        return cls(vals)
 
     # ----------------------------------------------------------------
     # Integration and differentiation
     # ----------------------------------------------------------------
 
-    def sum(self):
+    def sum(self) -> complex:
         """
         Evaluate the integral over the given interval using
         Clenshaw-Curtis quadrature.
@@ -65,34 +65,34 @@ class Chebfun(Polyfun):
         n = len(ak2)
         Tints = 2/(1-(2*np.arange(n))**2)
         val = np.sum((Tints*ak2.T).T, axis=0)
-        a_, b_ = self.domain()
+        a_, b_ = self.domain
         return 0.5*(b_-a_)*val
 
-    def integrate(self):
+    def integrate(self) -> Self:
         """
         Return the object representing the primitive of self over the domain. The
         output starts at zero on the left-hand side of the domain.
         """
         coeffs = self.coefficients()
-        a,b = self.domain()
+        a,b = self.domain
         int_coeffs = 0.5*(b-a)*poly.chebyshev.chebint(coeffs)
-        antiderivative = self.from_coeff(int_coeffs, domain=self.domain())
-        return antiderivative - antiderivative(a)
+        antiderivative = self.from_coeff(int_coeffs, domain=self.domain)
+        return antiderivative.shift(-antiderivative(a))
 
-    def differentiate(self, n=1):
+    def differentiate(self, n: int=1) -> Self:
         """
         n-th derivative, default 1.
         """
         ak = self.coefficients()
-        a_, b_ = self.domain()
+        a_, b_ = self.domain
         for _ in range(n):
             ak = self.differentiator(ak)
-        return self.from_coeff((2./(b_-a_))**n*ak, domain=self.domain())
+        return self.from_coeff((2./(b_-a_))**n*ak, domain=self.domain)
 
     # ----------------------------------------------------------------
     # Roots
     # ----------------------------------------------------------------
-    def roots(self):
+    def roots(self) -> np.ndarray:
         """
         Utilises Boyd's O(n^2) recursive subdivision algorithm. The chebfun
         is recursively subsampled until it is successfully represented to
@@ -127,8 +127,8 @@ class Chebfun(Polyfun):
             # divide at a close-to-zero split-point
             split_point = self._ui_to_ab(0.0123456789)
             return np.concatenate(
-                (self.restrict([self._domain[0],split_point]).roots(),
-                 self.restrict([split_point,self._domain[1]]).roots())
+                (self.restrict((self.domain[0],split_point)).roots(),
+                 self.restrict((split_point,self.domain[1])).roots())
             )
 
     # ----------------------------------------------------------------
@@ -136,7 +136,7 @@ class Chebfun(Polyfun):
     # ----------------------------------------------------------------
 
     @classmethod
-    def interpolation_points(self, N):
+    def interpolation_points(cls, N:int) -> np.ndarray:
         """
         N Chebyshev points in [-1, 1], boundaries included
         """
@@ -145,18 +145,18 @@ class Chebfun(Polyfun):
         return np.cos(np.arange(N)*np.pi/(N-1))
 
     @classmethod
-    def sample_function(self, f, N):
+    def sample_function(cls, f: Callable, N: int) -> np.ndarray:
         """
         Sample a function on N+1 Chebyshev points.
         """
-        x = self.interpolation_points(N+1)
+        x = cls.interpolation_points(N+1)
         try:
             return f(x)
-        except:  # needed when trying to sample functions which can't take a vector argument
+        except ValueError:  # needed when trying to sample functions which can't take a vector argument
             return np.vectorize(f)(x)
 
     @classmethod
-    def polyfit(self, sampled):
+    def polyfit(cls, sampled: np.ndarray) -> np.ndarray:
         """
         Compute Chebyshev coefficients for values located on Chebyshev points.
         sampled: array; first dimension is number of Chebyshev points
@@ -169,7 +169,7 @@ class Chebfun(Polyfun):
         return coeffs
 
     @classmethod
-    def polyval(self, chebcoeff):
+    def polyval(cls, chebcoeff: np.ndarray) -> np.ndarray:
         """
         Compute the interpolation values at Chebyshev points.
         chebcoeff: Chebyshev coefficients
@@ -192,12 +192,12 @@ class Chebfun(Polyfun):
         return values
 
     @classmethod
-    def interpolator(self, x, values):
+    def interpolator(cls, x: np.ndarray, values: np.ndarray) -> scipy.interpolate.BarycentricInterpolator:
         """
         Returns a polynomial with vector coefficients which interpolates the values at the Chebyshev points x
         """
         # hacking the barycentric interpolator by computing the weights in advance
-        p = Bary([0.,1.])
+        p = scipy.interpolate.BarycentricInterpolator([0.,1.])
         N = len(values)
         weights = np.ones(N)
         weights[0] = .5
@@ -213,7 +213,7 @@ class Chebfun(Polyfun):
     # ----------------------------------------------------------------
 
     @classmethod
-    def differentiator(self, A):
+    def differentiator(cls, A: np.ndarray) -> np.ndarray:
         """Differentiate a set of Chebyshev polynomial expansion
            coefficients
            Originally from http://www.scientificpython.net/pyblog/chebyshev-differentiation
@@ -238,7 +238,7 @@ class Chebfun(Polyfun):
 # General utilities
 # ----------------------------------------------------------------
 
-def even_data(data):
+def even_data(data: np.ndarray) -> np.ndarray:
     """
     Construct Extended Data Vector (equivalent to creating an
     even extension of the original function)
@@ -247,7 +247,7 @@ def even_data(data):
     """
     return np.concatenate([data, data[-2:0:-1]],)
 
-def dct(data):
+def dct(data: np.ndarray) -> np.ndarray:
     """
     Compute DCT using FFT
     """
@@ -269,9 +269,9 @@ def dct(data):
 def _add_operator(cls, op):
     def method(self, other):
         if not self.same_domain(other):
-            raise self.DomainMismatch(self.domain(), other.domain())
+            raise self.DomainMismatch(self.domain, other.domain)
         return self.from_function(
-            lambda x: op(self(x).T, other(x).T).T, domain=self.domain(), )
+            lambda x: op(self(x).T, other(x).T).T, domain=self.domain, )
     cast_method = cast_scalar(method)
     name = '__'+op.__name__+'__'
     cast_method.__name__ = name
@@ -288,9 +288,9 @@ for _op in [operator.mul, operator.truediv, operator.pow, rdiv]:
 # Add numpy ufunc delegates
 # ----------------------------------------------------------------
 
-def _add_delegate(ufunc, nonlinear=True):
+def _add_delegate(ufunc):
     def method(self):
-        return self.from_function(lambda x: ufunc(self(x)), domain=self.domain())
+        return self.from_function(lambda x: ufunc(self(x)), domain=self.domain)
     name = ufunc.__name__
     method.__name__ = name
     method.__doc__ = "delegate for numpy's ufunc {}".format(name)
@@ -307,40 +307,3 @@ for func in [np.arccos, np.arccosh, np.arcsin, np.arcsinh, np.arctan, np.arctanh
 # ----------------------------------------------------------------
 ## chebpts = interpolation_points
 
-# ----------------------------------------------------------------
-# Constructor inspired by the Matlab version
-# ----------------------------------------------------------------
-
-def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
-    """
-    Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1, 1]`.
-
-    :param callable f: any univariate real numerical function
-    :param int N: (default = None)  specify number of interpolating points
-    :param np.array chebcoeff: (default = np.array(0)) specify the coefficients
-    """
-
-    # Chebyshev coefficients
-    if chebcoeff is not None:
-        return Chebfun.from_coeff(chebcoeff, domain)
-
-    # another instance
-    if isinstance(f, Polyfun):
-        return Chebfun.from_fun(f)
-
-    # callable
-    if hasattr(f, '__call__'):
-        return Chebfun.from_function(f, domain, N)
-
-    # from here on, assume that f is None, or iterable
-    if np.isscalar(f):
-        f = [f]
-
-    try:
-        iter(f) # interpolation values provided
-    except TypeError:
-        pass
-    else:
-        return Chebfun(f, domain)
-
-    raise TypeError('Impossible to initialise the object from an object of type {}'.format(type(f)))

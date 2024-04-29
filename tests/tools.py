@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# coding: UTF-8
-from __future__ import division
 
 import numpy.testing as npt
 import numpy as np

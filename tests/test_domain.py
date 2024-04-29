@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# coding: UTF-8
-from __future__ import division
 
 from pychebfun import Chebfun
 import operator
@@ -9,6 +7,8 @@ import pytest
 from . import tools
 import numpy as np
 import numpy.testing as npt
+
+from . import data
 
 #------------------------------------------------------------------------------
 # Unit test for arbitrary interval Chebfuns
@@ -19,7 +19,7 @@ import numpy.testing as npt
 class TestDomain(unittest.TestCase):
     def test_mismatch(self):
         c1 = Chebfun.identity()
-        c2 = Chebfun.from_function(lambda x:x, domain=[2,3])
+        c2 = Chebfun.from_function(lambda x:x, domain=(2,3))
         for op in [operator.add, operator.sub, operator.mul, operator.truediv]:
             with self.assertRaises(Chebfun.DomainMismatch):
                 op(c1, c2)
@@ -39,7 +39,7 @@ def test_init(ufunc):
     xx = Chebfun.from_function(lambda x: x,[0.25,0.75])
     ff = ufunc(xx)
     assert isinstance(ff, Chebfun)
-    result = ff.values()
+    result = ff.values
     expected = ufunc(ff._ui_to_ab(ff.p.xi))
     npt.assert_allclose(result, expected)
 
@@ -48,9 +48,8 @@ def test_init(ufunc):
 # Test the restrict operator
 #------------------------------------------------------------------------------
 
-from . import data
 
-@pytest.mark.parametrize('ff', [Chebfun.from_function(tools.f,[-3,4])])
+@pytest.mark.parametrize('ff', [Chebfun.from_function(tools.f,(-3,4))])
 @pytest.mark.parametrize('domain', data.IntervalTestData.domains)
 def test_restrict(ff, domain):
     ff_ = ff.restrict(domain)
@@ -64,7 +63,8 @@ def test_restrict(ff, domain):
 @pytest.fixture(params=list(range(5)))
 def tdata(request):
     index = request.param
-    class TData(): pass
+    class TData():
+        pass
     tdata = TData()
     tdata.function = data.IntervalTestData.functions[0]
     tdata.function_d = data.IntervalTestData.first_derivs[0]
@@ -83,8 +83,8 @@ class TestArbitraryIntervals(object):
         tools.assert_close(tdata.chebfun, tdata.function, xx)
 
     def test_domain(self, tdata):
-        assert tdata.chebfun._domain[0] == tdata.domain[0]
-        assert tdata.chebfun._domain[1] == tdata.domain[1]
+        assert tdata.chebfun.domain[0] == tdata.domain[0]
+        assert tdata.chebfun.domain[1] == tdata.domain[1]
 
     def test_first_deriv(self, tdata):
         xx = tools.map_ui_ab(tools.xs, tdata.domain[0], tdata.domain[1])
