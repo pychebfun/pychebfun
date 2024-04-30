@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 
 from pathlib import Path
-
-import matplotlib
 import pytest
-
-matplotlib.interactive(False)
+import subprocess
 
 
 here = Path(__file__).parent.resolve()
@@ -25,8 +22,7 @@ def test_run(path, name):
     """
     Check that the examples can be executed.
     """
-    with open(path) as f:
-        code = compile(f.read(), name, 'exec')
-        exec(code, {})
+    # subprocess.run(['python', '-c', "import matplotlib; matplotlib.interactive(False); exec(open('{}').read())".format(path)], check=True)
+    subprocess.run(['python', '-c', "exec(open('{}').read())".format(path)], check=True)
 
 

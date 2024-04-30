@@ -1,8 +1,7 @@
 # pychebfun - Python Chebyshev Functions
 
-<!-- [![Build Status](https://img.shields.io/travis/pychebfun/pychebfun/master.svg?style=flat-square)](https://travis-ci.org/pychebfun/pychebfun) -->
 [![Coverage Status](https://img.shields.io/coveralls/pychebfun/pychebfun/master.svg?style=flat-square)](https://coveralls.io/r/pychebfun/pychebfun?branch=master)
-![Python version](https://img.shields.io/badge/python-2.7,_3.4,_3.5-blue.svg?style=flat-square)
+![Python version](https://img.shields.io/badge/python-3.12-blue.svg?style=flat-square)
 
 ## About
 
