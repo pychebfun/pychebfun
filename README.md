@@ -117,7 +117,7 @@ See 'INSTALL' located in this directory.
 pychebfun is hosted at http://github.com/pychebfun/pychebfun. 
 
 [1]: https://github.com/olivierverdier
-[2]: http://www2.maths.ox.ac.uk/chebfun/
+[2]: https://www.chebfun.org/
 [3]: https://github.com/cswiercz
 [4]: https://github.com/pychebfun/pychebfun/tree/master/examples
 [5]: https://github.com/pychebfun/pychebfun/tree/master/examples/extrema.py
