@@ -1,6 +1,7 @@
 # pychebfun - Python Chebyshev Functions
 
-[![Coverage Status](https://img.shields.io/coveralls/pychebfun/pychebfun/master.svg?style=flat-square)](https://coveralls.io/r/pychebfun/pychebfun?branch=master)
+[![pychebfun](https://github.com/pychebfun/pychebfun/actions/workflows/python_package.yml/badge.svg)](https://github.com/pychebfun/pychebfun/actions/workflows/python_package.yml)
+[![codecov](https://codecov.io/gh/pychebfun/pychebfun/graph/badge.svg?token=NhTZBV0Q20)](https://codecov.io/gh/pychebfun/pychebfun)
 ![Python version](https://img.shields.io/badge/python-3.12-blue.svg?style=flat-square)
 
 ## About
