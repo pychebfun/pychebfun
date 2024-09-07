@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from typing import Self, Optional, Callable, overload
+from typing import Self, Optional, Callable, overload, NewType
 
 
 
@@ -13,7 +13,8 @@ import sys
 
 from functools import wraps
 
-type Domain = tuple[float, float]
+Domain = NewType("Domain", tuple[float, float])
+
 emach = sys.float_info.epsilon                        # machine epsilon
 
 def cast_scalar(method):
