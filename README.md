@@ -2,7 +2,7 @@
 
 [![pychebfun](https://github.com/pychebfun/pychebfun/actions/workflows/python_package.yml/badge.svg)](https://github.com/pychebfun/pychebfun/actions/workflows/python_package.yml)
 [![codecov](https://codecov.io/gh/pychebfun/pychebfun/graph/badge.svg?token=NhTZBV0Q20)](https://codecov.io/gh/pychebfun/pychebfun)
-![Python version](https://img.shields.io/badge/python-3.12-blue.svg?style=flat-square)
+![Python version](https://img.shields.io/badge/Python-3.9%20|%203.10%20|%203.11%20|%203.12-blue.svg?logo=python&logoColor=gold)
 
 ## About
 
@@ -26,7 +26,7 @@ f(np.linspace(-.5, .5, 200))
 # plot it:
 plot(f)
 ```
-![Example](https://github.com/pychebfun/pychebfun/raw/master/images/ex1.png)
+![Example](https://github.com/pychebfun/pychebfun/raw/main/images/ex1.png)
 
 One can also use the general constructor `chebfun`:
 ```python
@@ -66,7 +66,7 @@ f.integrate() # primitive of f: ∫_0^x f(y) dy
 ```
 
 You can see in [this example][5] how to compute the maxima and minima of an arbitrary function by computing the zeros of its derivative.
-![Extrema](https://github.com/pychebfun/pychebfun/raw/master/images/extrema.png)
+![Extrema](https://github.com/pychebfun/pychebfun/raw/main/images/extrema.png)
 
 One can also have vector coefficients:
 ```python
@@ -75,7 +75,7 @@ def circle(x):
 c = Chebfun.from_function(circle)
 plot(c)
 ```
-![Example](https://github.com/pychebfun/pychebfun/raw/master/images/circle.png)
+![Example](https://github.com/pychebfun/pychebfun/raw/main/images/circle.png)
 
 If you are interested in experimenting with the innards of chebfun, you should be aware of the following functions:
 ```python
@@ -87,7 +87,7 @@ Chebfun.polyval([1., 2.]) # compute values at Chebyshev points given Chebyshev c
 ```
 
 You should also take a look at the [examples][4] bundled with this project.
-![Example](https://github.com/pychebfun/pychebfun/raw/master/images/example.png)
+![Example](https://github.com/pychebfun/pychebfun/raw/main/images/example.png)
 
 The pychebfun project is based on the mathematical work of Battles and Trefethen et. al. yet is optimized to take advantage of the tools in the Numpy/Scipy and Sage libraries. This project is solely for the educational purposes of the owner and is not meant to compete with the Matlab library created by Battles and Trefethen. Any questions regarding the Chebfun package for Matlab should be directed towards the [Chebfun team][2].
 
@@ -120,6 +120,6 @@ pychebfun is hosted at http://github.com/pychebfun/pychebfun.
 [1]: https://github.com/olivierverdier
 [2]: https://www.chebfun.org/
 [3]: https://github.com/cswiercz
-[4]: https://github.com/pychebfun/pychebfun/tree/master/examples
-[5]: https://github.com/pychebfun/pychebfun/tree/master/examples/extrema.py
+[4]: https://github.com/pychebfun/pychebfun/tree/main/examples
+[5]: https://github.com/pychebfun/pychebfun/tree/main/examples/extrema.py
 
