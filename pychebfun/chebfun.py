@@ -9,7 +9,8 @@ Chebfun module
 
 """
 
-from typing import Self, Callable
+from typing import Callable
+from typing_extensions import Self
 
 
 import operator

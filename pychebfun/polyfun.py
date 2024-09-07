@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from typing import Self, Optional, Callable, overload, NewType
-
+from typing import Optional, Callable, overload, NewType
+from typing_extensions import Self
 
 
 import scipy.interpolate
