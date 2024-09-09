@@ -132,6 +132,88 @@ class Chebfun(Polyfun):
                  self.restrict((split_point,self.domain[1])).roots())
             )
 
+	def min(self):
+		"""
+		Returns the global minimum in the domain and 
+		its location for the chebfun
+		"""
+		# Finding the roots for f'(x):
+		try:
+			r = self.differentiate().roots()
+		except:
+			# Check if it's a linear function:
+			if(np.product((self.differentiate())(self.domain())) < 0):
+				x1, x2 = self.domain()
+				y1, y2 = ((self.differentiate())(self.domain()))
+				# Finding slope:
+				m = (y2 - y1) / (x2 - x1)
+				r = np.array([x1 - y1 / m])		
+			else:
+				# Initializing an empty array:
+				r = np.array([])
+
+		# Checking in the interior of the function:
+		# Initializing with an arbitrary high enough value
+		miny_int = 1e300
+		minx_int = 0
+
+		# Checking that the roots vector isn't empty:
+		if(r.size != 0):
+			minx_int = r[np.argmin(self(r))]
+			miny_int = self(np.array([minx_int]))[0]
+
+		# Checking on the boundaries:
+		minx_bound = (self.domain())[np.argmin(self(self.domain()))]
+		miny_bound = self(np.array([minx_bound]))[0]
+
+		# Finding minimum across boundary and interior:
+		imin = np.argmin([miny_int, miny_bound])
+		if(imin == 0):
+			return miny_int, minx_int
+		else:
+			return miny_bound, minx_bound
+
+	def max(self):
+		"""
+		Returns the global maximum in domain and 
+		its location for the chebfun
+		"""
+		# Finding the roots for f'(x):
+		try:
+			r = self.differentiate().roots()
+		except:
+			# Check if it's a linear function:
+			if(np.product((self.differentiate())(self.domain())) < 0):
+				x1, x2 = self.domain()
+				y1, y2 = ((self.differentiate())(self.domain()))
+				# Finding slope:
+				m = (y2 - y1) / (x2 - x1)
+				r = np.array([x1 - y1 / m])		
+			else:
+				# Initializing an empty array:
+				r = np.array([])
+
+		# Checking in the interior of the function:
+		# Initializing with an arbitrary low enough value
+		maxy_int = 1e300
+		maxx_int = 0
+
+		# Checking that the roots vector isn't empty:
+		if(r.size != 0):
+			maxx_int = r[np.argmax(self(r))]
+			maxy_int = self(np.array([maxx_int]))[0]
+
+		# Checking on the boundaries:
+		maxx_bound = (self.domain())[np.argmax(self(self.domain()))]
+		maxy_bound = self(np.array([maxx_bound]))[0]
+
+		# Finding maximum across boundary and interior:
+		imax = np.argmax([maxy_int, maxy_bound])
+		if(imax == 0):
+			return maxy_int, maxx_int
+		else:
+			return maxy_bound, maxx_bound
+
     # ----------------------------------------------------------------
     # Interpolation and evaluation (go from values to coefficients)
     # ----------------------------------------------------------------
