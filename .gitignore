@@ -5,3 +5,5 @@
 *.pyc
 build
 .aider*
+.python-version
+.uv-lock
