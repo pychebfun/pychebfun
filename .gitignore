@@ -7,3 +7,4 @@ build
 .aider*
 .python-version
 .uv-lock
+site
