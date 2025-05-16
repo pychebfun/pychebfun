@@ -10,13 +10,15 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.6.3"
+    # Ruff version.
+    rev: v0.11.10
     hooks:
-      - id: ruff
-        args: [--exit-non-zero-on-fix]
+      # Run the linter.
+      - id: ruff-check
+        types_or: [python, pyi]
+        args: [--fix]
+        files: ^src/
+      # Run the formatter.
       - id: ruff-format
-
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: "v3.0.3"
-    hooks:
-      - id: prettier
+        types_or: [python, pyi]
+        files: ^src/
