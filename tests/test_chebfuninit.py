@@ -1,14 +1,18 @@
+import unittest
+
+import numpy as np
 
 from pychebfun import Chebfun
 from pychebfun.chebfun_init import chebfun
+
 from . import tools
-import numpy as np
-import unittest
+
 
 class Test_chebfuninit(unittest.TestCase):
     """
     Test that the initialisation function chebfun works as expected.
     """
+
     def test_from_function(self):
         cr = chebfun(tools.f)
         ce = Chebfun.from_function(tools.f)
@@ -41,7 +45,9 @@ class Test_chebfuninit(unittest.TestCase):
         """
         Error if chebfun is called with another type.
         """
-        class C(object):
+
+        class C:
             pass
+
         with self.assertRaises(TypeError):
             chebfun(C())

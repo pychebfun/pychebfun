@@ -1,13 +1,21 @@
 from typing import Callable, Optional
+
+import numpy as np
+
 from .chebfun import Chebfun
 from .polyfun import Polyfun
-import numpy as np
 
 # ----------------------------------------------------------------
 # Constructor inspired by the Matlab version
 # ----------------------------------------------------------------
 
-def chebfun(f: Optional[Callable]=None, domain: tuple=(-1,1), N: Optional[int]=None, chebcoeff:  Optional[np.ndarray]=None,):
+
+def chebfun(
+    f: Optional[Callable] = None,
+    domain: tuple = (-1, 1),
+    N: Optional[int] = None,
+    chebcoeff: Optional[np.ndarray] = None,
+):
     """
     Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1, 1]`.
 
@@ -25,7 +33,7 @@ def chebfun(f: Optional[Callable]=None, domain: tuple=(-1,1), N: Optional[int]=N
         return Chebfun.from_fun(f)
 
     # callable
-    if hasattr(f, '__call__'):
+    if callable(f):
         return Chebfun.from_function(f, domain, N)
 
     # from here on, assume that f is None, or iterable
@@ -33,10 +41,10 @@ def chebfun(f: Optional[Callable]=None, domain: tuple=(-1,1), N: Optional[int]=N
         f = [f]
 
     try:
-        iter(f) # interpolation values provided
+        iter(f)  # interpolation values provided
     except TypeError:
         pass
     else:
         return Chebfun(f, domain)
 
-    raise TypeError('Impossible to initialise the object from an object of type {}'.format(type(f)))
+    raise TypeError(f"Impossible to initialise the object from an object of type {type(f)}")

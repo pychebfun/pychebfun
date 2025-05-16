@@ -17,4 +17,3 @@ Go to the `pychebfun` directory and then run:
 ```sh
 uv run pytest
 ```
-
