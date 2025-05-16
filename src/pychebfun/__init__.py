@@ -9,7 +9,7 @@ See the webpage for more information and documentation:
 __version__ = "0.3"
 
 
-from .plotting import plot, compare
 from .chebfun import Chebfun
+from .plotting import compare, plot
 
-__all__ = ['plot', 'compare', 'Chebfun']
+__all__ = ["Chebfun", "compare", "plot"]
