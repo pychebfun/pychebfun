@@ -47,4 +47,4 @@ def chebfun(
     else:
         return Chebfun(f, domain)
 
-    raise TypeError(f"Impossible to initialise the object from an object of type {type(f)}")
+    raise TypeError(f"Impossible to initialise the object from an object of type {type(f)}")  # noqa: TRY003

@@ -15,7 +15,7 @@ import scipy.linalg as la
 from .chebfun import Chebfun
 
 
-def chebpolyplot(f, Nmax=100, normpts=1000, ord=2, points_only=False):
+def chebpolyplot(f, Nmax=100, normpts=1000, ord=2, points_only=False):  # noqa: A002
     """
     Plots the number of Chebyshev points vs. norm accuracy of the
     chebfun interpolant.
@@ -110,7 +110,7 @@ def plot_data(poly, resolution):
         yf = np.imag
         d = 2
     else:
-        raise ValueError("Too many dimensions to plot")
+        raise ValueError("Too many dimensions to plot")  # noqa: TRY003
     if d == 2:
         xs, ys = xf(values), yf(values)
         xi, yi = xf(poly.values), yf(poly.values)
@@ -161,9 +161,9 @@ def compare(poly, f, *args, **kwds):
     fig = plt.figure()
     ax = fig.add_subplot(211)
 
-    ax.plot(x, f(x), "#dddddd", linewidth=10, label="Actual", *args, **kwds)
+    ax.plot(x, f(x), "#dddddd", linewidth=10, label="Actual", *args, **kwds)  # noqa: B026
     label = f"Interpolant (d={poly.size()})"
-    plot(poly, color="red", label=label, *args, **kwds)
+    plot(poly, color="red", label=label, *args, **kwds)  # noqa: B026
     ax.legend(loc="best")
 
     ax = fig.add_subplot(212)

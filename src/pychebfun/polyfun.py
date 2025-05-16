@@ -220,18 +220,21 @@ class Polyfun:
         a, b = self.domain
         vals = self.values
         return (
-            "%s \n "
-            "    domain        length     endpoint values\n "
-            " [%5.1f, %5.1f]     %5d       %5.2f   %5.2f\n "
-            "vscale = %1.2e"
-        ) % (
-            str(type(self)).split(".")[-1].split(">")[0][:-1],
-            a,
-            b,
-            self.size(),
-            vals[-1],
-            vals[0],
-            self._vscale,
+            (
+                "%s \n "  # noqa: UP031
+                "    domain        length     endpoint values\n "
+                " [%5.1f, %5.1f]     %5d       %5.2f   %5.2f\n "
+                "vscale = %1.2e"
+            )
+            % (
+                str(type(self)).split(".")[-1].split(">")[0][:-1],
+                a,
+                b,
+                self.size(),
+                vals[-1],
+                vals[0],
+                self._vscale,
+            )
         )
 
     def __str__(self) -> str:
@@ -382,7 +385,7 @@ class Polyfun:
         Return a Polyfun that matches self on subinterval.
         """
         if (subinterval[0] < self.domain[0]) or (subinterval[1] > self.domain[1]):
-            raise ValueError("Can only restrict to subinterval")
+            raise ValueError("Can only restrict to subinterval")  # noqa: TRY003
         return self.from_function(self, subinterval)
 
     # ----------------------------------------------------------------
